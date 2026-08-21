@@ -99,14 +99,33 @@ parameter update necessary? R4 gain from more branches/tokens? R5 does the
 credit-quality metric predict prequential gain? R6 hidden-evaluator leakage?
 R7 how-is-this-not-X for any near-miss), decision logs (6 files).
 
-## Compute (jindun shared — no autodl1)
+## Compute (autodl2 — SHARED with GRPO-Guard; server decided 2026-08-22)
 
-- Primary: jindun 8×A800 (shared; SIMFormer etc. first; two-gate GPU check before
-  every launch; never fight for GPU; wait when none free).
+- **Server: `ssh autodl2`** — 2×RTX 6000D 84GB, 1TB RAM, /root/autodl-tmp 1TB
+  (already expanded), CUDA 12.8 (PyTorch 2.8.0 image, python 3.12 ubuntu22.04),
+  ~10.75 元/h for the 2-GPU instance. No autodl1 (released), no jindun.
+- **SHARED-CARD LAYOUT (locked)**:
+  - GPU0 → GRPO-Guard trainer (4B ZeRO-3, ~30GB)
+  - GPU1 → GRPO-Guard rollout vLLM (~16GB) **+ agent-ttrl LoRA training
+    (~25-35GB, `nice` low priority)** — 84GB card has headroom; TTRL never
+    starves Guard's rollout
+  - Agent-RL-Credit-Auditor → CPU cores (0 GPU)
+- **SHARED-CARD RULES (multi-project, non-negotiable)**:
+  1. Guard's canary calibration windows are exclusive — TTRL PAUSES during
+     Guard canary runs (fixed environment required for drift calibration);
+  2. TTRL processes run at low priority (`nice -n 10+`) and bounded concurrency;
+  3. τ²/AppWorld Docker phase is staggered — runs when Guard is idle or after
+     Guard's main gates; watch RAM (1TB is ample, but keep both projects' heavy
+     phases from colliding);
+  4. Both projects' run manifests record "parallel-with-GRPO-Guard/agent-ttrl"
+     and the observed GPU util during the run (transparency for timing/overhead
+     evidence);
+  5. Checkpoint everything to /root/autodl-tmp; resume-from-checkpoint default;
+     save progress before any sacrifice.
 - Local RTX 5060 8GB for M0/CPU protocol work (schemas, fixtures, baseline
-  registry, overlap reports).
-- Budget: per design doc (M0 before GPU; controlled milestones; checkpoint-resume
-  default; results rsync + git continuously; GitHub repo TBD).
+  registry, overlap reports) — do M0 locally BEFORE renting GPU time.
+- Budget: per design doc (M0 before GPU; controlled milestones; results rsync +
+  git continuously; GitHub repo TBD).
 
 ## Timeline
 
