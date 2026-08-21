@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-ttrl.local/schemas/gate_manifest.schema.json",
+  "title": "GateManifest",
+  "description": "Readable only by the independent Gate service. Exposes opaque capability handles, never per-task prompts/labels/scores (design doc §8.2).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "candidate_stream_id", "opaque_sentinel_capability",
+    "opaque_anchor_capability", "max_candidates", "max_exposure_per_item",
+    "n_gain", "n_anchor", "alpha_total", "protocol_sha256"
+  ],
+  "properties": {
+    "schema_version": { "const": "agent-ttrl.gate-manifest.v1" },
+    "candidate_stream_id": { "type": "string", "minLength": 1 },
+    "opaque_sentinel_capability": { "type": "string", "minLength": 1 },
+    "opaque_anchor_capability": { "type": "string", "minLength": 1 },
+    "max_candidates": { "type": "integer", "minimum": 1 },
+    "max_exposure_per_item": { "const": 1 },
+    "n_gain": { "type": "integer", "minimum": 1 },
+    "n_anchor": { "type": "integer", "minimum": 1 },
+    "alpha_total": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+    "protocol_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

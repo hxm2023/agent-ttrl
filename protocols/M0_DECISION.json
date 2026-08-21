@@ -1,0 +1,29 @@
+{
+  "milestone": "M0",
+  "date": "2026-08-22",
+  "decision": "PARTIAL_PASS",
+  "execution_status": "COMPLETED",
+  "audit_status": "VALID",
+  "done": [
+    "repo scaffold (src/agent_ttrl modules, configs, protocols, tests)",
+    "6 contract JSON Schemas (Draft 2020-12, additionalProperties=false, strict hash patterns) with 39 positive/negative fixture tests",
+    "ControlledToolShift world (10 tools, 5 shift families, delayed effects, poison receipts, duplicate detection)",
+    "CTS hidden oracle + accessible evidence producers + conflict detection",
+    "paired-branch credit math (group-relative signed credit + t-interval reliability gate)",
+    "CTS-F01..F12 golden pack + three-action hand fixture; golden acceptance green (57 tests pass)",
+    "M0_IMPLEMENTATION_PROFILE.yaml template",
+    "baseline_registry.yaml scaffold"
+  ],
+  "pending": [
+    "resolve REQUIRED_* revisions (model SHAs, appworld/tau2 git commits + data manifests, GRPO-Guard release pin)",
+    "AppWorld + tau2 role manifests and overlap report (requires pinned releases; blocked on repo availability)",
+    "uv.lock / dependency freeze",
+    "GRPO-Guard correctness Gate coordination (external dependency; blocks M3+, not M0)",
+    "power analysis / SESOI freeze (calibration variance required)"
+  ],
+  "gate": {
+    "m0_minus_gpu": true,
+    "next_blocker": "GRPO-Guard correctness Gate before formal result experiments (red line 5)"
+  },
+  "notes": "M0=PARTIAL_PASS is recorded as valid; remaining items are revision-pinning and external dependencies, not method validity. R001-R003 order per design doc §26."
+}

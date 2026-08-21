@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-ttrl.local/schemas/candidate_adapter_decision.schema.json",
+  "title": "CandidateAdapterDecision",
+  "description": "Commit/rollback/quarantine verdict for one candidate adapter. COMMIT requires Guard ALLOW + gate bounds + fencing epoch + commit event; other branches must NOT carry an authoritative commit (design doc §7.8/§16.2).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "candidate_id", "parent_adapter_ref", "candidate_adapter_sha256",
+    "update_input_event_ref", "shadow_protocol_sha256", "gain_bound", "risk_bound",
+    "guard_decision_ref", "decision", "reason_codes"
+  ],
+  "properties": {
+    "schema_version": { "const": "agent-ttrl.candidate-adapter-decision.v1" },
+    "candidate_id": { "type": "string", "minLength": 1 },
+    "parent_adapter_ref": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "candidate_adapter_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "update_input_event_ref": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "shadow_protocol_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "gain_bound": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lower", "upper", "alpha", "n"],
+      "properties": {
+        "lower": { "type": "number" },
+        "upper": { "type": "number" },
+        "alpha": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+        "n": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "risk_bound": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lower", "upper", "alpha", "n"],
+      "properties": {
+        "lower": { "type": "number" },
+        "upper": { "type": "number" },
+        "alpha": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+        "n": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "guard_decision_ref": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "decision": { "enum": ["COMMIT", "ROLLBACK", "QUARANTINE"] },
+    "reason_codes": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "fencing_epoch": { "type": "integer", "minimum": 0 },
+    "commit_event_ref": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "decision": { "const": "COMMIT" } }, "required": ["decision"] },
+      "then": {
+        "required": ["fencing_epoch", "commit_event_ref"],
+        "properties": {
+          "guard_decision_ref": { "pattern": "^[0-9a-f]{64}$" }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "decision": { "enum": ["ROLLBACK", "QUARANTINE"] } },
+        "required": ["decision"]
+      },
+      "then": { "not": { "required": ["commit_event_ref"] } }
+    }
+  ]
+}

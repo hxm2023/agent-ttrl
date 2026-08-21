@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-ttrl.local/schemas/evidence_bundle.schema.json",
+  "title": "EvidenceBundle",
+  "description": "Accessible evidence for one trajectory/branch. hidden_evaluator_ref must be JSON null (design doc §16.2).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "trajectory_envelope_ref", "environment_state_before_sha256",
+    "environment_state_after_sha256", "hard_evidence", "soft_evidence",
+    "hidden_evaluator_ref", "calibration_profile_sha256", "missingness", "cost_ledger_ref"
+  ],
+  "properties": {
+    "schema_version": { "const": "agent-ttrl.evidence.v1" },
+    "trajectory_envelope_ref": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "environment_state_before_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "environment_state_after_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "hard_evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["producer", "value", "unit", "allowed_in_gradient"],
+        "properties": {
+          "producer": { "type": "string", "minLength": 1 },
+          "value": { "type": ["string", "number", "boolean"] },
+          "unit": { "type": ["string", "null"] },
+          "allowed_in_gradient": { "type": "boolean" }
+        }
+      }
+    },
+    "soft_evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["producer", "score", "calibration_version", "allowed_in_gradient"],
+        "properties": {
+          "producer": { "type": "string", "minLength": 1 },
+          "score": { "type": "number", "minimum": 0, "maximum": 1 },
+          "calibration_version": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "allowed_in_gradient": { "type": "boolean" }
+        }
+      }
+    },
+    "hidden_evaluator_ref": { "type": "null" },
+    "calibration_profile_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "missingness": {
+      "type": "object",
+      "additionalProperties": {
+        "enum": ["present", "missing", "timeout", "invalid"]
+      }
+    },
+    "cost_ledger_ref": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

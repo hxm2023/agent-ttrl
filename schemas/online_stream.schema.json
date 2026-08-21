@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-ttrl.local/schemas/online_stream.schema.json",
+  "title": "OnlineAdaptationManifest",
+  "description": "The ONLY manifest visible to the online adaptation process. Sentinel/audit/holdout fields must NOT exist in this schema (capability scoping, design doc §8.2).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "stream_id", "domain_id", "seed", "reset_scope",
+    "adaptation_refs", "split_hash", "allowed_signal_classes", "forbidden_signal_classes"
+  ],
+  "properties": {
+    "schema_version": { "const": "agent-ttrl.online-stream.v1" },
+    "stream_id": { "type": "string", "minLength": 1 },
+    "domain_id": { "type": "string", "minLength": 1 },
+    "seed": { "type": "integer", "minimum": 0 },
+    "reset_scope": { "const": "domain_seed" },
+    "adaptation_refs": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+      "minItems": 1
+    },
+    "split_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "allowed_signal_classes": {
+      "type": "array",
+      "items": { "enum": ["hard_evidence", "calibrated_soft_evidence"] },
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "forbidden_signal_classes": {
+      "type": "array",
+      "items": { "const": "hidden_outcome" },
+      "minItems": 1
+    }
+  }
+}

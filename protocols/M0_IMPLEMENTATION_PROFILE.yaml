@@ -1,0 +1,51 @@
+# M0 Implementation Profile (template, design doc §17.2)
+# REQUIRED_* fields are explicit M0 work items: resolve to full SHAs before M1.
+# The profile validator must exit non-zero on any REQUIRED_ / floating revision.
+
+profile_date: "2026-08-22"
+profile_status: TEMPLATE            # TEMPLATE -> FROZEN at M0 completion
+
+python: "3.11.11"
+pytorch: "2.7.1+cu126"
+cuda_runtime: "12.6"
+driver: REQUIRED_CUDA_DRIVER_VERSION
+transformers: "4.53.2"
+peft: "0.16.0"
+rl_backend: agent_ttrl.native_clipped_v1   # NOT TRL/verl as semantic owner
+vllm: "0.10.0"
+flash_attn: disabled_for_v0.1
+
+primary_model:
+  id: Qwen/Qwen3-4B-Instruct-2507
+  revision: REQUIRED_FULL_SHA
+second_model:
+  id: mistralai/Mistral-7B-Instruct-v0.3
+  revision: REQUIRED_FULL_SHA
+
+appworld:
+  git_commit: REQUIRED_FULL_SHA
+  data_manifest_sha256: REQUIRED_SHA256
+  role_mapping: {train: dev, dev: calibration, test_normal: "adaptation:sentinel:audit=70:15:15", test_challenge: sealed_future_holdout}
+
+tau2:
+  git_commit: REQUIRED_FULL_SHA
+  selected_domains: [retail, telecom]
+  split_manifest_sha256: REQUIRED_SHA256
+  role_mapping: {dev: 0.20, calibration: 0.15, adaptation: 0.30, sentinel: 0.10, candidate_audit: 0.10, future: 0.15}
+
+grpo_guard:
+  release: REQUIRED_SEMVER_AT_LEAST_0_1
+  schema_root_sha256: REQUIRED_SHA256
+  note: "Formal result experiments MUST NOT start until Guard correctness Gate passes (red line 5)."
+
+baseline_registry: protocols/baseline_registry.yaml
+
+cts:
+  fixtures: [CTS-F01 .. CTS-F12]     # golden acceptance PASSED 2026-08-22 (57 tests green)
+  branch_defaults: {G: 4, R: 4, B_decision: 1, eta_credit: 0.02, a_max: 5.0}
+
+statistics:
+  primary_endpoints: [AUPC_prequential, catastrophic_update_rate]
+  seeds: ">=5 after blinded power analysis (frozen once)"
+  alpha: 0.01
+  bootstrap: paired_hierarchical

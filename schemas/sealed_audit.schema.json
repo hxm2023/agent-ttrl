@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-ttrl.local/schemas/sealed_audit.schema.json",
+  "title": "SealedAuditManifest",
+  "description": "Held by an independent OS user/container/credential. candidate_audit and future_holdout never touch training/Gate processes (design doc §8.2).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "opaque_candidate_audit_capability", "opaque_future_holdout_capability",
+    "unlock_condition", "recipient_public_key"
+  ],
+  "properties": {
+    "schema_version": { "const": "agent-ttrl.sealed-audit.v1" },
+    "opaque_candidate_audit_capability": { "type": "string", "minLength": 1 },
+    "opaque_future_holdout_capability": { "type": "string", "minLength": 1 },
+    "unlock_condition": { "const": "FINAL_ADAPTER_AND_RUN_MANIFEST_SEALED" },
+    "recipient_public_key": { "type": "string", "minLength": 16 }
+  }
+}

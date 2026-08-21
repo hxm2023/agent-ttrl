@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-ttrl.local/schemas/update_row.schema.json",
+  "title": "UpdateRow",
+  "description": "One training row for action-token LoRA-GRPO. Must reference producer token IDs/mask/old-logprob artifacts; raw-text fallback forbidden (design doc §7.4/§16.2).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "row_id", "state_prefix_tokens_ref", "action_tokens_ref",
+    "action_loss_mask_ref", "behavior_logprobs_ref", "advantage",
+    "decision_state_ref", "branch_group_ref", "policy_identity",
+    "evidence_and_cost_refs", "local_gate_kind", "gate_passed"
+  ],
+  "properties": {
+    "schema_version": { "const": "agent-ttrl.update-row.v1" },
+    "row_id": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "state_prefix_tokens_ref": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "action_tokens_ref": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "action_loss_mask_ref": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "behavior_logprobs_ref": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "advantage": {
+      "type": "number",
+      "description": "Signed shaped advantage A_i for the candidate action tokens only.",
+      "minimum": -10,
+      "maximum": 10
+    },
+    "decision_state_ref": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "branch_group_ref": { "type": "string", "minLength": 1 },
+    "policy_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["base_sha256", "adapter_sha256", "policy_version"],
+      "properties": {
+        "base_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "adapter_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "policy_version": { "type": "string", "minLength": 1 }
+      }
+    },
+    "evidence_and_cost_refs": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+      "minItems": 1
+    },
+    "local_gate_kind": { "enum": ["reliability_t", "evidence_conflict"] },
+    "gate_passed": { "type": "boolean" }
+  }
+}

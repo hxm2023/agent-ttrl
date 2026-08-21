@@ -1,0 +1,94 @@
+# Baseline registry (design doc §17.2, BASELINE_SELECTION.md)
+# Contract: pin official commit or faithful reimplementation hash; a work without
+# usable code gets a signed NOT_COMPARABLE_REPORT, never silent omission.
+# REQUIRED_* are M0 work items (resolve before M2 baseline reproduction).
+
+version: 1
+date: "2026-08-22"
+status: SCAFFOLD
+
+family_a_inference_context:
+  frozen_react: {kind: standard, commit: n/a}
+  best_of_n: {kind: standard, commit: n/a}
+  reflexion: {kind: standard, commit: n/a}
+  ace:
+    paper: "arXiv 2510.04618"
+    official: github.com/ace-agent/ace
+    commit: REQUIRED_COMMIT
+    adapter_notes: "AppWorld-tuned playbook evolution; strongest context-level baseline"
+
+family_b_agent_tta:
+  gtta:
+    paper: "arXiv 2511.04847 (ICLR 2026)"
+    official: github.com/r2llab/GTTA
+    commit: REQUIRED_COMMIT
+    adapter_notes: "Syntactic Alignment + Dynamics Grounding; WebArena 2->23%"
+  olivia:
+    paper: "arXiv 2605.11169"
+    official: null
+    commit: REQUIRED_COMMIT_OR_FAITHFUL_REIMPLEMENTATION_HASH
+  memopilot:
+    paper: "arXiv 2606.08656 (ICML 2026)"
+    official: null
+    commit: REQUIRED_COMMIT_OR_NOT_COMPARABLE_REPORT
+  leafe:
+    paper: "arXiv 2603.16843 (ICML 2026)"
+    official: null
+    commit: REQUIRED_COMMIT_OR_FAITHFUL_REIMPLEMENTATION_HASH
+  causalflow:
+    paper: "arXiv 2605.25338"
+    official: null
+    commit: REQUIRED_COMMIT_OR_FAITHFUL_REIMPLEMENTATION_HASH
+    notes: "C1 matched control: same branch data -> repaired demo/preference supervision"
+  jitrl:
+    paper: "arXiv 2601.18510"
+    official: github.com/liushiliushi/JitRL
+    commit: REQUIRED_COMMIT
+    notes: "training-free test-time RL; SOTA training-free on WebArena/Jericho"
+  attt:
+    paper: "arXiv 2607.03441"
+    official: null
+    commit: REQUIRED_COMMIT_OR_FAITHFUL_REIMPLEMENTATION_HASH
+    notes: "in-episode LoRA TTT (self-supervised); isolates RL-vs-TTT"
+  session_sft_positive_traces: {kind: standard, commit: n/a}
+
+family_c_test_time_rl:
+  naive_lora_grpo: {kind: standard, commit: n/a}
+  ttrl_majority:
+    paper: "arXiv 2504.16084"
+    official: github.com/PRIME-RL/TTRL
+    commit: REQUIRED_COMMIT
+  t3rl_weighted:
+    paper: "arXiv 2603.02203"
+    official: null
+    commit: REQUIRED_COMMIT_OR_FAITHFUL_REIMPLEMENTATION_HASH
+  staror:
+    paper: "arXiv 2606.15197"
+    official: null
+    commit: REQUIRED_COMMIT_OR_FAITHFUL_REIMPLEMENTATION_HASH
+    notes: "per-instance test-time LoRA-GRPO matched control"
+  cvt_rl_adapted:
+    paper: "arXiv 2606.05263"
+    official: null
+    commit: REQUIRED_COMMIT_OR_FAITHFUL_REIMPLEMENTATION_HASH
+    notes: "C1 headline matched control (deployment-adapted, matched cost)"
+
+commit_gate_controls:
+  always_commit: {kind: standard, commit: n/a}
+  fixed_threshold: {kind: standard, commit: n/a}
+  pace_gate:
+    paper: "arXiv 2606.08106"
+    official: null
+    commit: REQUIRED_COMMIT_OR_FAITHFUL_REIMPLEMENTATION_HASH
+    notes: "anytime-valid e-process gate reimplemented on adapter candidates"
+  periodic_reset: {kind: standard, commit: n/a}
+  risk_only_no_learning: {kind: standard, commit: n/a}
+  always_rollback: {kind: standard, commit: n/a}
+  oracle_commit: {kind: dev_only_upper_bound, commit: n/a}
+
+upper_bounds_controls:
+  hidden_oracle_reward_update: {kind: dev_only, commit: n/a}
+  all_turn_exact_branch: {kind: mechanism_upper, commit: n/a}
+  random_labels_shuffled_evidence: {kind: negative_control, commit: n/a}
+  random_branch: {kind: negative_control, commit: n/a}
+  unpaired_continuation: {kind: negative_control, commit: n/a}
