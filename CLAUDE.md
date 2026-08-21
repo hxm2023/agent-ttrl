@@ -2,9 +2,9 @@
 
 **Goal**: Produce a top-venue paper on **Test-time RL / 推理时强化学习 for agents** —
 deployment-period parameter updates for stateful tool-using agents under partial
-evidence, with prequential evaluation. Target: ICML 2027 (primary) / ACL 2027 /
-NeurIPS 2027 (per the reference design; final venue chosen at Phase 3 from the
-paper's actual shape).
+evidence, with prequential evaluation. **VENUE POLICY: ACL 2027 (primary, user
+decision 2026-08-22)**; fallback NeurIPS 2027 / ICML 2027. Target the ACL-style
+language-agent + evaluation framing; venue confirmed at Phase 3 by paper shape.
 
 **AUTHORITATIVE REFERENCE (design input, NOT gospel)**: `Agent-TTRL_顶会导向详细项目设计方案.md`
 (project root, frozen 2026-08-22) — a complete research design for **EGC-TTRL**
@@ -116,9 +116,9 @@ R7 how-is-this-not-X for any near-miss), decision logs (6 files).
 - Phase 2: M0 (CPU) → Guard correctness gate → ControlledToolShift sandbox →
   baseline reproduction → single-mechanism experiments → AppWorld/τ² → second
   model family + full stats (design doc execution order)
-- Phase 3-4: writing (venue by paper shape) + review gates
-- Venue window: ICML 2027 (~Jan deadline) / ACL 2027 (~Feb) — ample if Phase 0-1
-  is thorough; NeurIPS 2027 fallback.
+- Phase 3-4: writing (ACL 2027 framing) + review gates
+- Venue window: ACL 2027 (primary; ~Feb deadline) — ample if Phase 0-1 is
+  thorough; NeurIPS 2027 / ICML 2027 fallback.
 
 ## Compliance & Ownership
 
