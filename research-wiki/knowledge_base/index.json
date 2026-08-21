@@ -1,0 +1,40 @@
+{
+  "domain_files": [
+    "domain_overview.md",
+    "metrics_and_baselines.md",
+    "field_conventions.md"
+  ],
+  "papers": [
+    "ace_2510.04618",
+    "amplification_ttrl_2603.15417",
+    "appo_2606.12384",
+    "att_timetraining_2607.03441",
+    "bipace_2606.25556",
+    "causalflow_2605.25338",
+    "counterfactual_shapley_2607.16999",
+    "craft_2606.29476",
+    "cvt_rl_2606.05263",
+    "dare_2601.21804",
+    "evoharness_rl_2608.05446",
+    "evotest_2510.13220",
+    "gtta_2511.04847",
+    "jitrl_2601.18510",
+    "leaf_e_2603.16843",
+    "memopilot_2606.08656",
+    "olivia_2605.11169",
+    "pace_2606.08106",
+    "prove_synthreward_2606.03892",
+    "seal_2506.10943",
+    "sea_eval_2604.08988",
+    "shepherd_treerl_2605.10913",
+    "slattt_2608.17034",
+    "stable_2510.16089",
+    "staror_2606.15197",
+    "t3rl_toolverif_2603.02203",
+    "tmem_2606.04536",
+    "ttrl_2025_2504.16084",
+    "ttt_safety_2605.22984",
+    "vag_precommit_2608.05810"
+  ],
+  "total_papers": 30
+}
