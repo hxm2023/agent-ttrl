@@ -120,3 +120,20 @@ Milestones per design doc §20.0 (M0-M7 registry is fixed; M2/M3 must not be red
   (server GPU0 / trainer GPU1) recorded in run manifests.
 - **Falsification note**: egc AUPC=0.0 at 128 tokens was a pipeline artifact, NOT a
   mechanism result; the 256-token rerun (deploy5) is the decision-pilot evidence.
+
+## D12 — M3 pilot result: no prequential gain on CTS stream (2026-08-23)
+- Result (3 seeds, fair 256-token budget, 4-step updates): frozen AUPC=0.625 (2s),
+  naive=0.5 (3s, 8/8 updates), egc=egc_conflict=random_branch=0.5 (3s, ~1/8 branch
+  updates due to model branch-generation quality). Updates did NOT improve
+  prequential first-attempt success on this CTS stream; naive's real updates
+  slightly reduced it (task-5 dip on a poisoned task).
+- Interpretation (honest, pilot-level): (a) initial success 0.625 leaves little
+  headroom; (b) 8-task stream too short for cumulative learning; (c) 4-step LoRA
+  updates at lr 5e-6 produce small behavior drift (logit drift ~0.57 on updated
+  tasks); (d) branch protocol depends on model-generated action quality — R003's
+  fixed action group is the reliable form.
+- Decision: DO NOT escalate CTS-only mechanism claims. Next: M2 baselines
+  (BoN/reflexion/hard-verifier) for the baseline table; AppWorld adaptation
+  (harder tasks, lower initial success → real headroom) for the main C1 contrast.
+- Falsification: if AppWorld/tau2 also show updates ≤ frozen, C1 fails per
+  design doc §5.5 ("future-holdout 无提升") → portfolio/engineering version.
