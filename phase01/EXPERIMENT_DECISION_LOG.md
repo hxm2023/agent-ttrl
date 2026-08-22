@@ -41,13 +41,23 @@ Milestones per design doc §20.0 (M0-M7 registry is fixed; M2/M3 must not be red
 - Falsification: if (b) wins, it becomes the local gate (it is a one-line change to α_i);
   if (a) wins, B is retired to diagnostic.
 
-## D6 — Global-gate variants (M2 from PACE)
+## D6 — Global-gate variants (M2 from PACE) — RESOLVED 2026-08-22 by coverage simulator
 - Decision: coverage simulator on (a) fixed-n Hoeffding + α_k allocation (design doc §7.8)
-  vs (b) testing-by-betting e-process (PACE-style) under repeated candidate decisions;
-  winner frozen pre-lock; the other reported as variant. Primary C2 claims hold whichever
-  wins; commit-rate non-degeneracy [0.10, 0.90] + catastrophic-rate relative −30% vs
-  always-commit are binding (§5.6).
-- Falsification: if both fail coverage → C2 downgraded to empirical risk study (design doc
+  vs (b) testing-by-betting e-process (PACE-style) vs (c) empirical-Bernstein e-process
+  under repeated candidate decisions; winner frozen pre-lock; the others reported as
+  variants. Primary C2 claims hold whichever wins; commit-rate non-degeneracy [0.10, 0.90]
+  + catastrophic-rate relative −30% vs always-commit are binding (§5.6).
+- **Simulator verdict (162 configs swept; protocols/sweep_coverage_results.json)**:
+  fixed-n Hoeffding passed NO operating point (worst-case radius cannot detect realistic
+  gains → C2 would degenerate to always-rollback). **Empirical-Bernstein e-process at
+  α_total=0.05, ε_gain=0.01, ε_harm=0.10, n=512 is FROZEN as v0.1 primary**: null family-wise
+  false-commit 0.000 ≤ 0.05, SESOI(0.08) power 0.111 ≥ 0.10 floor, strong(0.15) power 0.646,
+  poisoned 0.000 < sesoi. α_total=0.10/0.20 variants recorded as sensitivity; the design
+  doc's §7.8 allows this: "更高功效的 empirical-Bernstein/mixture confidence sequence
+  只能在 coverage simulator 通过后作为下一冻结版本". n=64 default replaced (any gate
+  needs n≈512 at these α budgets); shadow n enters B_env caps like all shadow work.
+- Falsification: if both e-process variants fail coverage on the real (non-synthetic)
+  sentinel distributions at pilot → C2 downgraded to empirical risk study (design doc
   §7.9), public-env C2 claims dropped.
 
 ## D7 — Environments (design doc §9)
