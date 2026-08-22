@@ -37,7 +37,7 @@ REPO_DIR = Path(os.environ.get("GRPO_GUARD_REPO", "/root/autodl-tmp/grpo-guard-s
 ATTRL_DIR = Path(os.environ.get("ATTRL_DIR", "/root/autodl-tmp/agent-ttrl"))
 sys.path.insert(0, str(ATTRL_DIR / "src"))
 
-MAX_COMPLETION = 128
+MAX_COMPLETION = 256
 N_GENS = 4
 N_TASKS = 8
 POISON_TASKS = {2, 5}
@@ -77,7 +77,7 @@ BRANCH_PROMPT = """You are an order assistant. Available tools (JSON list of {{"
 - cancel_order {{order_id}}
 - complete_task {{}}
 State: order {order} for item {sku} is CREATED but NOT paid. User {user} (address {addr}) waits.
-Complete the order. Return ONLY the JSON list of tool calls."""
+Output ONLY a JSON array of tool calls that completes the order. No prose, no explanation."""
 
 VARIANT = "naive"
 TRAINER_GPU = 0
@@ -94,7 +94,8 @@ def parse_tool_calls(text: str) -> list[dict]:
         return []
     try:
         calls = json.loads(m.group(0))
-        return [c for c in calls if isinstance(c, dict) and "tool" in c] if isinstance(calls, list) else []
+        return [c for c in calls if isinstance(c, dict) and isinstance(c.get("tool"), str)
+                and isinstance(c.get("call"), dict)] if isinstance(calls, list) else []
     except Exception:
         return []
 
@@ -107,13 +108,66 @@ def make_world(spec: dict):
                       permission_scope=["payment", "shipping"])
 
 
-def run_episode_goal(state, calls, config, spec: dict, poison: bool) -> tuple[float, dict]:
+def run_episode_goal_branch(state, action, continuation, config, spec: dict, poison: bool) -> tuple[float, dict]:
+    """Branch execution (R003 protocol): build decision state -> apply the
+    decision action -> run the FIXED continuation (same for every branch)."""
     from agent_ttrl.environments.cts_evidence import AccessibleEvidence, conflict_flags, evidence_utility
     from agent_ttrl.environments.cts_oracle import GoalSpec, hidden_score
     from agent_ttrl.environments.cts_world import advance_turn, transition
 
     errors = []
     receipts = []
+    for tool, call in [("reserve_item", {"item_key": spec["sku"], "order_id": spec["order"]}),
+                       ("create_order", {"order_id": spec["order"]})]:
+        st2, rc = transition(state, tool, call, config)
+        receipts.extend(rc)
+        state = st2
+        state = advance_turn(state)
+    if poison:
+        receipts.append({"type": "status_receipt", "order_id": spec["order"], "status": "PAID"})
+    if action is not None:
+        try:
+            st2, rc = transition(state, action["tool"], action["call"], config)
+            receipts.extend(rc)
+            state = st2
+            state = advance_turn(state)
+        except ValueError as e:
+            errors.append(str(e))
+    else:
+        errors.append("NO_DECISION_ACTION")
+    for tool, call in continuation:
+        try:
+            st2, rc = transition(state, tool, call, config)
+            receipts.extend(rc)
+            state = st2
+            state = advance_turn(state)
+        except ValueError as e:
+            errors.append(str(e))
+    goal = GoalSpec(user_id=spec["user"], want_item=spec["sku"], want_address=spec["addr"])
+    bundle = AccessibleEvidence(state, goal).collect(tool_receipts=receipts)
+    return evidence_utility(bundle, goal), {
+        "hidden": hidden_score(state, goal).success, "errors": errors[:4],
+        "state_sha": state.sha256(), "conflicts": conflict_flags(bundle)}
+
+
+def run_episode_goal(state, calls, config, spec: dict, poison: bool,
+                     decision_state: bool = False) -> tuple[float, dict]:
+    """Execute tool calls. decision_state=True builds the BRANCH decision state
+    first (order created, NOT paid — matches BRANCH_PROMPT's claim); otherwise
+    the episode starts from the empty world (first attempt)."""
+    from agent_ttrl.environments.cts_evidence import AccessibleEvidence, conflict_flags, evidence_utility
+    from agent_ttrl.environments.cts_oracle import GoalSpec, hidden_score
+    from agent_ttrl.environments.cts_world import advance_turn, transition
+
+    errors = []
+    receipts = []
+    if decision_state:
+        for tool, call in [("reserve_item", {"item_key": spec["sku"], "order_id": spec["order"]}),
+                           ("create_order", {"order_id": spec["order"]})]:
+            st2, rc = transition(state, tool, call, config)
+            receipts.extend(rc)
+            state = st2
+            state = advance_turn(state)
     if poison:
         receipts.append({"type": "status_receipt", "order_id": spec["order"], "status": "PAID"})
     for call in calls:
@@ -229,6 +283,15 @@ def native_grpo_step(model, optimizer, tokenizer, sequences: list[dict], advanta
     return {"loss": float(total.item()), "tokens": n_tokens}
 
 
+def native_grpo_steps(model, optimizer, tokenizer, sequences, advantages, prompt_ids, steps=4):
+    """profile update_steps_per_batch=4 (design doc §7.7): repeated steps on the
+    same materialized rows (on-policy single batch)."""
+    final = {"loss": 0.0, "tokens": 0}
+    for _ in range(steps):
+        final = native_grpo_step(model, optimizer, tokenizer, sequences, advantages, prompt_ids)
+    return final
+
+
 def main() -> int:
     global VARIANT
     ap = argparse.ArgumentParser()
@@ -304,20 +367,30 @@ def main() -> int:
                 utils = np.array([g["u"] for g in gens])
                 adv = (utils - utils.mean()) / (utils.std() + 1e-3)
             else:  # egc / egc_conflict / random_branch
-                # G=4 actions x R=2 CRN continuation seeds (reliability gate needs R>=2)
-                branch_prompt = BRANCH_PROMPT.format(**spec)
+                # Branch protocol (R003-validated): from the decision state, the
+                # model generates candidate trajectories; the FIRST parsed tool
+                # call is the decision action; the SAME fixed continuation runs
+                # for every branch (CRN coupling, design doc §7.3). U comes from
+                # deterministic CTS execution; training tokens come from the
+                # model's own generation (service log-probs).
                 G, R = 4, 2
+                continuation = [("ship", {"order_id": spec["order"], "user_id": spec["user"], "address": spec["addr"]}),
+                                ("complete_task", {})]
                 U = np.zeros((G, R))
                 gens = []
                 for g in range(G):
                     for r in range(R):
-                        res_g = client.generate([branch_prompt], n=1, temperature=1.0, top_p=1.0,
-                                                top_k=0, max_tokens=MAX_COMPLETION, logprobs=0)
+                        res_g = client.generate([BRANCH_PROMPT.format(**spec)], n=1, temperature=1.0,
+                                                top_p=1.0, top_k=0, max_tokens=MAX_COMPLETION, logprobs=0)
                         p2, c2, lp2, _ = _unpack_gen(res_g)
                         t2 = tokenizer.decode(c2[0], skip_special_tokens=True)
-                        u2, info2 = run_episode_goal(make_world(spec), parse_tool_calls(t2), config, spec, poison)
+                        calls = parse_tool_calls(t2)
+                        action = calls[0] if calls else None
+                        u2, info2 = run_episode_goal_branch(make_world(spec), action, continuation,
+                                                            config, spec, poison)
                         U[g, r] = u2
-                        gens.append({"cid": c2[0], "text": t2, "u": u2, "conflicts": info2["conflicts"]})
+                        gens.append({"cid": c2[0], "text": t2, "u": u2,
+                                     "conflicts": info2["conflicts"]})
                 verdict = paired_credit(U)
                 if VARIANT == "egc_conflict":
                     conflicts = [c for g in gens for c in g["conflicts"]]
@@ -335,9 +408,23 @@ def main() -> int:
                     adv = np.array([r.credit for r in verdict.rows], dtype=np.float32)
                     gens = gens[:G]
 
-            metrics = native_grpo_step(model, optimizer, tokenizer, gens, list(adv), prompt_ids)
+            # behavior-change check: logit drift between pre/post update on the
+            # same prompt (proves the update actually changed the policy)
+            import torch as _T
+            probe = tokenizer(BASE_PROMPT.format(**spec), return_tensors="pt").input_ids.to(f"cuda:{TRAINER_GPU}")
+            model.eval()
+            with _T.no_grad():
+                logits_before = model(input_ids=probe).logits
+            metrics = native_grpo_steps(model, optimizer, tokenizer, gens, list(adv), prompt_ids, steps=4)
+            model.eval()
+            with _T.no_grad():
+                logits_after = model(input_ids=probe).logits
+            model.train()
+            logit_drift = float((logits_before - logits_after).abs().max().item())
+            token_drift = int((logits_before.argmax(-1) != logits_after.argmax(-1)).sum().item())
             stream_log.append({"task": t_idx, "y_pre": y_pre, "u_pre": round(u_pre, 3), "updated": True,
                                "loss": round(metrics["loss"], 5), "tokens": metrics["tokens"],
+                               "logit_drift": logit_drift, "token_drift": token_drift,
                                "adv": [round(float(a), 3) for a in adv]})
 
         import subprocess as _sp
