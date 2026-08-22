@@ -87,3 +87,20 @@ Milestones per design doc §20.0 (M0-M7 registry is fixed; M2/M3 must not be red
   jindun availability rules. Checkpoint to /root/autodl-tmp; resume-from-checkpoint default;
   results rsync + git continuously. Stop-loss: 60 GPUh correctness+baseline smoke; 250 GPUh
   C1 directionality; 600 GPUh matched-cost random/equal-extra control (design doc §19.3).
+
+## D10 — M1 execution (RESOLVED 2026-08-22, autodl2)
+- Decision: Guard v0.1.0 correctness Gate PASSED (d545888, contract 24/24, fault matrix
+  12/12) — red line 5 satisfied; profile pinned (release v0.1.0, schema root ba4c7d45).
+  M1 runs per §26 order: R001 (CTS frozen + oracle — DONE locally, 12 fixtures), R002
+  (naive LoRA-GRPO tiny overfit, real guarded update chain: identity ALLOW → reward →
+  pre-update ALLOW → materialize → grpo_loss → optimizer step → adapter commit +
+  adapter-level canary), R003 (paired branch credit: G=2 × R=4 CTS decision branches,
+  structured action spans via incremental token decode, ledger conservation).
+- Environment: autodl2 Guard venv (torch 2.11.0+cu130, trl 1.10.0, vllm 0.26.0, peft
+  0.20.0); Qwen3-4B @ 1cfa9a72; Guard source shipped to /root/autodl-tmp/grpo-guard-src.
+- Known limitation (recorded): trl vllm-serve has no --enable-lora; R002 proves runtime
+  sync at the ADAPTER level (artifact load + behavior change canary); vLLM server-side
+  LoRA serving is R003+ follow-up.
+- Falsification: R002 must show a committed optimizer step + adapter_sha256 in the
+  manifest with identity ALLOW on all envelopes; R003 must produce signs [+1,-1] with
+  conservation; any failure = M1 FAIL (fix chain, not results).

@@ -73,27 +73,50 @@ def parse_tool_calls(text: str) -> list[dict]:
         return []
 
 
+CONTINUATION = [("ship", {"order_id": "o1", "user_id": "u1", "address": "addr-1"}),
+                ("complete_task", {})]
+
+
 def execute_in_cts(calls: list[dict]) -> tuple[float, dict]:
+    """Sealed decision state (order o1 CREATED) -> decision action (FIRST model
+    call, prompt-constrained) -> SAME fixed continuation for both branches (CRN
+    coupling, design doc §7.3)."""
     from agent_ttrl.environments.cts_evidence import AccessibleEvidence, evidence_utility
     from agent_ttrl.environments.cts_oracle import GoalSpec, hidden_score
     from agent_ttrl.environments.cts_world import ShiftConfig, WorldState, advance_turn, transition
 
+    config = ShiftConfig()
     state = WorldState(
         inventory={"sku:a": 5}, balance={"u1": 100_000}, address={"u1": "addr-1"},
         permission_scope=["payment", "shipping"],
     )
+    for tool, call in [("reserve_item", {"item_key": "sku:a", "order_id": "o1"}),
+                       ("create_order", {"order_id": "o1"})]:
+        state, _ = transition(state, tool, call, config)
+        state = advance_turn(state)
+    snapshot = state.sha256()
+
     errors = []
-    config = ShiftConfig()
-    for call in calls:
+    decision_action = calls[0] if calls else None
+    if decision_action is not None:
         try:
-            state, _ = transition(state, call.get("tool", ""), call.get("call", {}), config)
+            state, _ = transition(state, decision_action.get("tool", ""),
+                                  decision_action.get("call", {}), config)
+            state = advance_turn(state)
+        except ValueError as e:
+            errors.append(str(e))
+    else:
+        errors.append("NO_DECISION_ACTION")
+    for tool, call in CONTINUATION:          # same continuation for both branches
+        try:
+            state, _ = transition(state, tool, call, config)
             state = advance_turn(state)
         except ValueError as e:
             errors.append(str(e))
     goal = GoalSpec(user_id="u1", want_item="sku:a", want_address="addr-1")
     bundle = AccessibleEvidence(state, goal).collect()
     return evidence_utility(bundle, goal), {"hidden": hidden_score(state, goal).success, "errors": errors[:4],
-                                            "state_sha": state.sha256()}
+                                            "state_sha": state.sha256(), "snapshot": snapshot}
 
 
 def first_action_span(cid: list[int], tokenizer) -> tuple[int, int]:
@@ -216,6 +239,9 @@ def main() -> int:
         infos: list[list[dict]] = [[{} for _ in range(R)] for _ in range(G)]
         spans: list[tuple[int, int]] = []
         completions: list[str] = []
+        completion_lens: list[int] = []
+        billed_env: list[float] = []
+        billed_tok: list[float] = []
         ledger = CostLedger(caps={Channel.ENV: 500, Channel.MODEL: 100_000, Channel.UPDATE: 20_000})
 
         for i, action in enumerate(DECISION_ACTIONS):
@@ -232,9 +258,13 @@ def main() -> int:
                 span = first_action_span(cid[0], tokenizer)
                 spans.append(span)
                 completions.append(text)
+                completion_lens.append(len(cid[0]))
                 n_calls = len(calls) or 1
+                n_tok = len(cid[0])
                 ledger.bill(f"r003-a{i}s{r}-env", Channel.ENV, float(n_calls), "branch")
-                ledger.bill(f"r003-a{i}s{r}-tok", Channel.MODEL, float(len(cid[0])), "branch")
+                ledger.bill(f"r003-a{i}s{r}-tok", Channel.MODEL, float(n_tok), "branch")
+                billed_env.append(float(n_calls))
+                billed_tok.append(float(n_tok))
         log(f"U matrix:\n{np.round(U, 3)}")
         log(f"hidden success per branch: "
             f"{[[infos[i][r]['hidden'] for r in range(R)] for i in range(G)]}")
@@ -255,7 +285,7 @@ def main() -> int:
             if not row.gate_passed:
                 continue
             s, e = spans[i * R]
-            mask = [1 if s <= k < e else 0 for k in range(e)]
+            mask = [1 if s <= k < e else 0 for k in range(completion_lens[i * R])]
             span = ActionSpan(producer="incremental_decode", start=s, end=e,
                               token_ids_ref=f"tok-{i}", text_hash=hashlib.sha256(completions[i * R].encode()).hexdigest())
             row_d = mat.materialize(
@@ -266,8 +296,8 @@ def main() -> int:
         log(f"materialized {len(rows)} UpdateRows; "
             f"masked spans={[(r['action_loss_mask_ref'][:8], r['advantage']) for r in rows]}")
 
-        # ledger conservation: independent tally from branch info
-        external = {"B_env": float(G * R * 3), "B_model": float(sum(len(c) for c in completions)),
+        # ledger conservation: independent recount of the same operations
+        external = {"B_env": float(sum(billed_env)), "B_model": float(sum(billed_tok)),
                     "B_update": 0.0}
         conservation = ledger.conservation_ok(external)
 
