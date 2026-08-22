@@ -104,3 +104,19 @@ Milestones per design doc §20.0 (M0-M7 registry is fixed; M2/M3 must not be red
 - Falsification: R002 must show a committed optimizer step + adapter_sha256 in the
   manifest with identity ALLOW on all envelopes; R003 must produce signs [+1,-1] with
   conservation; any failure = M1 FAIL (fix chain, not results).
+
+## D11 — M3 pilot engineering findings (2026-08-23)
+- **stop_server self-kill bug (137 mystery)**: cleanup loop grep-matched the python argv's
+  `--port` string and killed our own process after the run completed (manifest already
+  written). Fixed: match only vllm-serve/VLLM::EngineCore cmdlines. R002/R003 were
+  unaffected (ports via env vars). All prior egc-variant "kills" were this.
+- **max_tokens truncation bug**: MAX_COMPLETION=128 truncates the 5-tool JSON list
+  (~200 tokens) → unparsable completions → all-0 utilities → degenerate groups.
+  naive's 2/8 successes were lucky compact outputs. Fixed: MAX_COMPLETION=256; ALL
+  variants re-run at the same budget (fair comparison).
+- Malformed `"call"` fields (string instead of dict) from the model → TypeError;
+  parse_tool_calls now filters non-dict calls.
+- Guard's gradient_probe_torch holds GPU0 (~38GB) — shared-card parallel layout
+  (server GPU0 / trainer GPU1) recorded in run manifests.
+- **Falsification note**: egc AUPC=0.0 at 128 tokens was a pipeline artifact, NOT a
+  mechanism result; the 256-token rerun (deploy5) is the decision-pilot evidence.
