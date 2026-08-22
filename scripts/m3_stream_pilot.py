@@ -182,8 +182,9 @@ def stop_server(proc: subprocess.Popen, port: int) -> None:
     subprocess.run(
         ["bash", "-c",
          f"for p in $(nvidia-smi --query-compute-apps=pid --format=csv,noheader); do "
+         f"[ \"$p\" = \"$$\" ] && continue; "
          f"cmd=$(tr '\\0' ' ' < /proc/$p/cmdline 2>/dev/null); "
-         f"if echo \"$cmd\" | grep -qE '{port}|{MODEL_PATH}|VLLM::EngineCore'; then kill -9 $p 2>/dev/null; fi; done"],
+         f"if echo \"$cmd\" | grep -qE 'vllm-serve|VLLM::EngineCore'; then kill -9 $p 2>/dev/null; fi; done"],
         capture_output=True)
     time.sleep(5)
 
@@ -338,6 +339,11 @@ def main() -> int:
             stream_log.append({"task": t_idx, "y_pre": y_pre, "u_pre": round(u_pre, 3), "updated": True,
                                "loss": round(metrics["loss"], 5), "tokens": metrics["tokens"],
                                "adv": [round(float(a), 3) for a in adv]})
+
+        import subprocess as _sp
+        _mem = _sp.run(["nvidia-smi", "--query-gpu=index,memory.used", "--format=csv,noheader"],
+                       capture_output=True, text=True).stdout.strip().replace(chr(10), " | ")
+        log(f"task {t_idx} done: y_pre={y_pre} mem={_mem}")
 
         aupc = float(np.mean([s["y_pre"] for s in stream_log]))
         report = {"run_id": f"m3-{VARIANT}-s{args.seed}", "variant": VARIANT, "seed": args.seed,
