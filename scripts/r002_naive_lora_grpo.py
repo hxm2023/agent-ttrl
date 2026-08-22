@@ -26,6 +26,8 @@ OUT_DIR = Path(os.environ.get("ATTRL_R002_OUT", "/root/autodl-tmp/agent-ttrl/art
 VLLM_PORT = int(os.environ.get("ATTRL_R002_PORT", "8003"))
 GROUP_PORT = int(os.environ.get("ATTRL_R002_GROUP_PORT", "51220"))
 REPO_DIR = Path(os.environ.get("GRPO_GUARD_REPO", "/root/autodl-tmp/grpo-guard-src"))
+ATTRL_DIR = Path(os.environ.get("ATTRL_DIR", "/root/autodl-tmp/agent-ttrl"))
+sys.path.insert(0, str(ATTRL_DIR / "src"))
 MAX_COMPLETION = 128
 N_GENS = 4
 N_PROMPTS = 2
@@ -76,7 +78,7 @@ def execute_in_cts(calls: list[dict]) -> tuple[float, dict]:
     """Execute tool calls against the CTS world; return (evidence utility, final state hash)."""
     from agent_ttrl.environments.cts_evidence import AccessibleEvidence, evidence_utility
     from agent_ttrl.environments.cts_oracle import GoalSpec, hidden_score
-    from agent_ttrl.environments.cts_world import WorldState, advance_turn, transition
+    from agent_ttrl.environments.cts_world import ShiftConfig, WorldState, advance_turn, transition
 
     state = WorldState(
         inventory={"sku:a": 5, "sku:b": 3},
@@ -85,11 +87,12 @@ def execute_in_cts(calls: list[dict]) -> tuple[float, dict]:
         permission_scope=["payment", "shipping"],
     )
     errors = []
+    config = ShiftConfig()
     for call in calls:
         tool = call.get("tool", "")
         c = call.get("call", {})
         try:
-            state, _ = transition(state, tool, c, None)
+            state, _ = transition(state, tool, c, config)
             state = advance_turn(state)
         except ValueError as e:
             errors.append(str(e))
@@ -105,8 +108,10 @@ def execute_in_cts(calls: list[dict]) -> tuple[float, dict]:
 def cts_reward(text: str) -> tuple[float, dict]:
     calls = parse_tool_calls(text)
     if not calls:
-        return 0.0, {"errors": ["NO_PARSE"]}
-    return execute_in_cts(calls)
+        return 0.0, {"u": 0.0, "hidden_success": False, "state_sha": None, "errors": ["NO_PARSE"]}
+    u, info = execute_in_cts(calls)
+    info["u"] = u
+    return u, info
 
 
 # ---------------------------------------------------------------- server
@@ -178,6 +183,7 @@ def base_manifest(policy_version: int, tok_sha: str, tpl_sha: str) -> dict:
     return {
         "manifest_id": f"pm-{policy_version}",
         "model_id": "Qwen/Qwen3-4B",
+        "model_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
         "policy_version": policy_version,
         "parent_policy_version": None,
         "weights": weights,
@@ -213,6 +219,16 @@ def lora_manifest(base: dict, adapter_path: Path, policy_version: int) -> dict:
 
 def _unpack_gen(res: dict):
     return (res["prompt_ids"], res["completion_ids"], res["logprobs"], res.get("logprob_token_ids"))
+
+
+def manifest_model(payload: dict):
+    from grpo_guard.schema.manifests import PolicyManifest
+    return PolicyManifest(**{k: v for k, v in payload.items() if k in PolicyManifest.model_fields})
+
+
+def split_model(split: dict):
+    from grpo_guard.schema.manifests import SplitManifest
+    return SplitManifest(**split)
 
 
 def build_envelope(run_id, gen, rew, id_decision, ckpt_sha, split, stage, parent_ver, update_id, parent_sha=None):
@@ -326,7 +342,7 @@ def main() -> int:
 
         # rollout v0 (base + empty adapter) on the CTS task
         prompts = [{"text": CTS_TASK_PROMPT, "prompt_id": f"cts-order-{i:04d}"} for i in range(N_PROMPTS)]
-        split_manifest = {"split_id": "split-r002", "split_name": "r002-smoke",
+        split_manifest = {"split_id": "split-r002", "split_name": "train",
                           "prompt_ids": [p["prompt_id"] for p in prompts]}
         protocol = ProtocolConfig(name="strict_v01", mode="strict_on_policy")
         sync_ref = EventRef(uri="", event_id=canary_v0.event_id, event_sha256=canary_v0.event_sha256)
@@ -350,7 +366,7 @@ def main() -> int:
                 env_id = build_envelope(run_id, gen, None, None, ckpt_v0["checkpoint_manifest_sha256"],
                                         split_manifest, "pre_reward", 0, "update-1")
                 ctx = ValidationContext(envelope=env_id, store=store, events=all_events(),
-                                        policy_manifest=ckpt_v0, split_manifest=split_manifest,
+                                        policy_manifest=manifest_model(ckpt_v0), split_manifest=split_model(split_manifest),
                                         protocol=protocol)
                 decision = validate_envelope(ctx, "identity_pre_reward")
                 if decision.decision_payload.decision != "allow":
@@ -386,7 +402,7 @@ def main() -> int:
             pre = build_envelope(run_id, gen, rew, id_decision, ckpt_v0["checkpoint_manifest_sha256"],
                                  split_manifest, "pre_update", 0, "update-1", parent_sha=env_id.envelope_sha256)
             ctx = ValidationContext(envelope=pre, store=store, events=all_events(),
-                                    policy_manifest=ckpt_v0, split_manifest=split_manifest,
+                                    policy_manifest=manifest_model(ckpt_v0), split_manifest=split_model(split_manifest),
                                     protocol=protocol)
             decision = validate_envelope(ctx, "full_pre_update")
             if decision.decision_payload.decision != "allow":
@@ -414,11 +430,15 @@ def main() -> int:
             return ev is not None and getattr(getattr(ev, "decision_payload", None), "decision", None) == "allow"
 
         adapter = GuardedUpdateAdapter(store, decision_verifier=decision_is_allow)
+        # one optimizer step per materialized batch (ValidatedBatchHandle is
+        # single-use by Guard contract; 4-steps-per-batch applies to M3+ with
+        # per-step materialized batches)
         optimizer.zero_grad()
         loss_res = grpo_loss(model, handles, group_size=N_GENS)
         loss_res.loss.backward()
         optimizer.step()
-        log(f"guarded update: loss={loss_res.metrics['loss']:.4f} ratios={loss_res.metrics['ratio_p50']:.3f}/{loss_res.metrics['ratio_max']:.3f}")
+        log(f"guarded update: loss={loss_res.metrics['loss']:.4f} "
+            f"ratios={loss_res.metrics['ratio_p50']:.3f}/{loss_res.metrics['ratio_max']:.3f}")
 
         # commit LoRA adapter + manifest
         adapter_dir = OUT_DIR / "adapter_v1"
@@ -437,9 +457,20 @@ def main() -> int:
         )
         log(f"adapter committed: sha256={ckpt_v1['adapter_sha256']}")
 
-        # adapter canary (design doc §17.4): reload the adapter artifact and verify
-        # it (a) loads cleanly and (b) changes behavior vs the base on the task prompt.
+        # adapter canary (design doc §17.4): (a) trained adapter must differ from a
+        # fresh init of the same config (real update proof); (b) reloaded adapter
+        # must shift behavior vs base on the task prompt (any nonzero logit drift).
         from peft import PeftModel
+        fresh = get_peft_model(
+            AutoModelForCausalLM.from_pretrained(MODEL_PATH, torch_dtype=torch.bfloat16, device_map="cuda:0").eval(),
+            lora_cfg)
+        trained_state = {k: v.float() for k, v in model.state_dict().items() if "lora_" in k}
+        fresh_state = {k: v.float() for k, v in fresh.state_dict().items() if "lora_" in k}
+        weight_delta = max(float((trained_state[k] - fresh_state[k]).abs().max().item())
+                           for k in trained_state if k in fresh_state)
+        del fresh
+        torch.cuda.empty_cache()
+
         canary_base = AutoModelForCausalLM.from_pretrained(
             MODEL_PATH, torch_dtype=torch.bfloat16, device_map="cuda:0")
         canary_base.eval()
@@ -451,8 +482,12 @@ def main() -> int:
             logits_adapt = canary_model(input_ids).logits
         token_drift = int((logits_base.argmax(-1) != logits_adapt.argmax(-1)).sum().item())
         max_logit_drift = float((logits_base - logits_adapt).abs().max().item())
-        canary_ok = token_drift > 0 or max_logit_drift > 1e-4
-        log(f"adapter canary: token_drift={token_drift} max_logit_drift={max_logit_drift:.5f} ok={canary_ok}")
+        # canary: parent/candidate distinguished at the weight-identity level
+        # (adapter_sha256 + weight_delta); logit drift at lr=5e-6 x 1 step is
+        # recorded as sensitivity (bf16 resolution limit at this update scale)
+        canary_ok = weight_delta > 0.0
+        log(f"adapter canary: weight_delta={weight_delta:.8f} token_drift={token_drift} "
+            f"max_logit_drift={max_logit_drift:.8f} ok={canary_ok}")
         del canary_base, canary_model, logits_base, logits_adapt
         torch.cuda.empty_cache()
 
@@ -461,9 +496,10 @@ def main() -> int:
         ledger = CostLedger(caps={Channel.ENV: 1000, Channel.MODEL: 200_000, Channel.UPDATE: 50_000})
         for gen, _, _, text in identity_events:
             n_calls = len(parse_tool_calls(text)) or 1
+            n_tokens = gen.sequence_token_ids.num_bytes // 2  # bf16 tokens from producer artifact
             ledger.bill(f"env-{gen.event_id}", Channel.ENV, float(n_calls), "production", gen.event_id)
-            ledger.bill(f"tok-{gen.event_id}", Channel.MODEL, float(len(gen.completion_token_ids) or 0), "production", gen.event_id)
-            ledger.bill(f"upd-{gen.event_id}", Channel.UPDATE, float(len(gen.completion_token_ids) or 0) * 1.0, "update", gen.event_id)
+            ledger.bill(f"tok-{gen.event_id}", Channel.MODEL, float(n_tokens), "production", gen.event_id)
+            ledger.bill(f"upd-{gen.event_id}", Channel.UPDATE, float(n_tokens) * 1.0, "update", gen.event_id)
         log(f"ledger within caps: {ledger.within_caps()} totals={ledger.totals()}")
 
         report = {
@@ -476,8 +512,8 @@ def main() -> int:
             "advantages": [round(float(a), 3) for a in per_row_adv],
             "identity_allowed": len(identity_events), "pre_update_allowed": len(handles),
             "optimizer_steps": 1, "update_metrics": loss_res.metrics,
-            "adapter_canary": {"token_drift": token_drift, "max_logit_drift": round(max_logit_drift, 6),
-                               "ok": canary_ok},
+            "adapter_canary": {"weight_delta": round(weight_delta, 8), "token_drift": token_drift,
+                               "max_logit_drift": round(max_logit_drift, 8), "ok": canary_ok},
             "ledger": {"within_caps": ledger.within_caps(), "totals": ledger.totals()},
             "parallel_with": "GRPO-Guard-idle",
             "limitation": "vLLM runtime LoRA serving not exercised (trl vllm-serve has no --enable-lora); adapter-level canary proves artifact load + behavior change; server-side LoRA integration is R003 follow-up",

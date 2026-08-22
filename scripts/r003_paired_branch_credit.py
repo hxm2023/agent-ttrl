@@ -29,6 +29,8 @@ OUT_DIR = Path(os.environ.get("ATTRL_R003_OUT", "/root/autodl-tmp/agent-ttrl/art
 VLLM_PORT = int(os.environ.get("ATTRL_R003_PORT", "8004"))
 GROUP_PORT = int(os.environ.get("ATTRL_R003_GROUP_PORT", "51224"))
 REPO_DIR = Path(os.environ.get("GRPO_GUARD_REPO", "/root/autodl-tmp/grpo-guard-src"))
+ATTRL_DIR = Path(os.environ.get("ATTRL_DIR", "/root/autodl-tmp/agent-ttrl"))
+sys.path.insert(0, str(ATTRL_DIR / "src"))
 MAX_COMPLETION = 128
 R_SEEDS = 4
 
@@ -74,16 +76,17 @@ def parse_tool_calls(text: str) -> list[dict]:
 def execute_in_cts(calls: list[dict]) -> tuple[float, dict]:
     from agent_ttrl.environments.cts_evidence import AccessibleEvidence, evidence_utility
     from agent_ttrl.environments.cts_oracle import GoalSpec, hidden_score
-    from agent_ttrl.environments.cts_world import WorldState, advance_turn, transition
+    from agent_ttrl.environments.cts_world import ShiftConfig, WorldState, advance_turn, transition
 
     state = WorldState(
         inventory={"sku:a": 5}, balance={"u1": 100_000}, address={"u1": "addr-1"},
         permission_scope=["payment", "shipping"],
     )
     errors = []
+    config = ShiftConfig()
     for call in calls:
         try:
-            state, _ = transition(state, call.get("tool", ""), call.get("call", {}), None)
+            state, _ = transition(state, call.get("tool", ""), call.get("call", {}), config)
             state = advance_turn(state)
         except ValueError as e:
             errors.append(str(e))
