@@ -1,6 +1,8 @@
 {
   "schema_version": "agent-ttrl.tau2-role-manifest.v1",
-  "tau2_commit": "a2c024725189473d2d7cea3a5cfdbcc67478e41f",
+  "source_repo": "sierra-research/tau2-bench",
+  "source_commit": "a2c024725189473d2d7cea3a5cfdbcc67478e41f",
+  "data_manifest_sha256": "605b488bb9a6acb3c7f4505240a855fdc8681d09aadb16a8f38b2efcfc5c3aec",
   "domain": "telecom",
   "source_split": "train",
   "salt": "agent-ttrl.tau2.role-partition.v1",

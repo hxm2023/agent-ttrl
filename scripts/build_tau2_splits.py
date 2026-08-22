@@ -55,9 +55,13 @@ def build(domain_dir: Path, split_name: str, out_dir: Path) -> dict:
         roles[target].extend(members)
         capacity[target] -= len(members)
 
+    with open(split_file, encoding="utf-8") as f:
+        split_bytes = f.read().encode()
     manifest = {
         "schema_version": "agent-ttrl.tau2-role-manifest.v1",
-        "tau2_commit": "a2c024725189473d2d7cea3a5cfdbcc67478e41f",
+        "source_repo": "sierra-research/tau2-bench",
+        "source_commit": "a2c024725189473d2d7cea3a5cfdbcc67478e41f",
+        "data_manifest_sha256": hashlib.sha256(split_bytes).hexdigest(),
         "domain": domain_dir.name,
         "source_split": split_name,
         "salt": PUBLIC_SALT,

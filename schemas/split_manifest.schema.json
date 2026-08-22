@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-ttrl.local/schemas/split_manifest.schema.json",
+  "title": "SplitManifest",
+  "description": "Role manifest for a benchmark split (tau2/AppWorld). Roles are opaque to the online manifest; adaptation/sentinel/audit/holdout never overlap by task ID or goal family (design doc §8.2/§9.2/§9.3).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "source_repo", "source_commit", "data_manifest_sha256",
+    "salt", "grouping", "counts", "roles", "content_hashes"
+  ],
+  "properties": {
+    "schema_version": { "const": "agent-ttrl.tau2-role-manifest.v1" },
+    "source_repo": { "type": "string", "minLength": 1 },
+    "source_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "data_manifest_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "domain": { "type": "string", "minLength": 1 },
+    "source_split": { "type": "string", "minLength": 1 },
+    "salt": { "type": "string", "minLength": 1 },
+    "grouping": { "type": "string", "minLength": 1 },
+    "counts": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 },
+      "minProperties": 6
+    },
+    "roles": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "required": ["dev", "calibration", "adaptation", "sentinel", "candidate_audit", "future"]
+    },
+    "content_hashes": {
+      "type": "object",
+      "additionalProperties": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+    }
+  }
+}
