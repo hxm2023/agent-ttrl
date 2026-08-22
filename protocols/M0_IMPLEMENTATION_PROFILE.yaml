@@ -3,7 +3,7 @@
 # The profile validator must exit non-zero on any REQUIRED_ / floating revision.
 
 profile_date: "2026-08-22"
-profile_status: TEMPLATE            # TEMPLATE -> FROZEN at M0 completion
+profile_status: FROZEN              # FROZEN at M0 completion 2026-08-22 (Guard pin resolved)
 
 python: "3.11.11"
 pytorch: "2.7.1+cu126"
@@ -23,9 +23,11 @@ second_model:
   revision: c170c708c41dac9275d15a8fff4eca08d52bab71   # matches design doc §17.2
 
 appworld:
-  git_commit: REQUIRED_FULL_SHA
-  data_manifest_sha256: REQUIRED_SHA256
+  git_commit: a072b7a86e7c1d5b1d7175659d750ebb9b79f10a
+  data_manifest_sha256: 24f8c98752c088ba02ca41b300a4c0bc18fab92f817d2344c9df3b0a2db5a759
+  data_version: "0.2.0"   # appworld download data (S3, official CLI) 2026-08-22
   role_mapping: {train: dev, dev: calibration, test_normal: "adaptation:sentinel:audit=70:15:15", test_challenge: sealed_future_holdout}
+  manifest: protocols/splits/appworld_test_normal_roles.json
 
 tau2:
   git_commit: REQUIRED_FULL_SHA
@@ -34,9 +36,11 @@ tau2:
   role_mapping: {dev: 0.20, calibration: 0.15, adaptation: 0.30, sentinel: 0.10, candidate_audit: 0.10, future: 0.15}
 
 grpo_guard:
-  release: REQUIRED_SEMVER_AT_LEAST_0_1
-  schema_root_sha256: REQUIRED_SHA256
-  note: "Formal result experiments MUST NOT start until Guard correctness Gate passes (red line 5)."
+  release: v0.1.0
+  release_commit: a52caa15f349f9c1c894ae69ab2e5b4d629b5677   # tag v0.1.0
+  schema_root_sha256: ba4c7d458136362f073d9ed5953cf35bf31aa104b8d76847183ff41fad38a9c4
+  gate_evidence: "Day 3 Correctness Gate PASSED 2026-08-22 (d545888): F1-F4 x canonical/boundary/held-out 24/24 contract checks, fault matrix 12/12, normal allow 32/32"
+  note: "Red line 5 SATISFIED 2026-08-22 — Guard v0.1.0 release; formal result experiments allowed."
 
 baseline_registry: protocols/baseline_registry.yaml
 
