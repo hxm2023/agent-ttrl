@@ -22,7 +22,13 @@
     "AppWorld repo pinned a072b7a; split builder script ready",
     "uv.lock created; package installs editable",
     "GRPO_GUARD_INTEGRATION.md coordination contract written",
-    "94 tests green (contracts 39 + CTS golden 12 + unit/stat 43)"
+    "94 tests green (contracts 39 + CTS golden 12 + unit/stat 43)",
+    "RESEARCH_CONTRACT.md (protocol contract, frozen artifact table)",
+    "split_manifest.schema.json + role non-overlap tests (tau2, zero protected overlap)",
+    "canonical adapter identity hash (base/rank/alpha/targets/input-refs)",
+    "hidden evaluator import guard (capability env separation; online process cannot import sealed evaluator)",
+    "paired hierarchical bootstrap + coverage/non-inferiority tests",
+    "design doc §26 72h deliverable list COMPLETE"
   ],
   "pending": [
     "GRPO-Guard correctness Gate (external; blocks M3+; integration contract written)",
@@ -34,5 +40,6 @@
     "m0_minus_gpu": true,
     "next_blocker": "GRPO-Guard correctness Gate before formal result experiments (red line 5)"
   },
-  "notes": "M0=PARTIAL_PASS recorded as valid. All CPU-verifiable M0 items are complete; remaining items are external dependencies (Guard Gate, gated data, GPU) or require pilot variance."
+  "notes": "M0=PARTIAL_PASS recorded as valid. All CPU-verifiable M0 items are complete; remaining items are external dependencies (Guard Gate, gated data, GPU) or require pilot variance.",
+  "tests_total": 115
 }
