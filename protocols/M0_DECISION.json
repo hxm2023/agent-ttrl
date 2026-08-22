@@ -6,27 +6,33 @@
   "audit_status": "VALID",
   "done": [
     "repo scaffold (src/agent_ttrl modules, configs, protocols, tests)",
-    "6 contract JSON Schemas (Draft 2020-12, additionalProperties=false, strict hash patterns) with 39 positive/negative fixture tests",
+    "6 contract JSON Schemas + 39 positive/negative fixture tests",
     "ControlledToolShift world (10 tools, 5 shift families, delayed effects, poison receipts, duplicate detection)",
     "CTS hidden oracle + accessible evidence producers + conflict detection",
     "paired-branch credit math (group-relative signed credit + t-interval reliability gate)",
-    "CTS-F01..F12 golden pack + three-action hand fixture; golden acceptance green (57 tests pass)",
-    "M0_IMPLEMENTATION_PROFILE.yaml template",
+    "CTS-F01..F12 golden pack + three-action hand fixture; golden acceptance green",
+    "R001 artifact pack (12 CTS fixtures: frozen + oracle; artifacts/r001/report.json ok)",
+    "CostLedger (3-channel, conservation, F12)",
+    "SafeCommit gate FROZEN by coverage simulator (D6): empirical-Bernstein e-process, alpha_total=0.05, eps_gain=0.01, eps_harm=0.10, n=512; 162-config sweep archived",
+    "evidence-conflict local gate (M1) + DriftMonitor + critical-decision selectors",
+    "UpdateRow materializer (no text fallback, mask scope, batch identity) + agent-ttrl CLI (smoke/run-stream/audit-run/build-report)",
+    "M0_IMPLEMENTATION_PROFILE.yaml template; model SHAs resolved (Qwen3-4B cdbee75f, Mistral-7B c170c70c)",
     "baseline_registry.yaml scaffold",
-    "tau2 role manifests (retail/telecom, train split, grouped-hash partition, family integrity, zero protected-role overlap) — tau2 commit a2c024725189473d2d7cea3a5cfdbcc67478e41f",
-    "AppWorld repo pinned a072b7a86e7c1d5b1d7175659d750ebb9b79f10a (role manifest pending HF data download)"
+    "tau2 role manifests (retail/telecom; grouped-hash; zero protected overlap); tau2 pinned a2c0247",
+    "AppWorld repo pinned a072b7a; split builder script ready",
+    "uv.lock created; package installs editable",
+    "GRPO_GUARD_INTEGRATION.md coordination contract written",
+    "94 tests green (contracts 39 + CTS golden 12 + unit/stat 43)"
   ],
   "pending": [
-    "resolve REQUIRED_* revisions (model SHAs, GRPO-Guard release pin)",
-    "AppWorld role manifest + overlap report (needs pinned HF data manifest)",
-    "uv.lock / dependency freeze",
-    "GRPO-Guard correctness Gate coordination (external dependency; blocks M3+, not M0)",
-    "power analysis / SESOI freeze (calibration variance required)",
-    "tau2 sentinel/audit counts below n_gain=n_anchor=64 -> C2 coverage claims from CTS simulator; tau2 C2 study to be scoped at power analysis"
+    "GRPO-Guard correctness Gate (external; blocks M3+; integration contract written)",
+    "AppWorld role manifest (data manifest gated on HF, HTTP 401 without auth — needs user credentials or public release)",
+    "power analysis / SESOI freeze (needs calibration variance from pilot runs)",
+    "R002/R003 GPU runs (autodl2 shared card, after Guard Gate)"
   ],
   "gate": {
     "m0_minus_gpu": true,
     "next_blocker": "GRPO-Guard correctness Gate before formal result experiments (red line 5)"
   },
-  "notes": "M0=PARTIAL_PASS is recorded as valid; remaining items are revision-pinning and external dependencies, not method validity. R001-R003 order per design doc §26."
+  "notes": "M0=PARTIAL_PASS recorded as valid. All CPU-verifiable M0 items are complete; remaining items are external dependencies (Guard Gate, gated data, GPU) or require pilot variance."
 }

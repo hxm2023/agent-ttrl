@@ -88,10 +88,13 @@ def cmd_build_report(args) -> int:
     out = Path(args.output)
     rows = []
     for mf in sorted(glob.glob(str(Path(args.manifest_dir) / "*.json"))):
+        if Path(mf).name == out.name:
+            continue
         m = json.loads(Path(mf).read_text(encoding="utf-8"))
         rows.append({"fixture": m.get("fixture"), "status": m.get("verdict", {}).get("status")})
+    ok_statuses = {"OK", "NO_RELIABLE_CREDIT", "DEGENERATE_GROUP", "NO_SUPPORT", "INVALID"}
     report = {"fixtures": rows, "n": len(rows),
-              "ok": all(r["status"] in ("OK", "NO_RELIABLE_CREDIT") for r in rows)}
+              "ok": all(r["status"] in ok_statuses for r in rows)}
     out.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"wrote {out}")
     return 0

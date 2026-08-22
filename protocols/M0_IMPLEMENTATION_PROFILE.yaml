@@ -17,10 +17,10 @@ flash_attn: disabled_for_v0.1
 
 primary_model:
   id: Qwen/Qwen3-4B-Instruct-2507
-  revision: REQUIRED_FULL_SHA
+  revision: cdbee75f17c01a7cc42f958dc650907174af0554   # resolved 2026-08-22 via HF API
 second_model:
   id: mistralai/Mistral-7B-Instruct-v0.3
-  revision: REQUIRED_FULL_SHA
+  revision: c170c708c41dac9275d15a8fff4eca08d52bab71   # matches design doc §17.2
 
 appworld:
   git_commit: REQUIRED_FULL_SHA
