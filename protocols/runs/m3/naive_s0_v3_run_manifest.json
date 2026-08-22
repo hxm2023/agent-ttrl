@@ -1,0 +1,126 @@
+{
+  "run_id": "m3-naive-s0",
+  "variant": "naive",
+  "seed": 0,
+  "aupc_prequential": 0.5,
+  "tasks": [
+    {
+      "task": 0,
+      "y_pre": 1.0,
+      "u_pre": 0.875,
+      "updated": true,
+      "loss": -0.04297,
+      "tokens": 1024,
+      "adv": [
+        0.998,
+        0.998,
+        -0.998,
+        -0.998
+      ]
+    },
+    {
+      "task": 1,
+      "y_pre": 1.0,
+      "u_pre": 0.875,
+      "updated": true,
+      "loss": -0.17383,
+      "tokens": 1024,
+      "adv": [
+        0.998,
+        -0.998,
+        -0.998,
+        0.998
+      ]
+    },
+    {
+      "task": 2,
+      "y_pre": 1.0,
+      "u_pre": 0.875,
+      "updated": true,
+      "loss": -0.47266,
+      "tokens": 1024,
+      "adv": [
+        0.576,
+        0.576,
+        0.576,
+        -1.727
+      ]
+    },
+    {
+      "task": 3,
+      "y_pre": 0.0,
+      "u_pre": 0.0,
+      "updated": true,
+      "loss": 0.02734,
+      "tokens": 1024,
+      "adv": [
+        -0.998,
+        0.998,
+        0.998,
+        -0.998
+      ]
+    },
+    {
+      "task": 4,
+      "y_pre": 0.0,
+      "u_pre": 0.0,
+      "updated": true,
+      "loss": 0.25586,
+      "tokens": 1024,
+      "adv": [
+        0.998,
+        -0.998,
+        0.998,
+        -0.998
+      ]
+    },
+    {
+      "task": 5,
+      "y_pre": 0.0,
+      "u_pre": 0.0,
+      "updated": true,
+      "loss": -0.14941,
+      "tokens": 1024,
+      "adv": [
+        1.727,
+        -0.576,
+        -0.576,
+        -0.576
+      ]
+    },
+    {
+      "task": 6,
+      "y_pre": 1.0,
+      "u_pre": 0.875,
+      "updated": true,
+      "loss": 0.3291,
+      "tokens": 1024,
+      "adv": [
+        -0.998,
+        0.998,
+        -0.998,
+        0.998
+      ]
+    },
+    {
+      "task": 7,
+      "y_pre": 0.0,
+      "u_pre": 0.0,
+      "updated": true,
+      "loss": 0.16895,
+      "tokens": 1024,
+      "adv": [
+        0.998,
+        0.998,
+        -0.998,
+        -0.998
+      ]
+    }
+  ],
+  "n_updated": 8,
+  "poison_tasks": [
+    2,
+    5
+  ],
+  "parallel_with": "GRPO-Guard-idle"
+}

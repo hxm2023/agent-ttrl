@@ -1,0 +1,126 @@
+{
+  "run_id": "m3-egc-s0",
+  "variant": "egc",
+  "seed": 0,
+  "aupc_prequential": 0.5,
+  "tasks": [
+    {
+      "task": 0,
+      "y_pre": 1.0,
+      "u_pre": 0.875,
+      "updated": true,
+      "loss": 0.0,
+      "tokens": 0,
+      "adv": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "task": 1,
+      "y_pre": 1.0,
+      "u_pre": 0.875,
+      "updated": true,
+      "loss": 0.0,
+      "tokens": 0,
+      "adv": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "task": 2,
+      "y_pre": 0.0,
+      "u_pre": 0.0,
+      "updated": true,
+      "loss": 0.0,
+      "tokens": 0,
+      "adv": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "task": 3,
+      "y_pre": 0.0,
+      "u_pre": 0.0,
+      "updated": true,
+      "loss": 0.0,
+      "tokens": 0,
+      "adv": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "task": 4,
+      "y_pre": 1.0,
+      "u_pre": 0.875,
+      "updated": true,
+      "loss": 0.0,
+      "tokens": 0,
+      "adv": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "task": 5,
+      "y_pre": 0.0,
+      "u_pre": 0.0,
+      "updated": true,
+      "loss": 0.0,
+      "tokens": 0,
+      "adv": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "task": 6,
+      "y_pre": 1.0,
+      "u_pre": 0.875,
+      "updated": true,
+      "loss": 0.0,
+      "tokens": 0,
+      "adv": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "task": 7,
+      "y_pre": 0.0,
+      "u_pre": 0.0,
+      "updated": true,
+      "loss": 0.0,
+      "tokens": 0,
+      "adv": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "n_updated": 8,
+  "poison_tasks": [
+    2,
+    5
+  ],
+  "parallel_with": "GRPO-Guard-idle"
+}
