@@ -151,3 +151,15 @@ Milestones per design doc §20.0 (M0-M7 registry is fixed; M2/M3 must not be red
   raise_on_unsafe_execution=False outside docker.
 - Next: M5 stream (multiple dev tasks, frozen/naive/egc prequential), then
   second model family (M6) and the full factorial.
+
+## D15 — M6 tau2 retail frozen stream (2026-08-23)
+- Full prequential protocol on tau2 retail (4 tasks): task load -> persistent
+  exec server (tau2 use_tool) -> LLM agent (tolerant func(k=v) parsing with
+  few-shot keyword examples) -> hidden criteria-match scoring. The 4B model
+  generates real calls (4-11 per task) but argument values rarely match the
+  criteria (matched=0) — same model-capability boundary as AppWorld (D14).
+  AUPC=0.0 recorded as the honest 4B floor; harness ready for stronger bases.
+- Decision: Mistral-7B-Instruct-v0.3 downloading to autodl2 for the second
+  model check; if 7B also cannot produce criteria-matching calls, the C1 main
+  contrast requires a stronger base or a simplified environment — recorded
+  as the project's core feasibility risk (design doc §27 risk table).
