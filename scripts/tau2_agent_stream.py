@@ -15,7 +15,6 @@ import sys
 import time
 from pathlib import Path
 
-MODEL_PATH = os.environ.get("GRPO_GUARD_MODEL_PATH", "/root/autodl-tmp/models/Qwen3-4B")
 OUT_ROOT = Path(os.environ.get("ATTRL_M6_OUT", "/root/autodl-tmp/agent-ttrl/artifacts/m6"))
 TAU2_SERVER_PORT = 8800
 MAX_TURNS = 6
@@ -52,10 +51,10 @@ def patch_device_normalization() -> None:
     VLLMClient.init_communicator = _normalized
 
 
-def start_server(server_log: Path, port: int) -> subprocess.Popen:
+def start_server(server_log: Path, port: int, model_path: str) -> subprocess.Popen:
     trl_bin = os.path.join(os.path.dirname(sys.executable), "trl")
     proc = subprocess.Popen(
-        [trl_bin, "vllm-serve", "--model", MODEL_PATH, "--port", str(port),
+        [trl_bin, "vllm-serve", "--model", model_path, "--port", str(port),
          "--gpu-memory-utilization", "0.4", "--max-model-len", "4096"],
         env={**os.environ, "CUDA_VISIBLE_DEVICES": "1"},
         stdout=open(server_log, "w"), stderr=subprocess.STDOUT, start_new_session=True,
@@ -100,10 +99,12 @@ def _unpack_gen(res: dict):
 
 def main() -> int:
     ap = argparse.ArgumentParser()
+    ap.add_argument("--model", default=os.environ.get("GRPO_GUARD_MODEL_PATH", "/root/autodl-tmp/models/Qwen3-4B"))
     ap.add_argument("--n-tasks", type=int, default=4)
     ap.add_argument("--port", type=int, default=8240)
     ap.add_argument("--group-port", type=int, default=53300)
     args = ap.parse_args()
+    model_path = args.model
 
     import urllib.request
     import torch
@@ -111,7 +112,7 @@ def main() -> int:
     from trl.generation.vllm_client import VLLMClient
     patch_device_normalization()
 
-    OUT_DIR = OUT_ROOT / "frozen_stream"
+    OUT_DIR = OUT_ROOT / f"frozen_stream_{Path(model_path).name}"
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     t2_server = subprocess.Popen(
@@ -156,11 +157,11 @@ print(json.dumps({"tools": str(tools)[:4000], "tasks": out}))
     tasks = meta["tasks"]
     log(f"loaded {len(tasks)} tau2 retail tasks; tools desc {len(tools_text)} chars")
 
-    server = start_server(OUT_DIR / "vllm_server.log", args.port)
+    server = start_server(OUT_DIR / "vllm_server.log", args.port, model_path)
     try:
         client = VLLMClient(base_url=f"http://127.0.0.1:{args.port}", group_port=args.group_port,
                             connection_timeout=300)
-        tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, trust_remote_code=True)
+        tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
 
         stream_log = []
         for t_idx in range(min(args.n_tasks, len(tasks))):
@@ -206,7 +207,7 @@ print(json.dumps({"tools": str(tools)[:4000], "tasks": out}))
                     conversation += f"\nCALL: {line}\nOBS: {obs[:200]}"
             try:
                 eval_out = http_post("/eval", {})
-                y_pre = 1.0 if eval_out.get("success") else 0.0
+                y_pre = eval_out.get("pass_pct", 0.0) / 100.0  # partial-match score (more informative than binary)
             except Exception as e:
                 eval_out = {"error": str(e)[:150]}
                 y_pre = 0.0
@@ -220,7 +221,7 @@ print(json.dumps({"tools": str(tools)[:4000], "tasks": out}))
 
         aupc = sum(s["y_pre"] for s in stream_log) / max(1, len(stream_log))
         report = {"run_id": "m6-frozen-stream", "variant": "frozen",
-                  "aupc_prequential": round(aupc, 4), "tasks": stream_log,
+                  "aupc_prequential": round(aupc, 4), "metric": "pass_pct_partial", "tasks": stream_log,
                   "parallel_with": "GRPO-Guard-idle"}
         (OUT_DIR / "run_manifest.json").write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
         log(f"AUPC_prequential={aupc:.4f} over {len(stream_log)} tasks")
