@@ -29,12 +29,20 @@ group abstains and a drift monitor may halt adaptation.
 
 \subsection{Action-token objective}
 Each passed action yields one immutable update row over its own
-generated action-token span (never observation/prefix tokens), with the
-behavior log-probability from the generation service. The objective is a
-clipped policy ratio with KL-to-parent regularization (the baseline
-naive variant uses the same objective with group-relative terminal
-utilities and full-completion masks; EGC differs only in the credit
-signal).
+generated action-token span (never observation/prefix tokens). The
+Guard-validated chain (R002) uses a clipped policy ratio with
+KL-to-parent regularization and behavior log-probabilities from the
+generation service. The mass stream experiments (M3/M6) used a
+documented simplification: a REINFORCE-style objective
+$L=-\hat a_i\,\overline{\log p_\theta}$ over each rollout's completion
+span with nonzero advantage, where $\hat a_i$ is the group-relative
+advantage of the rollout utilities and the average is over completion
+tokens; no importance ratio, no KL term, and $\leq 4$ sequential steps
+on the same materialized rollouts (off-policy repeats without
+correction). The baseline naive variant uses the same objective with
+full-completion masks and terminal utilities; EGC differs only in the
+credit signal. This simplification is part of the honest negative:
+even the unregularized update produces no stable prequential gain.
 
 \subsection{Global gate: SafeCommit}
 Each update produces a non-servable candidate adapter $\phi'_k$. A

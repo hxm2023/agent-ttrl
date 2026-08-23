@@ -1,8 +1,11 @@
 # GRPO-Guard Integration Contract (Agent-TTRL ← GRPO-Guard)
 
-Status: **PENDING** — Guard correctness Gate not yet passed (checked 2026-08-22:
-GRPO-Guard run state all pending). Red line 5: Agent-TTRL formal result experiments
-(M3+) must not start until the Gate passes. This file is the coordination artifact
+Status: **SATISFIED** — Guard v0.1.0 correctness Gate PASSED 2026-08-22 (commit
+d545888; contract 24/24 across F1-F4 × canonical/boundary/held-out, fault matrix
+12/12, normal allow 32/32; release tag v0.1.0, commit a52caa15, schema root
+ba4c7d45...; see M0_IMPLEMENTATION_PROFILE.yaml `grpo_guard` and
+EXPERIMENT_DECISION_LOG.md D10). Red line 5: formal result experiments (M3+)
+started only after the Gate passed. This file is the coordination artifact
 for the Guard session and for the human orchestrating both projects.
 
 ## What Agent-TTRL needs from GRPO-Guard (release pin)

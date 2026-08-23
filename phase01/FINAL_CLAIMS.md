@@ -3,6 +3,35 @@
 Status: candidate claims for pre-registration. No number in this file is a result.
 Claim wording follows design doc §5.2/5.3 + Phase 1 debate modifications (M1-M4).
 
+---
+
+## EXECUTED REALITY (updated 2026-08-23, after M1-M6; supersedes where in conflict)
+
+C1 (evidence-grounded action credit → prequential gain) is **NULL at the scales
+run** — no stable inductive-future-transfer gain from deployment-period LoRA-GRPO
+across CTS/AppWorld/tau2 × Qwen3-4B/Mistral-7B (EXPERIMENT_DECISION_LOG.md D12,
+D15-D17; paper 05_results.tex). The mechanism machinery (paired-branch credit,
+reliability gate, R003 sign conservation) was validated in isolation but its
+preqential-gain claim was not escalated. Accordingly, C2's "retaining ≥80% of
+C1's prequential gain" is vacuous against a null C1 and is dropped from the
+paper claims.
+
+C2's gate winner was **frozen by the coverage simulator as empirical-Bernstein
+e-process** (D6; fixed-n Hoeffding passed NO operating point, D6 detail). The
+"fixed-n Hoeffding α_k or PACE-style e-process" alternation above is historical.
+
+Final claims (paper, honest synthesis): (a) protocol machinery validated
+end-to-end (evidence tiers, prequential primary metric, 3-channel ledger,
+policy identity binding, guarded rollout chain, GRPO-Guard Gate 24/24); (b)
+SafeCommit EB e-process gate: catastrophic-update rate relative reduction 100%
+vs always-commit, benign/mixed commit rates non-degenerate (all four streams
+reported — poisoned commit rate 0.068, below the pre-registered [0.10, 0.90]
+bound, reported transparently with interpretation); (c) reproducible honest
+negative result on update effectiveness at current scales with the stated
+power limits (n per cell in 05_results.tex; stats tests run where n permits,
+underpowered status stated).
+
+
 ## C1 — Evidence-grounded action credit (counterfactual, deployment-time)
 > In replayable stateful tool environments, matched partial-evidence counterfactual
 > branches (CRN-coupled) produce signed action credit that — gated by a pre-registered

@@ -123,8 +123,13 @@ Milestones per design doc §20.0 (M0-M7 registry is fixed; M2/M3 must not be red
 
 ## D12 — M3 pilot result: no prequential gain on CTS stream (2026-08-23)
 - Result (3 seeds, fair 256-token budget, 4-step updates): frozen AUPC=0.625 (2s),
-  naive=0.5 (3s, 8/8 updates), egc=egc_conflict=random_branch=0.5 (3s, ~1/8 branch
-  updates due to model branch-generation quality). Updates did NOT improve
+  naive=0.5 (3s, 8/8 real updates), egc=egc_conflict=random_branch=0.5 (3s).
+  NOTE (audit correction 2026-08-23): the egc/egc_conflict/random_branch variants
+  logged "updated: True" but produced ZERO gradient tokens (adv=[0,0,0,0],
+  tokens=0 on every task — paired_credit returned no reliable credit on the CTS
+  stream, so the local gate passed nothing; see manifests). They are NO-OP
+  controls, not mechanism runs; random_branch shares the identical code path
+  (randomization never implemented — not a real control). Updates did NOT improve
   prequential first-attempt success on this CTS stream; naive's real updates
   slightly reduced it (task-5 dip on a poisoned task).
 - Interpretation (honest, pilot-level): (a) initial success 0.625 leaves little
@@ -151,6 +156,23 @@ Milestones per design doc §20.0 (M0-M7 registry is fixed; M2/M3 must not be red
   raise_on_unsafe_execution=False outside docker.
 - Next: M5 stream (multiple dev tasks, frozen/naive/egc prequential), then
   second model family (M6) and the full factorial.
+
+## D14 — M5 AppWorld 3-task stream (2026-08-23; backfilled from manifests)
+- AppWorld 0.2.0 dev-split 3-task stream (tasks 50e1ac9_1..3), Qwen3-4B,
+  persistent exec server, prequential protocol: frozen AUPC=0.0000 and naive
+  AUPC=0.0000 (3 tasks each; manifests
+  protocols/runs/m5/frozen_3task_run_manifest.json,
+  naive_3task_run_manifest.json; y_pre=0.0 per task — hidden TestTracker
+  pass_pct 50% counts 1/2 checkpoints, our binary success threshold 0 on all
+  tasks).
+- Interpretation: 4B model executes real calls (4-21 per task) but cannot
+  produce the exact-state operations the hidden checks require — the same
+  model-capability boundary as tau2 4B (D15). AppWorld 3-task is a floor
+  measurement (n=1 run per arm), not an informative transfer cell; recorded
+  honestly in 05_results.tex (n=1, "---" where not run).
+- Decision: do not escalate AppWorld claims; keep as floor evidence in the
+  honest negative synthesis. (This entry backfills the missing D14 recorded
+  in D15's reference; all numbers trace to the manifests above.)
 
 ## D15 — M6 tau2 retail frozen stream (2026-08-23)
 - Full prequential protocol on tau2 retail (4 tasks): task load -> persistent

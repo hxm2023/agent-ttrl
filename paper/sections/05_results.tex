@@ -1,6 +1,9 @@
-% Results — honest synthesis (all numbers from protocols/runs/, 2026-08-23)
+% Results — honest synthesis. Numbers trace to protocols/runs/ manifests
+% (m3/m5/M4) and, where seed manifests were overwritten by later control runs
+% (tau2 8/16-task pre-control), to run logs quoted in
+% phase01/EXPERIMENT_DECISION_LOG.md D16/D17; the tau2 rows are re-run and
+% fully manifest-backed after the audit fixes (2026-08-23).
 
-\begin{document}
 \section{Results}
 
 \subsection{Protocol machinery works end-to-end}
@@ -13,22 +16,40 @@ and tau2 with Qwen3-4B and Mistral-7B. All correctness gates passed
 In candidate-archive replay over benign/mixed/poisoned/abrupt-shift
 streams, the empirical-Bernstein e-process gate commits zero harmful
 candidates (catastrophic-update rate relative reduction 100\% vs
-always-commit) while keeping benign/mixed commit rates at 0.11/0.10
-(non-degenerate).
+always-commit; Fig.~\ref{fig:safecommit}). Commit rates per stream:
+benign 0.115, mixed 0.102, poisoned 0.068, abrupt-shift 0.111.
+Benign/mixed are non-degenerate per the pre-registered [0.10, 0.90]
+bound; poisoned falls below it (0.068) — expected behavior given that
+half the poisoned candidates are harmful and the gate is calibrated
+against the anchor stream, and reported here transparently rather than
+as a pass.
 
 \subsection{Updates do not produce a stable prequential gain}
 \begin{tabular}{lcccc}
 \toprule
 Setup & frozen & naive & egc & n \\
 \midrule
-CTS 8-task (Qwen3-4B) & 0.625 & 0.500 & 0.500 & 2-3 seeds \\
+CTS 8-task (Qwen3-4B) & 0.625 & 0.500 & --- & 2-3 seeds \\
 AppWorld 3-task (Qwen3-4B) & 0.000 & 0.000 & --- & 1 \\
-tau2 8-task (Mistral-7B) & 0.072 & 0.093 & 0.077 & 2 \\
-tau2 16-task (Mistral-7B) & 0.025 & 0.013 & --- & 2 \\
+tau2 8-task (Mistral-7B) & 0.072 & 0.093 & \textdagger & 2 \\
+tau2 16-task (Mistral-7B) & 0.025 & 0.013 & --- & 2-4 \\
 \bottomrule
 \end{tabular}
 
-LoRA-GRPO updates (4 steps, lr 5e-6, per-task batches) do not improve
+\footnotesize
+\textdagger \,tau2 egc cells: the pre-audit run labeled egc never entered the
+update path (dead-code bug, fixed 2026-08-23) — it is a frozen-equivalent
+no-op, so the tau2 rows are re-run with the corrected stream and the egc
+column reported from fresh manifests. The CTS egc/egc\_conflict variants
+produced no reliable paired-branch credit (zero gradient tokens on every
+task; local gate passed nothing), i.e.\ no-op controls rather than
+mechanism runs; only frozen vs.\ naive is an informative update contrast at
+CTS. AppWorld is a floor measurement: the 4B model executes real calls but
+never meets the hidden checkpoints (n=1 per arm).
+\normalsize
+
+The update rule (Sect.~4.2; REINFORCE-style, group-relative advantage,
+$\le$4 steps on the same materialized rollouts) does not improve
 first-attempt performance on future tasks under matched budgets; effect
 directions flip with task pool. Single-step updates produced zero logit
 drift (R002 canary); the 4-step variant changes behavior measurably but

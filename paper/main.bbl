@@ -1,4 +1,4 @@
-\begin{thebibliography}{24}
+\begin{thebibliography}{25}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -104,6 +104,11 @@ Wang et~al.
 \newblock Policy-conditioned counterfactual credit for verifiable reinforcement
   learning of long-horizon language agents.
 \newblock \emph{arXiv preprint arXiv:2606.05263}, 2026{\natexlab{b}}.
+
+\bibitem[Wang et~al.(2026{\natexlab{c}})]{sage2026}
+Wang et~al.
+\newblock Reinforcement learning for self-improving agent with skill library.
+\newblock \emph{ACL 2026}, 2026{\natexlab{c}}.
 
 \bibitem[Yu et~al.(2026{\natexlab{a}})Yu, Chong, Nandi, Soylu, Sun, Manning,
   and Shi]{treerl2026}

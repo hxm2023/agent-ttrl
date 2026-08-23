@@ -249,8 +249,11 @@ def _unpack_gen(res: dict):
 
 def native_grpo_step(model, optimizer, tokenizer, sequences: list[dict], advantages: list[float],
                      prompt_ids: list[int]) -> dict:
-    """Clipped GRPO objective (design doc §7.6) over completion tokens; behavior
-    log-probs come from the generation service (on-policy single step)."""
+    """REINFORCE-style update: L = -adv * mean(completion-token logp). Group-
+    relative advantages; NO clipped ratio / NO KL / NO behavior log-probs
+    (vLLM logprobs=0). 4 sequential steps on the same materialized rollouts are
+    off-policy repeats (no importance ratio) — documented simplification of the
+    R002 Guard-validated clipped-GRPO chain (see 04_method.tex)."""
     import torch
 
     model.train()
@@ -422,10 +425,17 @@ def main() -> int:
             model.train()
             logit_drift = float((logits_before - logits_after).abs().max().item())
             token_drift = int((logits_before.argmax(-1) != logits_after.argmax(-1)).sum().item())
-            stream_log.append({"task": t_idx, "y_pre": y_pre, "u_pre": round(u_pre, 3), "updated": True,
-                               "loss": round(metrics["loss"], 5), "tokens": metrics["tokens"],
-                               "logit_drift": logit_drift, "token_drift": token_drift,
-                               "adv": [round(float(a), 3) for a in adv]})
+            if metrics["tokens"] > 0:
+                stream_log.append({"task": t_idx, "y_pre": y_pre, "u_pre": round(u_pre, 3), "updated": True,
+                                   "loss": round(metrics["loss"], 5), "tokens": metrics["tokens"],
+                                   "logit_drift": logit_drift, "token_drift": token_drift,
+                                   "adv": [round(float(a), 3) for a in adv]})
+            else:
+                # zero advantage for every row -> no gradient tokens -> the
+                # update call is a NO-OP; record honestly (was "updated": True)
+                stream_log.append({"task": t_idx, "y_pre": y_pre, "u_pre": round(u_pre, 3),
+                                   "updated": False, "reason": "NO_GRADIENT_TOKENS",
+                                   "adv": [round(float(a), 3) for a in adv]})
 
         import subprocess as _sp
         _mem = _sp.run(["nvidia-smi", "--query-gpu=index,memory.used", "--format=csv,noheader"],

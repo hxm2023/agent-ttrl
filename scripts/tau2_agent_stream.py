@@ -102,6 +102,9 @@ def main() -> int:
     ap.add_argument("--model", default=os.environ.get("GRPO_GUARD_MODEL_PATH", "/root/autodl-tmp/models/Qwen3-4B"))
     ap.add_argument("--variant", choices=["frozen", "naive", "egc"], default="frozen")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--lr", type=float, default=5e-6)
+    ap.add_argument("--n-rollouts", type=int, default=4)
+    ap.add_argument("--steps", type=int, default=1)
     ap.add_argument("--n-tasks", type=int, default=4)
     ap.add_argument("--port", type=int, default=8240)
     ap.add_argument("--group-port", type=int, default=53300)
@@ -220,7 +223,7 @@ print(json.dumps({"tools": str(tools)[:4000], "tasks": out}))
                 eval_out = {"error": str(e)[:150]}
                 y_pre = 0.0
             update_info = {"updated": False}
-            if args.variant == "naive" and "model" not in dir():
+            if args.variant in ("naive", "egc") and "model" not in dir():
                 import torch as _T
                 from peft import LoraConfig, get_peft_model
                 _base = _T_LLM.from_pretrained(model_path, torch_dtype=_T.bfloat16, device_map="cuda:0")
@@ -231,12 +234,12 @@ print(json.dumps({"tools": str(tools)[:4000], "tasks": out}))
                                        task_type="CAUSAL_LM")
                 model = get_peft_model(_base, _lora_cfg)
                 model.train()
-                optimizer = _T.optim.AdamW(model.parameters(), lr=5e-6)
+                optimizer = _T.optim.AdamW(model.parameters(), lr=args.lr)
                 import numpy as _np
-            if args.variant == "naive":
-                # sample 4 rollouts; utility = fraction of calls that executed OK
+            if args.variant in ("naive", "egc"):
+                # sample N rollouts; utility = fraction of calls that executed OK
                 gens = []
-                for _g in range(4):
+                for _g in range(args.n_rollouts):
                     res_g = client.generate([prompt], n=1, temperature=0.9, top_p=1.0,
                                             top_k=0, max_tokens=256, logprobs=0)
                     _, cid_g, _, _ = _unpack_gen(res_g)
@@ -261,29 +264,36 @@ print(json.dumps({"tools": str(tools)[:4000], "tasks": out}))
                         # reliability gate: zero out non-significant credits (|z| < 0.5)
                         advs = _np.where(_np.abs(advs) >= 0.5, advs, 0.0)
                     model.train()
-                    optimizer.zero_grad()
-                    total = 0.0
-                    for g, a in zip(gens, advs):
-                        if a == 0.0:
-                            continue
-                        ids = _T.tensor([prompt_ids + g["cid"]], device="cuda:0")
-                        mask = _T.zeros_like(ids)
-                        mask[0, len(prompt_ids):] = 1.0
-                        out = model(input_ids=ids)
-                        logp = _T.log_softmax(out.logits, dim=-1)
-                        shift_logp = logp[:, :-1, :]
-                        shift_ids = ids[:, 1:]
-                        shift_mask = mask[:, 1:]
-                        tok_logp = shift_logp.gather(-1, shift_ids.unsqueeze(-1)).squeeze(-1)
-                        masked = (tok_logp * shift_mask).sum()
-                        n = shift_mask.sum().clamp(min=1.0)
-                        total += -float(a) * masked / n
-                    if total != 0.0:
-                        total.backward()
-                        _T.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-                        optimizer.step()
-                        update_info = {"updated": True, "n_rollouts": 4,
-                                       "utils": [round(float(u), 3) for u in utils]}
+                    # per-sequence forward/backward (gradient accumulation) to
+                    # bound peak memory for 7B-scale batches
+                    for _s in range(args.steps):
+                        optimizer.zero_grad()
+                        n_used = 0
+                        for g, a in zip(gens, advs):
+                            if a == 0.0:
+                                continue
+                            ids = _T.tensor([prompt_ids + g["cid"]], device="cuda:0")
+                            mask = _T.zeros_like(ids)
+                            mask[0, len(prompt_ids):] = 1.0
+                            out = model(input_ids=ids)
+                            logp = _T.log_softmax(out.logits, dim=-1)
+                            shift_logp = logp[:, :-1, :]
+                            shift_ids = ids[:, 1:]
+                            shift_mask = mask[:, 1:]
+                            tok_logp = shift_logp.gather(-1, shift_ids.unsqueeze(-1)).squeeze(-1)
+                            masked = (tok_logp * shift_mask).sum()
+                            n = shift_mask.sum().clamp(min=1.0)
+                            loss = -float(a) * masked / n
+                            loss.backward()
+                            n_used += 1
+                            del ids, mask, out, logp, shift_logp, shift_ids, shift_mask, tok_logp, masked
+                        if n_used > 0:
+                            _T.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                            optimizer.step()
+                        _T.cuda.empty_cache()
+                    update_info = {"updated": n_used > 0, "n_rollouts": args.n_rollouts,
+                                   "steps": args.steps, "lr": args.lr,
+                                   "utils": [round(float(u), 3) for u in utils]}
             try:
                 http_post("/reset", {})
             except Exception:
@@ -293,7 +303,8 @@ print(json.dumps({"tools": str(tools)[:4000], "tasks": out}))
             log(f"task {task['id']}: y_pre={y_pre} eval={str(eval_out)[:110]}")
 
         aupc = sum(s["y_pre"] for s in stream_log) / max(1, len(stream_log))
-        report = {"run_id": "m6-frozen-stream", "variant": "frozen",
+        report = {"run_id": f"m6-{args.variant}-stream", "variant": args.variant,
+                  "seed": args.seed, "n_tasks": len(stream_log),
                   "aupc_prequential": round(aupc, 4), "metric": "pass_pct_partial", "tasks": stream_log,
                   "parallel_with": "GRPO-Guard-idle"}
         (OUT_DIR / "run_manifest.json").write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")

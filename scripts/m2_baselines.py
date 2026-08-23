@@ -217,7 +217,9 @@ def main() -> int:
                 y_pre = 1.0 if info["hidden"] else 0.0
                 stream_log.append({"task": t_idx, "y_pre": y_pre, "u_pre": round(u, 3),
                                    "updated": False, "errors": info["errors"]})
-                if VARIANT == "reflexion" and not info["hidden"] and info["errors"]:
+                if VARIANT == "reflexion" and info["errors"]:
+                    # memory gated on E_hard exec errors ONLY — never on the
+                    # hidden evaluator verdict (protocol red line 1)
                     memory_notes.append(f"- Task {t_idx}: avoid errors: " + ", ".join(info["errors"]))
 
         aupc = float(np.mean([s["y_pre"] for s in stream_log]))
