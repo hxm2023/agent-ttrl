@@ -137,18 +137,33 @@ def fig2_prequential():
     ax.set_xticks([0, 1])
     ax.legend(fontsize=7, loc="upper left")
 
-    # right: tau2 16-task (Mistral-7B) — per-seed from logs (frozen 0.0239/0.0258,
-    # naive 0.0114/0.0144)
+    # right: tau2 16-task (Mistral-7B) — matched control, per-seed from
+    # protocols/runs/m6/ctl_frozen_s{0..3}.json + ctl3_naive_s{0..3}.json
     ax = axes[2]
-    ax.plot([0, 1], [0.0239, 0.0258], styles["frozen"], marker="o", label="frozen", color=colors["frozen"], ms=5)
-    ax.plot([0, 1], [0.0114, 0.0144], styles["naive"], marker="o", label="naive", color=colors["naive"], ms=5)
-    for xi, yi in [(0, 0.0239), (1, 0.0258), (0, 0.0114), (1, 0.0144)]:
-        ax.annotate(f"{yi:.3f}", (xi, yi), textcoords="offset points", xytext=(0, -12), ha="center", fontsize=7)
-    ax.set_title("tau2 16-task (Mistral-7B)", fontsize=10)
+    for v, tag in [("frozen", "ctl"), ("naive", "ctl3")]:
+        ys = []
+        for s in range(4):
+            try:
+                d = json.load(open(f"protocols/runs/m6/{tag}_{v}_s{s}.json", encoding="utf-8"))
+                ys.append(d["aupc_prequential"])
+            except Exception:
+                pass
+        if ys:
+            x = np.arange(len(ys)) + jitter[v]
+            ax.plot(x, ys, styles[v], marker="o", label=v, color=colors[v], ms=5)
+            # frozen labels below points, naive above; odd seeds get a
+            # horizontal nudge so close values (s1: 0.0291/0.0239; s3:
+            # 0.0258/0.0253) never overprint
+            dy = -14 if v == "frozen" else 12
+            for xi, yi in zip(x, ys):
+                dx = 8 if (v == "frozen" and int(xi) % 2 == 1) else (-8 if (v == "naive" and int(xi) % 2 == 1) else 0)
+                ax.annotate(f"{yi:.3f}", (xi, yi), textcoords="offset points",
+                            xytext=(dx, dy), ha="center", fontsize=7, color=colors[v])
+    ax.set_title("tau2 16-task matched control (Mistral-7B)", fontsize=9.5)
     ax.set_xlabel("seed")
     ax.set_ylabel("AUPC (prequential)")
     ax.set_ylim(0, 0.04)
-    ax.set_xticks([0, 1])
+    ax.set_xticks([0, 1, 2, 3])
     ax.legend(fontsize=8, loc="upper left")
 
     fig.suptitle("Prequential AUPC across setups and seeds", fontsize=12)

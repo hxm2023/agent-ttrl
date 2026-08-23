@@ -31,7 +31,7 @@ Setup & frozen & naive & egc & n \\
 \midrule
 CTS 8-task (Qwen3-4B) & 0.625 & 0.500 & --- & 2-3 seeds \\
 AppWorld 3-task (Qwen3-4B) & 0.000 & 0.000 & --- & 1 \\
-tau2 16-task (Mistral-7B) & 0.021 & 0.011 & \textdagger & 4 \\
+tau2 16-task (Mistral-7B) & 0.021 & 0.017 & \textdagger & 4 \\
 \bottomrule
 \end{tabular}
 
@@ -53,12 +53,14 @@ improve first-attempt performance on future tasks under matched budgets.
 On an earlier 8-task tau2 pool the direction was slightly positive
 (naive 0.093 vs.\ frozen 0.072, from run logs quoted in
 D16/D17 -- those seed manifests were overwritten by later control runs and
-the pool is superseded by the 16-task control below); on the 16-task
-matched control (16 rollouts, 8 steps, lr $5\times10^{-5}$) the naive
-direction is negative or null. Single-step weak updates produced zero
-logit drift (R002 canary); the strong 4/8-step variant changes behavior
-measurably on subsequent tasks in both directions without a net stable
-gain.
+the pool is superseded by the 16-task control below). On the 16-task
+matched control (16 rollouts, 8 steps, lr $5\times10^{-5}$, 4 seeds),
+the paired per-seed deltas are $+0.006, -0.005, -0.018, -0.001$ AUPC
+(mean $-0.004$, two-sided permutation $p{=}0.75$, 100\,k permutations):
+the strong updates measurably change subsequent-task first-attempt scores
+in both directions, yet the net prequential effect is null. Single-step
+weak updates produced zero logit drift (R002 canary); the strong 8-step
+variant changes behavior without a stable transfer gain.
 
 \subsection{Interpretation}
 The paper contributes (a) a validated protocol machinery for
