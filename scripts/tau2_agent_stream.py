@@ -101,6 +101,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default=os.environ.get("GRPO_GUARD_MODEL_PATH", "/root/autodl-tmp/models/Qwen3-4B"))
     ap.add_argument("--variant", choices=["frozen", "naive", "egc"], default="frozen")
+    ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--n-tasks", type=int, default=4)
     ap.add_argument("--port", type=int, default=8240)
     ap.add_argument("--group-port", type=int, default=53300)
@@ -114,7 +115,7 @@ def main() -> int:
     from trl.generation.vllm_client import VLLMClient
     patch_device_normalization()
 
-    OUT_DIR = OUT_ROOT / f"{args.variant}_stream_{Path(model_path).name}"
+    OUT_DIR = OUT_ROOT / f"{args.variant}_stream_{Path(model_path).name}_s{args.seed}"
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     t2_server = subprocess.Popen(
@@ -138,7 +139,7 @@ sys.path.insert(0, "/root/autodl-tmp/tau2-bench/src")
 from tau2.domains.retail.environment import get_environment, get_tasks
 env = get_environment()
 tools = env.get_tools_description("assistant")
-tasks = get_tasks("base")[:8]
+tasks = get_tasks("base")[:20]
 out = []
 for t in tasks:
     out.append({"id": t.id, "instruction": t.user_scenario.instructions.task_instructions,
@@ -165,8 +166,12 @@ print(json.dumps({"tools": str(tools)[:4000], "tasks": out}))
                             connection_timeout=300)
         tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
 
+        import random as _rnd
+        _rnd.seed(args.seed)
+        task_order = list(range(min(args.n_tasks, len(tasks))))
+        _rnd.shuffle(task_order)
         stream_log = []
-        for t_idx in range(min(args.n_tasks, len(tasks))):
+        for t_idx in task_order:
             task = tasks[t_idx]
             for _try in range(5):
                 try:
