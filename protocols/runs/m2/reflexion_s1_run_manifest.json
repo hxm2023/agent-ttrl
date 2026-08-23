@@ -1,0 +1,67 @@
+{
+  "run_id": "m2-reflexion-s1",
+  "variant": "reflexion",
+  "seed": 1,
+  "aupc_prequential": 0.125,
+  "tasks": [
+    {
+      "task": 0,
+      "y_pre": 0.0,
+      "u_pre": 0.0,
+      "updated": false,
+      "errors": []
+    },
+    {
+      "task": 1,
+      "y_pre": 0.0,
+      "u_pre": 0.0,
+      "updated": false,
+      "errors": []
+    },
+    {
+      "task": 2,
+      "y_pre": 0.0,
+      "u_pre": 0.0,
+      "updated": false,
+      "errors": []
+    },
+    {
+      "task": 3,
+      "y_pre": 0.0,
+      "u_pre": 0.0,
+      "updated": false,
+      "errors": []
+    },
+    {
+      "task": 4,
+      "y_pre": 0.0,
+      "u_pre": 0.0,
+      "updated": false,
+      "errors": []
+    },
+    {
+      "task": 5,
+      "y_pre": 0.0,
+      "u_pre": 0.0,
+      "updated": false,
+      "errors": []
+    },
+    {
+      "task": 6,
+      "y_pre": 1.0,
+      "u_pre": 0.875,
+      "updated": false,
+      "errors": [
+        "NO_RESERVATION"
+      ]
+    },
+    {
+      "task": 7,
+      "y_pre": 0.0,
+      "u_pre": 0.0,
+      "updated": false,
+      "errors": []
+    }
+  ],
+  "parallel_with": "GRPO-Guard-idle"
+}

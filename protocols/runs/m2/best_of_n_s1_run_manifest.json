@@ -1,0 +1,65 @@
+{
+  "run_id": "m2-best_of_n-s1",
+  "variant": "best_of_n",
+  "seed": 1,
+  "aupc_prequential": 0.75,
+  "tasks": [
+    {
+      "task": 0,
+      "y_pre": 1.0,
+      "u_pre": 0.875,
+      "samples": 8,
+      "updated": false
+    },
+    {
+      "task": 1,
+      "y_pre": 1.0,
+      "u_pre": 0.875,
+      "samples": 8,
+      "updated": false
+    },
+    {
+      "task": 2,
+      "y_pre": 1.0,
+      "u_pre": 0.875,
+      "samples": 8,
+      "updated": false
+    },
+    {
+      "task": 3,
+      "y_pre": 1.0,
+      "u_pre": 0.875,
+      "samples": 8,
+      "updated": false
+    },
+    {
+      "task": 4,
+      "y_pre": 0.0,
+      "u_pre": 0.0,
+      "samples": 8,
+      "updated": false
+    },
+    {
+      "task": 5,
+      "y_pre": 0.0,
+      "u_pre": 0.0,
+      "samples": 8,
+      "updated": false
+    },
+    {
+      "task": 6,
+      "y_pre": 1.0,
+      "u_pre": 0.875,
+      "samples": 8,
+      "updated": false
+    },
+    {
+      "task": 7,
+      "y_pre": 1.0,
+      "u_pre": 0.875,
+      "samples": 8,
+      "updated": false
+    }
+  ],
+  "parallel_with": "GRPO-Guard-idle"
+}
