@@ -76,7 +76,26 @@ def start_server(server_log: Path, port: int, model_path: str) -> subprocess.Pop
             import urllib.request
             with urllib.request.urlopen(f"http://127.0.0.1:{port}/health", timeout=5) as r:
                 if r.status == 200:
-                    return proc
+                    # warm-up generate on /generate/ (WITH trailing slash; the
+                    # no-slash path 307-redirects). Blocks until the engine
+                    # finished KV-cache init; a hung first real generate
+                    # otherwise stalls the whole stream (seen 2026-08-23).
+                    # Any 4xx reply means the engine parsed the request
+                    # (= ready), so it counts as healthy.
+                    import json as _json
+                    import urllib.error as _uerr
+                    req = urllib.request.Request(
+                        f"http://127.0.0.1:{port}/generate/",
+                        data=_json.dumps({"prompt": "hi", "max_tokens": 1}).encode(),
+                        headers={"Content-Type": "application/json"})
+                    try:
+                        with urllib.request.urlopen(req, timeout=600) as r2:
+                            r2.read()
+                        return proc
+                    except _uerr.HTTPError as e:
+                        if e.code < 500:
+                            return proc
+                        raise
         except Exception:
             pass
         if proc.poll() is not None:
