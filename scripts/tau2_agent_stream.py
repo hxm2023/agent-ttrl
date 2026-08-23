@@ -81,6 +81,8 @@ def start_server(server_log: Path, port: int, model_path: str) -> subprocess.Pop
             pass
         if proc.poll() is not None:
             raise RuntimeError(f"server died: {Path(server_log).read_text()[-2000:]}")
+    proc.kill()  # never leave a half-started server orphaned (start_server
+    # failures previously leaked vLLM processes holding GPU memory)
     raise RuntimeError("server not healthy in 360s")
 
 
