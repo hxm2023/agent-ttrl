@@ -137,3 +137,17 @@ Milestones per design doc §20.0 (M0-M7 registry is fixed; M2/M3 must not be red
   (harder tasks, lower initial success → real headroom) for the main C1 contrast.
 - Falsification: if AppWorld/tau2 also show updates ≤ frozen, C1 fails per
   design doc §5.5 ("future-holdout 无提升") → portfolio/engineering version.
+
+## D13 — M5 AppWorld environment closure (2026-08-23)
+- AppWorld 0.2.0 restored from git + official LFS bundle (AES-CFB via official
+  params from constants.py — the standard `appworld install` path), model_lib
+  from the PyPI wheel, pydantic 2.13 in a dedicated venv. Persistent exec
+  server (flask, appworld-venv) exposes /init /exec /eval; the Guard venv
+  drives the LLM agent. Closure run PASSED: task 50e1ac9_1 loaded, frozen
+  Qwen3-4B agent executed 1 call, hidden TestTracker returned pass_pct 50.
+- Notes: 4B model emits prose not clean apis.* calls on complex prompts
+  (method-level issue for the baseline table); call format is
+  `apis.app.function(...)` in 0.2.0; AppWorld init needs
+  raise_on_unsafe_execution=False outside docker.
+- Next: M5 stream (multiple dev tasks, frozen/naive/egc prequential), then
+  second model family (M6) and the full factorial.
