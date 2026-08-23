@@ -179,3 +179,21 @@ Milestones per design doc §20.0 (M0-M7 registry is fixed; M2/M3 must not be red
 - Next: 16-task stream (longer update chain) to test cumulative effects;
   if still null, the honest paper claim is a negative/no-effect result on
   the 7B x tau2 setup with protocol machinery as the contribution.
+
+## D17 — 16-task stream (Mistral-7B x tau2): no stable update effect
+- 16-task pool (20-task helper), 2 seeds each: frozen AUPC 0.0239/0.0258,
+  naive 0.0114/0.0144 — naive LOWER on the 16-task pool, opposite to the
+  8-task pool (s0/s1: naive 0.0788/0.1078 vs frozen 0.0766/0.0676). Pool
+  differences dominate; no stable prequential gain from LoRA updates in
+  either direction.
+- Honest synthesis (D16+D17): across CTS, AppWorld, and tau2 with two
+  model families, deployment-period LoRA-GRPO updates do not produce a
+  stable inductive-future-transfer gain at the scales run. Contributing
+  factors: update magnitude small relative to task variance; partial-match
+  reward signal weak; task pools small.
+- Paper implication: the contribution shifts to (a) the protocol machinery
+  (evidence tiers, prequential evaluation, 3-channel budgets, SafeCommit
+  with 100% catastrophic-update reduction in stress simulation) and (b) an
+  honest negative result on update effectiveness with a reproducibility
+  harness. Recorded per design doc §5.5 (future-holdout no gain -> stop
+  the algorithm headline).
