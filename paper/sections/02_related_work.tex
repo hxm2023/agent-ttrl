@@ -3,9 +3,10 @@
 \paragraph{Test-time RL on unlabeled reasoning.}
 TTRL~\cite{ttrl2025} shows majority-vote pseudo-labels drive GRPO updates
 on unlabeled math tests; T3RL~\cite{t3rl2026} weights rollouts by
-tool-verified correctness, stabilizing the self-reward loop. DARE-style
-distribution-aware rewards address majority-vote
-bias~\cite{jitrl2026}. These methods are single-answer benchmarks with
+tool-verified correctness, stabilizing the self-reward loop.
+Distribution-aware rewards (e.g., DARE~\cite{dare2026}) address
+majority-vote bias and confirmation collapse. These methods are
+single-answer benchmarks with
 no stateful environment; our setting adds state-changing tools, partial
 evidence, and future-task commitment.
 
@@ -47,6 +48,13 @@ verifier critics; Monitoring Risks in TTA~\cite{monitoring2025} builds
 confidence sequences for changing models. Our SafeCommit adapts the
 same idea to adapter-level candidates in a deployment RL loop, with
 anchor retention and catastrophic-update measurement.
+
+\paragraph{Continual self-improvement.}
+SAGE~\cite{sage2026} combines GRPO with a skill library for agents that
+improve across task chains; Evo-Harness-style methods compile reusable
+skills from execution contexts. Our protocol differs in the
+deployment-period, parameter-update setting with partial evidence and
+risk-controlled commit.
 
 \paragraph{Prequential evaluation.}
 SEA-Eval~\cite{seaeval2026} and EvoTest~\cite{evotest2026} formalize

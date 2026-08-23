@@ -5,51 +5,44 @@ Reallocating 'name_of_file' (item size: 1) to 9 items.
 The style file: plainnat.bst
 Reallocating 'name_of_file' (item size: 1) to 11 items.
 Database file #1: references.bib
-You're missing a field name---line 162 of file references.bib
- :   journal={github: sierra-research/tau2-bench},
- :                                                ,
-I'm skipping whatever remains of this entry
-Warning--empty year in tau2bench2025
-Warning--empty year in tau2bench2025
-You've used 23 entries,
+You've used 24 entries,
             2773 wiz_defined-function locations,
-            690 strings with 8766 characters,
-and the built_in function-call counts, 10877 in all, are:
-= -- 865
-> -- 919
-< -- 10
-+ -- 316
-- -- 288
-* -- 885
-:= -- 1800
-add.period$ -- 73
-call.type$ -- 23
-change.case$ -- 153
-chr.to.int$ -- 18
+            694 strings with 8907 characters,
+and the built_in function-call counts, 11167 in all, are:
+= -- 892
+> -- 929
+< -- 11
++ -- 320
+- -- 291
+* -- 895
+:= -- 1846
+add.period$ -- 76
+call.type$ -- 24
+change.case$ -- 157
+chr.to.int$ -- 19
 cite$ -- 48
-duplicate$ -- 462
-empty$ -- 734
-format.name$ -- 320
-if$ -- 2194
+duplicate$ -- 477
+empty$ -- 766
+format.name$ -- 324
+if$ -- 2259
 int.to.chr$ -- 6
 int.to.str$ -- 1
 missing$ -- 23
-newline$ -- 127
-num.names$ -- 92
-pop$ -- 328
+newline$ -- 132
+num.names$ -- 96
+pop$ -- 336
 preamble$ -- 1
-purify$ -- 130
+purify$ -- 133
 quote$ -- 0
-skip$ -- 366
+skip$ -- 382
 stack$ -- 0
-substring$ -- 46
-swap$ -- 35
+substring$ -- 48
+swap$ -- 36
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 253
-warning$ -- 2
-while$ -- 69
+type$ -- 264
+warning$ -- 0
+while$ -- 72
 width$ -- 0
-write$ -- 290
-(There was 1 error message)
+write$ -- 303

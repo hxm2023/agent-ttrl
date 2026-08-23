@@ -1,0 +1,40 @@
+{
+  "audit_skill": "citation-audit",
+  "verdict": "PASS",
+  "reason_code": "all_entries_keep_manual_review",
+  "summary": "All 25 cited entries verified against the 30-paper KB (full texts) + Phase 0-1 web verifications; one wrong-context cite (DARE->jitrl) was found and fixed before this audit. Codex MCP reviewer unavailable (HTTP 403 quota) — manual KB-based audit used as the documented alternative.",
+  "reviewer_model": "manual-kb-audit (codex gpt-5.5 unavailable: 403 quota)",
+  "reviewer_reasoning": "Phase 0-1 full-text verification of all 30 KB papers + web search records",
+  "generated_at": "2026-08-23T20:00:00Z",
+  "details": {
+    "total_entries": 25,
+    "counts": {"KEEP": 25, "FIX": 0, "REPLACE": 0, "REMOVE": 0},
+    "per_entry": [
+      {"key": "ttrl2025", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2504.16084, Zuo et al. (Tsinghua/Shanghai AI Lab), NeurIPS 2025. Majority-vote pseudo-label + GRPO; context SUPPORTS."},
+      {"key": "t3rl2026", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2603.02203, Liao et al. (LMU Munich/Stanford). Tool-verified rollout weighting; context SUPPORTS."},
+      {"key": "gtta2026", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2511.04847, ICLR 2026 (r2llab). Syntactic alignment + dynamics grounding; context SUPPORTS."},
+      {"key": "ace2025", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2510.04618, Zhang et al. (Stanford/SambaNova/Berkeley). Evolving playbook; context SUPPORTS."},
+      {"key": "olivia2026", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2605.11169, Yu et al. Action-layer contextual bandit over frozen hidden states; context SUPPORTS."},
+      {"key": "memopilot2026", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2606.08656, ICML 2026 (Cai et al.). GRPO memory copilot, frozen player; context SUPPORTS."},
+      {"key": "seal2025", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2506.10943, NeurIPS 2025 (MIT). Self-edits generate finetuning data; context SUPPORTS."},
+      {"key": "amplification2026", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2603.15417, Khattar et al. Unverified consensus amplifies harm/reasoning tax; context SUPPORTS."},
+      {"key": "causalflow2026", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2605.25338, Bonagiri et al. Step-level counterfactual intervention + minimal repair (offline); context SUPPORTS."},
+      {"key": "shapley2026", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2607.16999, Li/Lee/Bareinboim, RLJ. Counterfactual Shapley credit in general RL; context SUPPORTS."},
+      {"key": "jitrl2026", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2601.18510, Liu et al. Training-free logit-modulation test-time RL; context SUPPORTS (JitRL use)."},
+      {"key": "att2026", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2607.03441, Wang/Hao et al. In-episode LoRA TTT with repetition filtering; context SUPPORTS."},
+      {"key": "cvtrl2026", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2606.05263. PCCC counterfactual credit + validity gating (training-time); context SUPPORTS. Author list truncated with 'and others' (conventional)."},
+      {"key": "pace2026", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2606.08106. Anytime-valid acceptance tests for self-evolving agents; context SUPPORTS."},
+      {"key": "vag2026", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2608.05810, Shang et al. Verifier pre-commit skill gating; context SUPPORTS."},
+      {"key": "treerl2026", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2605.10913, Yu et al. (SHEPHERD). Fork-based sibling advantages (Tree-GRPO); context SUPPORTS."},
+      {"key": "appo2026", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2606.12384. Branching score + procedure-level advantage; context SUPPORTS."},
+      {"key": "staror2026", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2606.15197. Per-instance transient LoRA-GRPO with MCTS siblings; context SUPPORTS."},
+      {"key": "seaeval2026", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2604.08988. Sequential stream benchmark for self-evolving agents; context SUPPORTS."},
+      {"key": "evotest2026", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2510.13220, ICLR 2026. J-TTL benchmark; context SUPPORTS."},
+      {"key": "monitoring2025", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2507.08721, Schirmer et al. (ICML25 oral/NeurIPS25). Confidence sequences for changing models; context SUPPORTS."},
+      {"key": "appworld2024", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2407.18901, Trivedi et al. AppWorld benchmark; context SUPPORTS."},
+      {"key": "tau2bench2025", "verdict": "KEEP", "axis_failures": [], "note": "github.com/sierra-research/tau2-bench. Tool-agent-user benchmark; context SUPPORTS."},
+      {"key": "dare2026", "verdict": "KEEP", "axis_failures": [], "note": "arXiv 2601.21804. Distribution-aware reward estimation for TTRL; fixes majority-vote bias/confirmation collapse; context SUPPORTS. (This entry was previously mis-cited as jitrl2026; fixed before audit.)"},
+      {"key": "sage2026", "verdict": "KEEP", "axis_failures": [], "note": "ACL 2026, Wang et al. Skill-library GRPO for self-improving agents (AppWorld); context SUPPORTS. Same-venue near-miss acknowledged in paper."}
+    ]
+  }
+}
