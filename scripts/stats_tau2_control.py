@@ -28,14 +28,20 @@ def load_manifest(path: Path) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dir", default=str(LOCAL))
+    ap.add_argument("--pool", type=int, default=16, choices=[8, 16],
+                    help="tau2 task pool (16: ctl/ctl3/ctl5 control; 8: ctl6 re-run)")
     ap.add_argument("--seed", type=int, default=0, help="RNG seed for the permutation test")
     ap.add_argument("--n-perm", type=int, default=100000)
     args = ap.parse_args()
     base = Path(args.dir)
 
-    # local convention: protocols/runs/m6/ctl_frozen_s{seed}.json,
-    # ctl3_naive_s{seed}.json, ctl5_egc_s{seed}.json
-    variants = {"frozen": "ctl", "naive": "ctl3", "egc": "ctl5"}
+    # local convention: 16-task control = ctl_frozen_s{seed}.json,
+    # ctl3_naive_s{seed}.json, ctl5_egc_s{seed}.json; 8-task re-run =
+    # ctl6_{variant}_s{seed}.json
+    if args.pool == 16:
+        variants = {"frozen": "ctl", "naive": "ctl3", "egc": "ctl5"}
+    else:
+        variants = {"frozen": "ctl6", "naive": "ctl6", "egc": "ctl6"}
     per_seed = {}  # variant -> {seed: {task: y_pre}}
     for variant, tag in variants.items():
         per_seed[variant] = {}

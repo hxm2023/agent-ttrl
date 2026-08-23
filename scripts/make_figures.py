@@ -253,23 +253,37 @@ def fig5_pareto():
 
 # ---------------------------------------------------------------- fig6: heatmap
 def fig6_heatmap():
-    # 16-task pool, seeds 2-3 (clean same-pool data from run logs; 8-task seed
-    # dirs were overwritten by later runs, so we do not mix pools).
-    variants = ["frozen", "naive"]
-    seeds = ["s2", "s3"]
-    data = np.array([[0.0239, 0.0258], [0.0114, 0.0144]])
-    fig, ax = plt.subplots(figsize=(5.2, 3.0))
-    im = ax.imshow(data, cmap="YlOrRd", vmin=0, vmax=0.03)
+    # 16-task matched control (Mistral-7B): per-seed AUPC from ctl/ctl3/ctl5
+    # manifests (protocols/runs/m6/ctl{,_3,_5}_{variant}_s{seed}.json).
+    # Rows = variant, columns = seed. Missing cells render as blank.
+    tags = {"frozen": "ctl", "naive": "ctl3", "egc": "ctl5"}
+    variants = list(tags)
+    seeds = ["s0", "s1", "s2", "s3"]
+    data = np.full((len(variants), len(seeds)), np.nan)
+    for i, v in enumerate(variants):
+        for j, s in enumerate(seeds):
+            p = f"protocols/runs/m6/{tags[v]}_{v}_s{j}.json"
+            try:
+                d = json.load(open(p, encoding="utf-8"))
+                data[i, j] = d["aupc_prequential"]
+            except Exception:
+                pass
+    fig, ax = plt.subplots(figsize=(6.2, 3.2))
+    im = ax.imshow(data, cmap="YlOrRd", vmin=0, vmax=0.04)
     ax.set_xticks(range(len(seeds)))
     ax.set_xticklabels(seeds)
     ax.set_yticks(range(len(variants)))
     ax.set_yticklabels(variants)
     for i in range(len(variants)):
         for j in range(len(seeds)):
-            ax.text(j, i, f"{data[i, j]:.4f}", ha="center", va="center", fontsize=10,
-                    color="white" if data[i, j] > 0.02 else "black")
+            v = data[i, j]
+            if np.isnan(v):
+                ax.text(j, i, "-", ha="center", va="center", fontsize=10, color="gray")
+            else:
+                ax.text(j, i, f"{v:.4f}", ha="center", va="center", fontsize=10,
+                        color="white" if v > 0.02 else "black")
     fig.colorbar(im, label="AUPC")
-    ax.set_title("tau2 16-task pool (Mistral-7B)", fontsize=10)
+    ax.set_title("tau2 16-task matched control (Mistral-7B, strong updates)", fontsize=9.5)
     fig.tight_layout()
     fig.savefig("paper/figures/fig6_heatmap.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
