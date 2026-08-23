@@ -1,0 +1,55 @@
+This is BibTeX, Version 0.99e
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+Reallocating 'name_of_file' (item size: 1) to 9 items.
+The style file: plainnat.bst
+Reallocating 'name_of_file' (item size: 1) to 11 items.
+Database file #1: references.bib
+You're missing a field name---line 162 of file references.bib
+ :   journal={github: sierra-research/tau2-bench},
+ :                                                ,
+I'm skipping whatever remains of this entry
+Warning--empty year in tau2bench2025
+Warning--empty year in tau2bench2025
+You've used 23 entries,
+            2773 wiz_defined-function locations,
+            690 strings with 8766 characters,
+and the built_in function-call counts, 10877 in all, are:
+= -- 865
+> -- 919
+< -- 10
++ -- 316
+- -- 288
+* -- 885
+:= -- 1800
+add.period$ -- 73
+call.type$ -- 23
+change.case$ -- 153
+chr.to.int$ -- 18
+cite$ -- 48
+duplicate$ -- 462
+empty$ -- 734
+format.name$ -- 320
+if$ -- 2194
+int.to.chr$ -- 6
+int.to.str$ -- 1
+missing$ -- 23
+newline$ -- 127
+num.names$ -- 92
+pop$ -- 328
+preamble$ -- 1
+purify$ -- 130
+quote$ -- 0
+skip$ -- 366
+stack$ -- 0
+substring$ -- 46
+swap$ -- 35
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 253
+warning$ -- 2
+while$ -- 69
+width$ -- 0
+write$ -- 290
+(There was 1 error message)

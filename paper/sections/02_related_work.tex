@@ -1,0 +1,54 @@
+% Related Work
+\section{Related Work}
+\paragraph{Test-time RL on unlabeled reasoning.}
+TTRL~\cite{ttrl2025} shows majority-vote pseudo-labels drive GRPO updates
+on unlabeled math tests; T3RL~\cite{t3rl2026} weights rollouts by
+tool-verified correctness, stabilizing the self-reward loop. DARE-style
+distribution-aware rewards address majority-vote
+bias~\cite{jitrl2026}. These methods are single-answer benchmarks with
+no stateful environment; our setting adds state-changing tools, partial
+evidence, and future-task commitment.
+
+\paragraph{Deployment-time adaptation without parameter updates.}
+GTTA~\cite{gtta2026} adds a syntactic alignment vector and verbalized
+dynamics grounding for web agents; ACE~\cite{ace2025} evolves a
+structured playbook from execution feedback; OLIVIA~\cite{olivia2026}
+treats the action layer as a contextual bandit over frozen hidden
+states; MemoPilot~\cite{memopilot2026} trains a memory copilot with
+multi-turn GRPO while the player stays frozen; JitRL~\cite{jitrl2026}
+modulates logits with retrieved advantages at test time. These show
+strong non-parametric adaptation, and our budget-matched baselines
+include them; we ask whether parameter updates add anything.
+
+\paragraph{Deployment-period parameter updates for agents.}
+aTTT~\cite{att2026} performs in-episode LoRA test-time training with
+repetition filtering; StarOR~\cite{staror2026} refines a transient LoRA
+adapter per instance with GRPO and tree search in optimization modeling.
+Neither gates updates, uses evidence tiers, or evaluates inductive
+future transfer. SEAL~\cite{seal2025} self-edits its own finetuning data
+in training-time loops.
+
+\paragraph{Counterfactual and sibling-branch credit.}
+Tree-RL~\cite{treerl2026} forks rollouts at decision points for
+sibling-relative advantages; APPO~\cite{appo2026} scores where to branch
+and rescales advantages; CVT-RL~\cite{cvtrl2026} estimates
+policy-conditioned counterfactual contributions with validity gating;
+CausalFlow~\cite{causalflow2026} performs step-level counterfactual
+intervention and minimal repair offline; Counterfactual Shapley
+credit~\cite{shapley2026} redistributes total causal effect across
+actions in general RL. Our contribution is not another counterfactual
+estimator; it is the deployment-time, partial-evidence use of paired
+branches with a reliability gate inside a guarded online loop.
+
+\paragraph{Commit gates and risk control.}
+PACE~\cite{pace2026} gives anytime-valid acceptance tests for
+self-modifying agents; VaG~\cite{vag2026} gates skill admission with
+verifier critics; Monitoring Risks in TTA~\cite{monitoring2025} builds
+confidence sequences for changing models. Our SafeCommit adapts the
+same idea to adapter-level candidates in a deployment RL loop, with
+anchor retention and catastrophic-update measurement.
+
+\paragraph{Prequential evaluation.}
+SEA-Eval~\cite{seaeval2026} and EvoTest~\cite{evotest2026} formalize
+sequential self-improvement evaluation; our AUPC-prequential follows the
+same principle with first-attempt hidden scoring before any update.

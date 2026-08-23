@@ -1,0 +1,62 @@
+% Method
+\section{EGC-TTRL}
+EGC-TTRL instantiates one principle: \emph{uncertain deployment-time
+evidence should not unconditionally change the future policy}. Two gates
+implement it at two scales: a \textbf{local gate} decides which action
+tokens may produce gradient; a \textbf{global gate} decides whether the
+resulting candidate adapter may reach future tasks.
+
+\subsection{Local gate: paired-branch signed credit}
+At a selected decision state $s_t$, we restore the sealed snapshot and
+sample $G=4$ grammar-valid alternative actions from the parent policy,
+each continued under $R=2$ common-random-number seeds with the same
+continuation protocol. Executing each branch in the environment yields
+an evidence utility matrix $U\in[0,1]^{G\times R}$; the signed credit of
+action $i$ is
+\begin{equation}
+\hat c_i=\bar U_i-\tfrac{1}{G}\sum_j \bar U_j,
+\qquad
+z_{i,r}=U_{i,r}-\tfrac{1}{G}\sum_j U_{j,r},
+\end{equation}
+with a reliability interval $[\hat c_i-b_i,\hat c_i+b_i]$ where
+$b_i=t_{R-1,0.90}\sqrt{\hat v_i/R}$ and $\hat v_i$ is the across-seed
+variance of $z$. The local gate passes action $i$ iff its interval is
+disjoint from $[-\eta_{\mathrm{credit}},+\eta_{\mathrm{credit}}]$;
+credit is clipped and group-normalized. An alternative local gate uses
+\textbf{evidence conflict}: when hard evidence contradicts the soft
+verifier (e.g., a poisoned receipt vs.\ a state invariant), the whole
+group abstains and a drift monitor may halt adaptation.
+
+\subsection{Action-token objective}
+Each passed action yields one immutable update row over its own
+generated action-token span (never observation/prefix tokens), with the
+behavior log-probability from the generation service. The objective is a
+clipped policy ratio with KL-to-parent regularization (the baseline
+naive variant uses the same objective with group-relative terminal
+utilities and full-completion masks; EGC differs only in the credit
+signal).
+
+\subsection{Global gate: SafeCommit}
+Each update produces a non-servable candidate adapter $\phi'_k$. A
+shadow evaluation compares candidate vs.\ parent on fresh sentinel gain
+tasks and anchor capability tasks, with per-candidate error budgets
+$\alpha_k=6\alpha_{\mathrm{total}}/(\pi^2 k^2)$. The commit decision
+uses an empirical-Bernstein e-process confidence sequence (frozen by a
+pre-registered coverage simulator over 162 configurations, where the
+fixed-n Hoeffding alternative passed no operating point):
+\begin{equation}
+\mathrm{LCB}_{\mathrm{gain}}\ge \varepsilon_{\mathrm{gain}}
+\;\wedge\;
+\mathrm{UCB}_{\mathrm{harm}}\le \varepsilon_{\mathrm{harm}}
+\;\wedge\;
+\mathrm{Guard}=\mathrm{ALLOW}.
+\end{equation}
+Otherwise the candidate is rolled back atomically. Sentinel items are
+used at most once; coverage claims are restricted to the proxy-mean
+decision error.
+
+\subsection{Statistics}
+Primary contrasts use paired hierarchical bootstrap over
+seed/domain-stream and task families, with pre-registered tests at
+$p<0.01$ plus effect sizes; the number of seeds is frozen before test
+data is seen.

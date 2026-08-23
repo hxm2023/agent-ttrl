@@ -1,0 +1,51 @@
+% Problem and Protocol
+\section{Problem and Protocol}
+\subsection{Deployment stream}
+A domain session is a sequence of tasks
+$\mathcal{S}^{(z)}=(x_1,\dots,x_N)$ from a latent domain $z$; each task
+is a POMDP episode. The agent holds a frozen backbone $\theta$ and a
+session LoRA adapter $\phi_{k-1}$. Task $k$ arrives; the agent's
+first attempt $\tau_k^{\mathrm{first}}$ is scored by a hidden evaluator
+$Y_k^{\mathrm{pre}}=R_{\mathrm{hidden}}(\tau_k^{\mathrm{first}})$ for
+reporting only. Only then may the task's accessible evidence enter an
+update.
+
+\subsection{Evidence tiers}
+Deployment-time signals are tiered: \textbf{hard evidence} $E_{\mathrm{hard}}$
+(schemas, receipts, state invariants) and \textbf{calibrated soft
+evidence} $E_{\mathrm{soft}}$ (process/result verifiers) may enter
+adaptation; the \textbf{hidden evaluator} $R_{\mathrm{hidden}}$ never
+enters rollout selection, branching, gradients, commit gates, or
+hyperparameter selection. A per-trajectory evidence vector
+$e(\tau)=[e_{\mathrm{schema}},e_{\mathrm{tool}},e_{\mathrm{policy}},
+e_{\mathrm{state}},e_{\mathrm{soft}}]$ and a normalized utility
+$g(e)=w^\top e$ ($\lambda_c=0$ in the primary setting) summarize what
+the agent is allowed to learn from.
+
+\subsection{Prequential primary metric}
+The primary endpoint is the normalized prequential area:
+\begin{equation}
+\operatorname{AUPC}_{\mathrm{prequential}}
+=\frac{1}{N}\sum_{k=1}^{N} Y_k^{\mathrm{pre}},
+\end{equation}
+i.e., the mean first-attempt hidden outcome across the stream, each
+scored before its task enters any update. A sealed future holdout (never
+touched by updates, selectors, or gates) is reported separately.
+Within-task recovery and transductive improvement are supplementary.
+
+\subsection{Budgets and identity}
+All methods run under identical three-channel hard caps
+$C=(N_{\mathrm{env}},N_{\mathrm{model\_tok}},N_{\mathrm{update\_tok}})
+\preceq B$ with one canonical cost ledger; no cross-channel exchange.
+Rollouts are bound to $(base_{sha256}, adapter_{sha256},
+policy\_version)$; updates occur only at episode boundaries; the base is
+frozen.
+
+\subsection{Environments}
+\textbf{ControlledToolShift} is a deterministic, snapshotable tool world
+(10 tools, shift families, hidden oracle) used for mechanism validation.
+\textbf{AppWorld}~\cite{appworld2024} provides multi-app API tasks with
+state-based unit tests. \textbf{Tau2}~\cite{tau2bench2025} provides
+retail/telecom tool-agent tasks with evaluation criteria. Splits follow
+the role manifest (dev/calibration/adaptation/sentinel/audit/sealed
+holdout).

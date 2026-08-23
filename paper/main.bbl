@@ -1,0 +1,152 @@
+\begin{thebibliography}{23}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Bonagiri et~al.(2026)Bonagiri, Borkar, Anderias, Rafatirad, and
+  Homayoun]{causalflow2026}
+Akash Bonagiri, Devang Borkar, Gerard~Janno Anderias, Setareh Rafatirad, and
+  Houman Homayoun.
+\newblock Causalflow: Causal attribution and counterfactual repair for llm
+  agent failures.
+\newblock \emph{arXiv preprint arXiv:2605.25338}, 2026.
+
+\bibitem[Cai et~al.(2026)]{memopilot2026}
+Cai et~al.
+\newblock From player to master: Enhancing test-time learning of llm agents via
+  reinforcement learning over memory.
+\newblock In \emph{ICML 2026}, 2026.
+\newblock arXiv:2606.08656.
+
+\bibitem[Feng et~al.(2026)]{evotest2026}
+Feng et~al.
+\newblock Evotest: Evolutionary test-time learning for self-improving agentic
+  systems.
+\newblock \emph{arXiv preprint arXiv:2510.13220}, 2026.
+
+\bibitem[Khattar et~al.(2026)Khattar, Rashid, Choudhury, Liu, Koike-Akino, Jin,
+  and Wang]{amplification2026}
+Vanshaj Khattar, Md. Rafi~Ur Rashid, Moumita Choudhury, Jing Liu, Toshiaki
+  Koike-Akino, Ming Jin, and Ye~Wang.
+\newblock Amplification effects in test-time reinforcement learning: Safety and
+  reasoning vulnerabilities.
+\newblock \emph{arXiv preprint arXiv:2603.15417}, 2026.
+
+\bibitem[Li et~al.(2026{\natexlab{a}})]{appo2026}
+Li et~al.
+\newblock Agentic procedural policy optimization.
+\newblock \emph{arXiv preprint arXiv:2606.12384}, 2026{\natexlab{a}}.
+
+\bibitem[Li et~al.(2026{\natexlab{b}})Li, Lee, and Bareinboim]{shapley2026}
+Mingxuan Li, Kai-Zhan Lee, and Elias Bareinboim.
+\newblock Counterfactual shapley credit assignment.
+\newblock \emph{Reinforcement Learning Journal}, 2026{\natexlab{b}}.
+\newblock arXiv:2607.16999.
+
+\bibitem[Liao et~al.(2026)Liao, R{\"o}hrich, Wang, Zhang, Samadzadeh, Tresp,
+  and Yeung-Levy]{t3rl2026}
+Ruotong Liao, Nikolai R{\"o}hrich, Xiaohan Wang, Yuhui Zhang, Yasaman
+  Samadzadeh, Volker Tresp, and Serena Yeung-Levy.
+\newblock Tool verification for test-time reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:2603.02203}, 2026.
+
+\bibitem[Liu et~al.(2026)]{jitrl2026}
+Liu et~al.
+\newblock Just-in-time reinforcement learning: Continual learning in llm agents
+  without gradient updates.
+\newblock \emph{arXiv preprint arXiv:2601.18510}, 2026.
+
+\bibitem[Mukherjee et~al.(2026)]{pace2026}
+Mukherjee et~al.
+\newblock Pace: Anytime-valid acceptance tests for self-evolving agents.
+\newblock \emph{arXiv preprint arXiv:2606.08106}, 2026.
+
+\bibitem[Research()]{tau2bench2025}
+Sierra Research.
+\newblock Tau2: A benchmark for tool-agent-user interaction.
+\newblock \emph{github: sierra-research/tau2-bench}.
+
+\bibitem[Schirmer et~al.(2025)Schirmer, Jazbec, Naesseth, and
+  Nalisnick]{monitoring2025}
+Mona Schirmer, Metod Jazbec, Christian~Andersson Naesseth, and Eric Nalisnick.
+\newblock Monitoring risks in test-time adaptation.
+\newblock \emph{arXiv preprint arXiv:2507.08721}, 2025.
+
+\bibitem[Shang et~al.(2026)Shang, Xu, Sun, Xia, Hu, Xu, and Zheng]{vag2026}
+Shang, Xu, Sun, Xia, Hu, Xu, and Zheng.
+\newblock When self-evolution backfires: Pre-commit gating against skill
+  contamination in llm agents.
+\newblock \emph{arXiv preprint arXiv:2608.05810}, 2026.
+
+\bibitem[Trivedi et~al.(2024)Trivedi, Khot, Hartmann, Manku, Dong, Li, Gupta,
+  Sabharwal, and Balasubramanian]{appworld2024}
+Harsh Trivedi, Tushar Khot, Mareike Hartmann, Ruskin Manku, Vinty Dong, Edward
+  Li, Shashank Gupta, Ashish Sabharwal, and Niranjan Balasubramanian.
+\newblock Appworld: A controllable world of apps and people for benchmarking
+  function calling and interactive coding agents.
+\newblock \emph{arXiv preprint arXiv:2407.18901}, 2024.
+
+\bibitem[Wang et~al.(2026{\natexlab{a}})Wang, Hao, et~al.]{att2026}
+Wang, Hao, et~al.
+\newblock No time like the present: Agentic test-time training for llm agents.
+\newblock \emph{arXiv preprint arXiv:2607.03441}, 2026{\natexlab{a}}.
+
+\bibitem[Wang et~al.(2026{\natexlab{b}})]{cvtrl2026}
+Wang et~al.
+\newblock Policy-conditioned counterfactual credit for verifiable reinforcement
+  learning of long-horizon language agents.
+\newblock \emph{arXiv preprint arXiv:2606.05263}, 2026{\natexlab{b}}.
+
+\bibitem[Yu et~al.(2026{\natexlab{a}})Yu, Chong, Nandi, Soylu, Sun, Manning,
+  and Shi]{treerl2026}
+Yu, Chong, Nandi, Soylu, Sun, Manning, and Shi.
+\newblock Shepherd: Enabling programmable meta-agents via reversible agentic
+  execution traces.
+\newblock \emph{arXiv preprint arXiv:2605.10913}, 2026{\natexlab{a}}.
+
+\bibitem[Yu et~al.(2026{\natexlab{b}})Yu, Wu, Li, Kuang, Zhou, Yu, Han, Shang,
+  and McAuley]{olivia2026}
+Sheldon Yu, Junda Wu, Xintong Li, Nikki~Lijing Kuang, Sizhe Zhou, Tong Yu,
+  Jiawei Han, Jingbo Shang, and Julian~J. McAuley.
+\newblock Olivia: Online learning via inference-time action adaptation for
+  decision making in llm react agents.
+\newblock \emph{arXiv preprint arXiv:2605.11169}, 2026{\natexlab{b}}.
+
+\bibitem[Zhang et~al.(2026{\natexlab{a}})]{seaeval2026}
+Zhang et~al.
+\newblock Sea-eval: A benchmark for evaluating self-evolving agents.
+\newblock \emph{arXiv preprint arXiv:2604.08988}, 2026{\natexlab{a}}.
+
+\bibitem[Zhang et~al.(2026{\natexlab{b}})]{staror2026}
+Zhang et~al.
+\newblock Staror: Synergizing tree search and test-time reinforcement learning
+  for optimization modeling.
+\newblock \emph{arXiv preprint arXiv:2606.15197}, 2026{\natexlab{b}}.
+
+\bibitem[Zhang et~al.(2025)Zhang, Zou, Olukotun, et~al.]{ace2025}
+Qizheng Zhang, James Zou, Kunle Olukotun, et~al.
+\newblock Agentic context engineering: Evolving contexts for self-improving
+  language models.
+\newblock \emph{arXiv preprint arXiv:2510.04618}, 2025.
+
+\bibitem[Zhang et~al.(2026{\natexlab{c}})]{gtta2026}
+Xiaofeng Zhang et~al.
+\newblock Test-time adaptation for llm agents via environment interaction.
+\newblock In \emph{ICLR 2026}, 2026{\natexlab{c}}.
+\newblock arXiv:2511.04847.
+
+\bibitem[Zuo et~al.(2025)Zuo, Zhang, Sheng, Qu, Cui, et~al.]{ttrl2025}
+Yuxin Zuo, Kaiyan Zhang, Li~Sheng, Shang Qu, Ganqu Cui, et~al.
+\newblock Ttrl: Test-time reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:2504.16084}, 2025.
+
+\bibitem[Zweiger et~al.(2025)Zweiger, Pari, Guo, Aky{\"u}rek, Kim, and
+  Agrawal]{seal2025}
+Zweiger, Pari, Guo, Aky{\"u}rek, Kim, and Agrawal.
+\newblock Self-adapting language models.
+\newblock In \emph{NeurIPS 2025}, 2025.
+\newblock arXiv:2506.10943.
+
+\end{thebibliography}

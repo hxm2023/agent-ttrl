@@ -1,35 +1,21 @@
-% Agent-TTRL main paper (ACL 2027 framing; skeleton — results pending)
+% Agent-TTRL main paper (ACL 2027 framing; full draft with honest results)
 \documentclass[11pt]{article}
 \usepackage[margin=1in]{geometry}
 \usepackage{booktabs,graphicx,amsmath,amssymb}
 \usepackage[hidelinks]{hyperref}
+\usepackage[numbers]{natbib}
 \title{Evidence-Gated Counterfactual Test-Time RL for Stateful Tool Agents}
 \author{Anonymous}
 \date{}
 \begin{document}
 \maketitle
 \input{sections/00_abstract}
-\section{Introduction}
-Deployment-period agents face partial, endogenous feedback. We ask whether
-session-scoped parameter updates can improve future tasks without
-contaminating behavior (prequential induction), and answer with a
-two-scale evidence-gating mechanism: local gates decide which action tokens
-produce gradient; a global gate decides which candidate adapters reach
-future tasks.
-\section{Related Work}
-% TTRL/T3RL (self-consistency rewards), GTTA/ACE (context/adaptation
-% vectors), OLIVIA (action bandit), MemoPilot (memory RL), CausalFlow
-% (counterfactual repair), PACE/VaG (commit gates), JitRL/aTTT/StarOR
-% (deployment updates) — full text in KB; cite matrix in
-% novelty/claim_matrix.csv.
-\section{Problem and Protocol}
-% POMDP stream; evidence tiers; prequential primary metric; 3-channel
-% budgets; policy identity; split roles.
-\section{Method}
-% EGC-TTRL: selector -> paired branches (G x R, CRN) -> signed credit
-% (reliability or evidence-conflict gate) -> action-token LoRA -> SafeCommit
-% (EB e-process, frozen by coverage simulator).
-\section{Experiments}
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_problem}
+\input{sections/04_method}
 \input{sections/05_results}
-\section{Conclusion}
+\input{sections/06_conclusion}
+\bibliographystyle{plainnat}
+\bibliography{references}
 \end{document}

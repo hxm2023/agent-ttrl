@@ -1,0 +1,22 @@
+% Conclusion
+\section{Conclusion}
+We built and evaluated a closed loop for deployment-period improvement
+of stateful tool agents: evidence tiers that keep the hidden evaluator
+out of learning, prequential induction as the primary metric, a
+three-channel budget ledger, guarded rollout identities, paired-branch
+evidence credit with reliability gating, and a risk-controlled commit
+gate. The machinery runs end-to-end on three environments with two
+model families, and SafeCommit eliminates catastrophic updates in
+stress simulation while remaining non-degenerate.
+
+Our empirical synthesis is honest: across CTS, AppWorld, and tau2,
+deployment-period LoRA-RL updates did not produce a stable
+inductive-future-transfer gain at the scales and update magnitudes we
+ran. Directions flipped with task pools, and single-task updates had
+negligible behavioral footprint. We therefore stop the algorithm
+headline per our pre-registered stop rule, and contribute the protocol
+machinery, the commit-gate result, and a reproducible harness with all
+manifests. The immediate next step is scaling update magnitude
+(more steps per batch, larger batches, longer streams) and stronger
+backbones, where the partial-match signal on tau2 (18--25\% on
+Mistral-7B) indicates a trainable space exists.

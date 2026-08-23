@@ -1,0 +1,45 @@
+% Introduction
+\section{Introduction}
+Deployed tool-using agents receive feedback that is partial, endogenous,
+and often unreliable: an API receipt may report success while the
+underlying state did not change; a verifier may agree with a wrong
+consensus; and the agent's own choices determine what evidence it sees.
+A natural goal is \emph{deployment-period improvement}: let the agent
+update its policy from the tasks it encounters, so that later, unseen
+tasks in the same domain are handled better. This is test-time
+reinforcement learning (TTRL)~\cite{ttrl2025} moved from unlabeled math
+reasoning to stateful tool use.
+
+The literature has moved fast. Test-time self-consistency rewards
+improve math reasoning~\cite{ttrl2025} and can be stabilized with tool
+verification~\cite{t3rl2026}, but they amplify wrong consensus and even
+harmful behavior when unverified~\cite{amplification2026}. Context
+engineering~\cite{ace2025}, memory RL~\cite{memopilot2026}, action-layer
+bandits~\cite{olivia2026}, and syntactic adaptation
+vectors~\cite{gtta2026} adapt deployed agents without touching weights.
+Counterfactual machinery exists for offline trace
+repair~\cite{causalflow2026} and general RL credit~\cite{shapley2026},
+and commit gates are studied for self-evolving
+systems~\cite{pace2026,vag2026}. What is missing is a closed loop that
+combines deployment-period parameter updates, partial-evidence credit,
+risk-controlled commit, and prequential evaluation of future transfer
+under one budget and identity discipline.
+
+This paper builds and evaluates that loop. We contribute:
+\begin{itemize}
+\item \textbf{Protocol machinery}: evidence tiers (hard/soft in
+  adaptation; hidden evaluator never), prequential induction as the
+  primary metric, three-channel budget accounting, and policy identity
+  binding on a guarded rollout--update chain.
+\item \textbf{EGC-TTRL}: evidence-gated counterfactual test-time RL --
+  paired counterfactual branches at selected decision states produce
+  signed, reliability-gated action credit that drives action-token LoRA
+  updates; a risk-controlled commit gate (empirical-Bernstein e-process)
+  decides whether a candidate adapter reaches future tasks.
+\item \textbf{An honest empirical synthesis}: across CTS, AppWorld, and
+  tau2 with two model families, the protocol machinery runs
+  end-to-end, SafeCommit eliminates catastrophic updates in stress
+  simulation, and deployment-period LoRA-RL does not produce a stable
+  inductive-transfer gain at the scales tested -- a reproducible negative
+  result with an open harness.
+\end{itemize}
