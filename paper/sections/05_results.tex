@@ -34,6 +34,7 @@ Setup & frozen & naive & egc & n \\
 \midrule
 CTS 8-task (Qwen3-4B) & 0.625 & 0.500 & --- & 2-3 seeds \\
 AppWorld 3-task (Qwen3-4B) & 0.000 & 0.000 & --- & 1 \\
+tau2 8-task (Mistral-7B) & 0.039 & 0.029 & 0.029 & 4 \\
 tau2 16-task (Mistral-7B) & 0.021 & 0.017 & \textdagger & 4 \\
 \bottomrule
 \end{tabular}
@@ -53,17 +54,19 @@ never meets the hidden checkpoints (n=1 per arm).}
 The update rule (Sect.~4.2; REINFORCE-style, group-relative advantage,
 $\le$4 sequential steps on the same materialized rollouts) does not
 improve first-attempt performance on future tasks under matched budgets.
-On an earlier 8-task tau2 pool the direction was slightly positive
-(naive 0.093 vs.\ frozen 0.072, from run logs quoted in
-D16/D17 -- those seed manifests were overwritten by later control runs and
-the pool is superseded by the 16-task control below). On the 16-task
-matched control (16 rollouts, 8 steps, lr $5\times10^{-5}$, 4 seeds),
-the paired per-seed deltas are $+0.006, -0.005, -0.018, -0.001$ AUPC
-(mean $-0.004$, two-sided permutation $p{=}0.75$, 100\,k permutations):
-the strong updates measurably change subsequent-task first-attempt scores
-in both directions, yet the net prequential effect is null. Single-step
-weak updates produced zero logit drift (R002 canary); the strong 8-step
-variant changes behavior without a stable transfer gain.
+The tau2 rows are the matched strong-update control (16 rollouts, 8
+steps, lr $5\times10^{-5}$, 4 seeds, two pools). Paired per-seed deltas
+(naive $-$ frozen): 16-task pool $+0.006, -0.005, -0.018, -0.001$
+(mean $-0.004$, permutation $p{=}0.75$); 8-task pool
+$+0.004, -0.036, -0.031, +0.023$ (mean $-0.010$, $p{=}0.81$). The strong
+updates measurably change subsequent-task first-attempt scores in both
+directions, yet the net prequential effect is null on both pools. An
+earlier 8-task run with weak updates (1 step, lr $5\times10^{-6}$) had
+reported a slightly positive direction (naive 0.093 vs.\ frozen 0.072,
+run logs D16/D17, whose seed manifests were overwritten); the matched
+control does not reproduce that direction. Single-step weak updates
+produced zero logit drift (R002 canary); the strong 8-step variant
+changes behavior without a stable transfer gain.
 
 \subsection{Interpretation}
 The paper contributes (a) a validated protocol machinery for

@@ -118,18 +118,25 @@ def fig2_prequential():
     ax.set_xticks([0, 1])
     ax.legend(fontsize=7, loc="lower left", framealpha=0.9)
 
-    # middle: tau2 8-task (Mistral-7B) — naive/egc per-seed from surviving
-    # manifests; frozen is a table mean (its seed manifests were overwritten)
+    # middle: tau2 8-task (Mistral-7B) — fresh matched control (ctl6),
+    # per-seed from protocols/runs/m6/ctl6_{frozen,naive,egc}_s{0..3}.json
     ax = axes[1]
-    mj = {"frozen": 0.0, "naive": -0.04, "egc": 0.04}  # x jitter at seed 0
-    ax.plot([0], [0.072], styles["frozen"], marker="o", label="frozen (mean)", color=colors["frozen"], ms=5)
-    ax.annotate("0.072", (mj["frozen"], 0.072), textcoords="offset points", xytext=(34, -4), ha="center", fontsize=7, color=colors["frozen"])
-    ax.plot([mj["naive"], 1 + mj["naive"]], [0.0788, 0.1078], styles["naive"], marker="o", label="naive",
-            color=colors["naive"], ms=5)
-    ax.annotate("0.079", (mj["naive"], 0.0788), textcoords="offset points", xytext=(-10, -8), ha="center", fontsize=7, color=colors["naive"])
-    ax.annotate("0.108", (1 + mj["naive"], 0.1078), textcoords="offset points", xytext=(0, -13), ha="center", fontsize=7, color=colors["naive"])
-    ax.plot([mj["egc"]], [0.0766], styles["egc"], marker="o", label="egc", color=colors["egc"], ms=5)
-    ax.annotate("0.077", (mj["egc"], 0.0766), textcoords="offset points", xytext=(10, -8), ha="center", fontsize=7, color=colors["egc"])
+    mj = {"frozen": 0.0, "naive": -0.05, "egc": 0.05}  # x jitter
+    for v, dy in [("frozen", -14), ("naive", 12), ("egc", -14)]:
+        ys = []
+        for s in range(4):
+            try:
+                d = json.load(open(f"protocols/runs/m6/ctl6_{v}_s{s}.json", encoding="utf-8"))
+                ys.append(d["aupc_prequential"])
+            except Exception:
+                pass
+        if ys:
+            x = np.arange(len(ys)) + mj[v]
+            ax.plot(x, ys, styles[v], marker="o", label=v, color=colors[v], ms=5)
+            for xi, yi in zip(x, ys):
+                dx = 8 if (v == "frozen" and int(xi) % 2 == 1) else (-8 if (v == "naive" and int(xi) % 2 == 1) else 0)
+                ax.annotate(f"{yi:.3f}", (xi, yi), textcoords="offset points",
+                            xytext=(dx, dy), ha="center", fontsize=7, color=colors[v])
     ax.set_title("tau2 8-task (Mistral-7B)", fontsize=10)
     ax.set_xlabel("seed")
     ax.set_ylabel("AUPC (prequential)")
