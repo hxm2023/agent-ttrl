@@ -33,9 +33,11 @@ This paper builds and evaluates that loop. We contribute:
   binding on a guarded rollout--update chain.
 \item \textbf{EGC-TTRL}: evidence-gated counterfactual test-time RL --
   paired counterfactual branches at selected decision states produce
-  signed, reliability-gated action credit that drives action-token LoRA
-  updates; a risk-controlled commit gate (empirical-Bernstein e-process)
-  decides whether a candidate adapter reaches future tasks.
+  signed, reliability-gated action credit that drives LoRA updates
+  (action-token masked in the Guard-validated chain; full-completion
+  masks in the mass streams, \S4.2); a risk-controlled commit gate
+  (empirical-Bernstein e-process) decides whether a candidate adapter
+  reaches future tasks.
 \item \textbf{An honest empirical synthesis}: across CTS, AppWorld, and
   tau2 with two model families, the protocol machinery runs
   end-to-end, SafeCommit eliminates catastrophic updates in stress

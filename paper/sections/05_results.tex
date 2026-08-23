@@ -31,29 +31,34 @@ Setup & frozen & naive & egc & n \\
 \midrule
 CTS 8-task (Qwen3-4B) & 0.625 & 0.500 & --- & 2-3 seeds \\
 AppWorld 3-task (Qwen3-4B) & 0.000 & 0.000 & --- & 1 \\
-tau2 8-task (Mistral-7B) & 0.072 & 0.093 & \textdagger & 2 \\
-tau2 16-task (Mistral-7B) & 0.025 & 0.013 & --- & 2-4 \\
+tau2 16-task (Mistral-7B) & 0.021 & 0.011 & \textdagger & 4 \\
 \bottomrule
 \end{tabular}
 
 \footnotesize
-\textdagger \,tau2 egc cells: the pre-audit run labeled egc never entered the
-update path (dead-code bug, fixed 2026-08-23) — it is a frozen-equivalent
-no-op, so the tau2 rows are re-run with the corrected stream and the egc
-column reported from fresh manifests. The CTS egc/egc\_conflict variants
-produced no reliable paired-branch credit (zero gradient tokens on every
-task; local gate passed nothing), i.e.\ no-op controls rather than
-mechanism runs; only frozen vs.\ naive is an informative update contrast at
-CTS. AppWorld is a floor measurement: the 4B model executes real calls but
-never meets the hidden checkpoints (n=1 per arm).
+\textdagger \,pending the egc re-run with the corrected stream (the
+pre-audit egc cell never entered the update path -- dead-code bug, fixed
+2026-08-23 -- and is a frozen-equivalent no-op). The CTS
+egc/egc\_conflict variants produced no reliable paired-branch credit (zero
+gradient tokens on every task; local gate passed nothing), i.e.\ no-op
+controls rather than mechanism runs; only frozen vs.\ naive is an
+informative update contrast at CTS. AppWorld is a floor measurement: the
+4B model executes real calls but never meets the hidden checkpoints (n=1
+per arm).
 \normalsize
 
 The update rule (Sect.~4.2; REINFORCE-style, group-relative advantage,
-$\le$4 steps on the same materialized rollouts) does not improve
-first-attempt performance on future tasks under matched budgets; effect
-directions flip with task pool. Single-step updates produced zero logit
-drift (R002 canary); the 4-step variant changes behavior measurably but
-not in a direction that transfers.
+$\le$4 sequential steps on the same materialized rollouts) does not
+improve first-attempt performance on future tasks under matched budgets.
+On an earlier 8-task tau2 pool the direction was slightly positive
+(naive 0.093 vs.\ frozen 0.072, from run logs quoted in
+D16/D17 -- those seed manifests were overwritten by later control runs and
+the pool is superseded by the 16-task control below); on the 16-task
+matched control (16 rollouts, 8 steps, lr $5\times10^{-5}$) the naive
+direction is negative or null. Single-step weak updates produced zero
+logit drift (R002 canary); the strong 4/8-step variant changes behavior
+measurably on subsequent tasks in both directions without a net stable
+gain.
 
 \subsection{Interpretation}
 The paper contributes (a) a validated protocol machinery for

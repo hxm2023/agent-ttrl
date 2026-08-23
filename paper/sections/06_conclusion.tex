@@ -12,11 +12,13 @@ stress simulation while remaining non-degenerate.
 Our empirical synthesis is honest: across CTS, AppWorld, and tau2,
 deployment-period LoRA-RL updates did not produce a stable
 inductive-future-transfer gain at the scales and update magnitudes we
-ran. Directions flipped with task pools, and single-task updates had
-negligible behavioral footprint. We therefore stop the algorithm
-headline per our pre-registered stop rule, and contribute the protocol
-machinery, the commit-gate result, and a reproducible harness with all
-manifests. The immediate next step is scaling update magnitude
-(more steps per batch, larger batches, longer streams) and stronger
-backbones, where the partial-match signal on tau2 (18--25\% on
-Mistral-7B) indicates a trainable space exists.
+ran. Directions flipped with task pools. Weak single-task updates had
+negligible behavioral footprint; stronger updates (16 rollouts, 8
+steps, lr $5\times10^{-5}$, tau2 16-task matched control) change
+behavior measurably on subsequent tasks in both directions without a
+net stable gain. We therefore stop the algorithm headline per our
+pre-registered stop rule, and contribute the protocol machinery, the
+commit-gate result, and a reproducible harness with all manifests. The
+immediate next step is stronger backbones and longer streams, where the
+partial-match signal on tau2 (18--25\% on Mistral-7B) indicates a
+trainable space exists.
