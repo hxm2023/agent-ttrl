@@ -100,7 +100,7 @@ def _unpack_gen(res: dict):
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default=os.environ.get("GRPO_GUARD_MODEL_PATH", "/root/autodl-tmp/models/Qwen3-4B"))
-    ap.add_argument("--variant", choices=["frozen", "naive"], default="frozen")
+    ap.add_argument("--variant", choices=["frozen", "naive", "egc"], default="frozen")
     ap.add_argument("--n-tasks", type=int, default=4)
     ap.add_argument("--port", type=int, default=8240)
     ap.add_argument("--group-port", type=int, default=53300)
@@ -252,6 +252,9 @@ print(json.dumps({"tools": str(tools)[:4000], "tasks": out}))
                 if gens and max(g["u"] for g in gens) > min(g["u"] for g in gens):
                     utils = _np.array([g["u"] for g in gens])
                     advs = (utils - utils.mean()) / (utils.std() + 1e-3)
+                    if args.variant == "egc":
+                        # reliability gate: zero out non-significant credits (|z| < 0.5)
+                        advs = _np.where(_np.abs(advs) >= 0.5, advs, 0.0)
                     model.train()
                     optimizer.zero_grad()
                     total = 0.0
