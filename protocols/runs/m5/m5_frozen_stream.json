@@ -1,0 +1,116 @@
+{
+  "run_id": "m5-frozen-stream",
+  "variant": "frozen",
+  "aupc_prequential": 0.0,
+  "tasks": [
+    {
+      "task": 0,
+      "task_id": "50e1ac9_1",
+      "y_pre": 0.0,
+      "completed": false,
+      "calls": 4,
+      "eval": {
+        "failures": 1,
+        "ok": true,
+        "pass_pct": 50.0,
+        "passes": 1,
+        "success": false
+      },
+      "turns": [
+        {
+          "turn": 2,
+          "call": "Answer: apis.spotify.search_playlists(query=\"top r&b playlists\")",
+          "obs": "EXEC_HTTP_ERROR: HTTP Error 400: BAD REQUEST"
+        },
+        {
+          "turn": 2,
+          "call": "apis.spotify.get_playlist_tracks(playlist_id=\"top r&b playlists\")",
+          "obs": "EXEC_HTTP_ERROR: HTTP Error 400: BAD REQUEST"
+        },
+        {
+          "turn": 2,
+          "call": "apis.spotify.get_playlist_tracks(playlist_id=\"top r&b playlists\")",
+          "obs": "EXEC_HTTP_ERROR: HTTP Error 400: BAD REQUEST"
+        },
+        {
+          "turn": 2,
+          "call": "apis.spotify.get_playlist_tracks(playlist_id=\"top r&b playlists\")",
+          "obs": "EXEC_HTTP_ERROR: HTTP Error 400: BAD REQUEST"
+        }
+      ]
+    },
+    {
+      "task": 1,
+      "task_id": "50e1ac9_2",
+      "y_pre": 0.0,
+      "completed": false,
+      "calls": 4,
+      "eval": {
+        "failures": 1,
+        "ok": true,
+        "pass_pct": 50.0,
+        "passes": 1,
+        "success": false
+      },
+      "turns": [
+        {
+          "turn": 0,
+          "call": "Answer: apis.spotify.search_playlists(query=\"top edm playlists\")",
+          "obs": "EXEC_HTTP_ERROR: HTTP Error 400: BAD REQUEST"
+        },
+        {
+          "turn": 0,
+          "call": "apis.spotify.search_tracks(query=\"top edm tracks\")",
+          "obs": "EXEC_HTTP_ERROR: HTTP Error 400: BAD REQUEST"
+        },
+        {
+          "turn": 0,
+          "call": "apis.spotify.search_albums(query=\"top edm albums\")",
+          "obs": "EXEC_HTTP_ERROR: HTTP Error 400: BAD REQUEST"
+        },
+        {
+          "turn": 0,
+          "call": "apis.spotify.search_artists(query=\"top edm artists\")",
+          "obs": "EXEC_HTTP_ERROR: HTTP Error 400: BAD REQUEST"
+        }
+      ]
+    },
+    {
+      "task": 2,
+      "task_id": "50e1ac9_3",
+      "y_pre": 0.0,
+      "completed": false,
+      "calls": 4,
+      "eval": {
+        "failures": 1,
+        "ok": true,
+        "pass_pct": 50.0,
+        "passes": 1,
+        "success": false
+      },
+      "turns": [
+        {
+          "turn": 1,
+          "call": "Answer: apis.spotify.search_playlists(query=\"top indie playlists\")",
+          "obs": "EXEC_HTTP_ERROR: HTTP Error 400: BAD REQUEST"
+        },
+        {
+          "turn": 1,
+          "call": "apis.spotify.search_tracks(query=\"top indie songs\")",
+          "obs": "EXEC_HTTP_ERROR: HTTP Error 400: BAD REQUEST"
+        },
+        {
+          "turn": 1,
+          "call": "apis.spotify.search_albums(query=\"top indie albums\")",
+          "obs": "EXEC_HTTP_ERROR: HTTP Error 400: BAD REQUEST"
+        },
+        {
+          "turn": 1,
+          "call": "apis.spotify.get_top_tracks()",
+          "obs": "EXEC_HTTP_ERROR: HTTP Error 400: BAD REQUEST"
+        }
+      ]
+    }
+  ],
+  "parallel_with": "GRPO-Guard-idle"
+}
