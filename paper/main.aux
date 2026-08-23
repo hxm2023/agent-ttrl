@@ -57,14 +57,26 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Action-token objective}{4}{subsection.4.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Global gate: SafeCommit}{4}{subsection.4.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Statistics}{4}{subsection.4.4}\protected@file@percent }
-\bibstyle{plainnat}
-\bibdata{references}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces EGC-TTRL: two-scale evidence gating. Local gates decide which action tokens produce gradient; the global gate decides which candidate adapter reaches future tasks.}}{5}{figure.1}\protected@file@percent }
+\newlabel{fig:method}{{1}{5}{EGC-TTRL: two-scale evidence gating. Local gates decide which action tokens produce gradient; the global gate decides which candidate adapter reaches future tasks}{figure.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Prequential AUPC across setups and seeds. Left: CTS 8-task (Qwen3-4B); middle: tau2 8-task (Mistral-7B); right: tau2 16-task pool.}}{5}{figure.2}\protected@file@percent }
+\newlabel{fig:prequential}{{2}{5}{Prequential AUPC across setups and seeds. Left: CTS 8-task (Qwen3-4B); middle: tau2 8-task (Mistral-7B); right: tau2 16-task pool}{figure.2}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {5}Results}{5}{section.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Protocol machinery works end-to-end}{5}{subsection.5.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.2}SafeCommit reduces catastrophic updates}{5}{subsection.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Updates do not produce a stable prequential gain}{5}{subsection.5.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Interpretation}{5}{subsection.5.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{5}{section.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces CTS 8-task pilot: at this scale, parameter updates do not beat the frozen policy on first-attempt prequential scores.}}{6}{figure.3}\protected@file@percent }
+\newlabel{fig:ablation}{{3}{6}{CTS 8-task pilot: at this scale, parameter updates do not beat the frozen policy on first-attempt prequential scores}{figure.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Candidate-archive replay: SafeCommit (EB e-process gate) commits zero harmful candidates while always-commit accepts all of them; commit rates stay non-degenerate.}}{6}{figure.4}\protected@file@percent }
+\newlabel{fig:safecommit}{{4}{6}{Candidate-archive replay: SafeCommit (EB e-process gate) commits zero harmful candidates while always-commit accepts all of them; commit rates stay non-degenerate}{figure.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Updates do not produce a stable prequential gain}{6}{subsection.5.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Success-cost Pareto on CTS: Best-of-N dominates; parameter updates add cost without a prequential gain at this scale.}}{7}{figure.5}\protected@file@percent }
+\newlabel{fig:pareto}{{5}{7}{Success-cost Pareto on CTS: Best-of-N dominates; parameter updates add cost without a prequential gain at this scale}{figure.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces tau2 16-task pool, seeds 2-3: frozen outperforms naive first-attempt scores; no stable update gain.}}{7}{figure.6}\protected@file@percent }
+\newlabel{fig:heatmap}{{6}{7}{tau2 16-task pool, seeds 2-3: frozen outperforms naive first-attempt scores; no stable update gain}{figure.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Interpretation}{7}{subsection.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{7}{section.6}\protected@file@percent }
+\bibstyle{plainnat}
+\bibdata{references}
 \bibcite{dare2026}{{1}{2026}{{authors}}{{}}}
 \bibcite{causalflow2026}{{2}{2026}{{Bonagiri et~al.}}{{Bonagiri, Borkar, Anderias, Rafatirad, and Homayoun}}}
 \bibcite{memopilot2026}{{3}{2026}{{Cai et~al.}}{{}}}
@@ -89,4 +101,4 @@
 \bibcite{gtta2026}{{22}{2026{}}{{Zhang et~al.}}{{}}}
 \bibcite{ttrl2025}{{23}{2025}{{Zuo et~al.}}{{Zuo, Zhang, Sheng, Qu, Cui, et~al.}}}
 \bibcite{seal2025}{{24}{2025}{{Zweiger et~al.}}{{Zweiger, Pari, Guo, Aky{\"u}rek, Kim, and Agrawal}}}
-\gdef \@abspage@last{7}
+\gdef \@abspage@last{9}

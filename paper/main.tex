@@ -1,9 +1,10 @@
 % Agent-TTRL main paper (ACL 2027 framing; full draft with honest results)
 \documentclass[11pt]{article}
 \usepackage[margin=1in]{geometry}
-\usepackage{booktabs,graphicx,amsmath,amssymb}
+\usepackage{booktabs,amsmath,amssymb}
 \usepackage[hidelinks]{hyperref}
 \usepackage[numbers]{natbib}
+\usepackage{graphicx}
 \title{Evidence-Gated Counterfactual Test-Time RL for Stateful Tool Agents}
 \author{Anonymous}
 \date{}
@@ -14,6 +15,57 @@
 \input{sections/02_related_work}
 \input{sections/03_problem}
 \input{sections/04_method}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/fig1_method.png}
+  \caption{EGC-TTRL: two-scale evidence gating. Local gates decide which
+  action tokens produce gradient; the global gate decides which candidate
+  adapter reaches future tasks.}
+  \label{fig:method}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/fig2_prequential.png}
+  \caption{Prequential AUPC across setups and seeds. Left: CTS 8-task
+  (Qwen3-4B); middle: tau2 8-task (Mistral-7B); right: tau2 16-task pool.}
+  \label{fig:prequential}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.62\textwidth]{figures/fig3_credit_ablation.png}
+  \caption{CTS 8-task pilot: at this scale, parameter updates do not beat
+  the frozen policy on first-attempt prequential scores.}
+  \label{fig:ablation}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.72\textwidth]{figures/fig4_safecommit.png}
+  \caption{Candidate-archive replay: SafeCommit (EB e-process gate) commits
+  zero harmful candidates while always-commit accepts all of them; commit
+  rates stay non-degenerate.}
+  \label{fig:safecommit}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.62\textwidth]{figures/fig5_pareto.png}
+  \caption{Success-cost Pareto on CTS: Best-of-N dominates; parameter
+  updates add cost without a prequential gain at this scale.}
+  \label{fig:pareto}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.5\textwidth]{figures/fig6_heatmap.png}
+  \caption{tau2 16-task pool, seeds 2-3: frozen outperforms naive
+  first-attempt scores; no stable update gain.}
+  \label{fig:heatmap}
+\end{figure}
+
 \input{sections/05_results}
 \input{sections/06_conclusion}
 \bibliographystyle{plainnat}
