@@ -1,9 +1,9 @@
-% Agent-TTRL main paper (ACL 2027 framing; full draft with honest results)
+% Agent-TTRL main paper (ACL 2027 framing; official ACL style files)
 \documentclass[11pt]{article}
-\usepackage[margin=1in]{geometry}
+\usepackage[preprint]{acl}
+\usepackage{times}
+\usepackage{latexsym}
 \usepackage{booktabs,amsmath,amssymb}
-\usepackage[hidelinks]{hyperref}
-\usepackage[numbers]{natbib}
 \usepackage{graphicx}
 \title{Evidence-Gated Counterfactual Test-Time RL for Stateful Tool Agents}
 \author{Anonymous}
@@ -16,34 +16,36 @@
 \input{sections/03_problem}
 \input{sections/04_method}
 
-\begin{figure}[t]
+\begin{figure*}[t]
   \centering
   \includegraphics[width=0.95\textwidth]{figures/fig1_method.png}
   \caption{EGC-TTRL: two-scale evidence gating. Local gates decide which
   action tokens produce gradient; the global gate decides which candidate
   adapter reaches future tasks.}
   \label{fig:method}
-\end{figure}
+\end{figure*}
 
-\begin{figure}[t]
+\begin{figure*}[t]
   \centering
   \includegraphics[width=0.98\textwidth]{figures/fig2_prequential.png}
   \caption{Prequential AUPC across setups and seeds. Left: CTS 8-task
-  (Qwen3-4B); middle: tau2 8-task (Mistral-7B); right: tau2 16-task pool.}
+  (Qwen3-4B); middle: tau2 8-task (Mistral-7B); right: tau2 16-task matched
+  control (Mistral-7B, strong updates).}
   \label{fig:prequential}
-\end{figure}
+\end{figure*}
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.62\textwidth]{figures/fig3_credit_ablation.png}
+  \includegraphics[width=\columnwidth]{figures/fig3_credit_ablation.png}
   \caption{CTS 8-task pilot: at this scale, parameter updates do not beat
-  the frozen policy on first-attempt prequential scores.}
+  the frozen policy on first-attempt prequential scores. Variants marked
+  $*$ are no-op controls (zero gradient tokens; see \S5.3).}
   \label{fig:ablation}
 \end{figure}
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.72\textwidth]{figures/fig4_safecommit.png}
+  \includegraphics[width=\columnwidth]{figures/fig4_safecommit.png}
   \caption{Candidate-archive replay: SafeCommit (EB e-process gate) commits
   zero harmful candidates while always-commit accepts all of them; commit
   rates stay non-degenerate.}
@@ -52,22 +54,23 @@
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.62\textwidth]{figures/fig5_pareto.png}
-  \caption{Success-cost Pareto on CTS: Best-of-N dominates; parameter
-  updates add cost without a prequential gain at this scale.}
+  \includegraphics[width=\columnwidth]{figures/fig5_pareto.png}
+  \caption{Success-cost sketch on CTS: Best-of-N dominates; parameter
+  updates add cost without a prequential gain at this scale. Costs are
+  approximate relative model-token counts.}
   \label{fig:pareto}
 \end{figure}
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.5\textwidth]{figures/fig6_heatmap.png}
-  \caption{tau2 16-task pool, seeds 2-3: frozen outperforms naive
-  first-attempt scores; no stable update gain.}
+  \includegraphics[width=\columnwidth]{figures/fig6_heatmap.png}
+  \caption{tau2 16-task matched control, per-seed AUPC: no stable update
+  gain under strong updates (16 rollouts, 8 steps, lr $5\times10^{-5}$).}
   \label{fig:heatmap}
 \end{figure}
 
 \input{sections/05_results}
 \input{sections/06_conclusion}
-\bibliographystyle{plainnat}
+\bibliographystyle{acl_natbib}
 \bibliography{references}
 \end{document}

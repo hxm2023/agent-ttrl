@@ -35,6 +35,17 @@ def log(msg: str) -> None:
     print(f"[m6] {msg}", flush=True)
 
 
+def _probe_guard() -> str:
+    """Shared-card rule 4: record what GRPO-Guard was doing during the run."""
+    try:
+        out = subprocess.run(["ps", "aux"], capture_output=True, text=True, timeout=10).stdout
+        if "batch_online" in out or "grpo_guard" in out or "GRPO-Guard" in out:
+            return "GRPO-Guard-active"
+    except Exception:
+        pass
+    return "GRPO-Guard-idle"
+
+
 def patch_device_normalization() -> None:
     import torch
     import trl
@@ -303,10 +314,11 @@ print(json.dumps({"tools": str(tools)[:4000], "tasks": out}))
             log(f"task {task['id']}: y_pre={y_pre} eval={str(eval_out)[:110]}")
 
         aupc = sum(s["y_pre"] for s in stream_log) / max(1, len(stream_log))
+        parallel = _probe_guard()
         report = {"run_id": f"m6-{args.variant}-stream", "variant": args.variant,
                   "seed": args.seed, "n_tasks": len(stream_log),
                   "aupc_prequential": round(aupc, 4), "metric": "pass_pct_partial", "tasks": stream_log,
-                  "parallel_with": "GRPO-Guard-idle"}
+                  "parallel_with": parallel}
         (OUT_DIR / "run_manifest.json").write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
         log(f"AUPC_prequential={aupc:.4f} over {len(stream_log)} tasks")
         return 0

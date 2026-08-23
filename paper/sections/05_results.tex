@@ -25,6 +25,9 @@ against the anchor stream, and reported here transparently rather than
 as a pass.
 
 \subsection{Updates do not produce a stable prequential gain}
+\begin{table*}[t]
+\centering
+\small
 \begin{tabular}{lcccc}
 \toprule
 Setup & frozen & naive & egc & n \\
@@ -34,18 +37,18 @@ AppWorld 3-task (Qwen3-4B) & 0.000 & 0.000 & --- & 1 \\
 tau2 16-task (Mistral-7B) & 0.021 & 0.017 & \textdagger & 4 \\
 \bottomrule
 \end{tabular}
-
-\footnotesize
-\textdagger \,pending the egc re-run with the corrected stream (the
-pre-audit egc cell never entered the update path -- dead-code bug, fixed
-2026-08-23 -- and is a frozen-equivalent no-op). The CTS
-egc/egc\_conflict variants produced no reliable paired-branch credit (zero
-gradient tokens on every task; local gate passed nothing), i.e.\ no-op
-controls rather than mechanism runs; only frozen vs.\ naive is an
-informative update contrast at CTS. AppWorld is a floor measurement: the
-4B model executes real calls but never meets the hidden checkpoints (n=1
-per arm).
-\normalsize
+\caption{First-attempt prequential AUPC (frozen = no update; naive =
+REINFORCE-style updates; egc = reliability-gated credit). \textdagger
+{}pending the egc re-run with the corrected stream (the pre-audit egc cell
+never entered the update path --- dead-code bug, fixed 2026-08-23 --- and
+is a frozen-equivalent no-op). The CTS egc/egc\_conflict variants produced
+no reliable paired-branch credit (zero gradient tokens on every task;
+local gate passed nothing), i.e.\ no-op controls rather than mechanism
+runs; only frozen vs.\ naive is an informative update contrast at CTS.
+AppWorld is a floor measurement: the 4B model executes real calls but
+never meets the hidden checkpoints (n=1 per arm).}
+\label{tab:main}
+\end{table*}
 
 The update rule (Sect.~4.2; REINFORCE-style, group-relative advantage,
 $\le$4 sequential steps on the same materialized rollouts) does not

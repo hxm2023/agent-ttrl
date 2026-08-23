@@ -1,4 +1,5 @@
 \relax 
+\bibstyle{acl_natbib}
 \providecommand\hyper@newdestlabel[2]{}
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
@@ -34,6 +35,8 @@
 \citation{vag2026}
 \citation{monitoring2025}
 \citation{sage2026}
+\citation{seaeval2026}
+\citation{evotest2026}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Test-time RL on unlabeled reasoning.}{2}{section*.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Deployment-time adaptation without parameter updates.}{2}{section*.2}\protected@file@percent }
@@ -41,49 +44,44 @@
 \@writefile{toc}{\contentsline {paragraph}{Counterfactual and sibling-branch credit.}{2}{section*.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Commit gates and risk control.}{2}{section*.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Continual self-improvement.}{2}{section*.6}\protected@file@percent }
-\citation{seaeval2026}
-\citation{evotest2026}
+\@writefile{toc}{\contentsline {paragraph}{Prequential evaluation.}{2}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Problem and Protocol}{2}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Deployment stream}{2}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Evidence tiers}{2}{subsection.3.2}\protected@file@percent }
 \citation{appworld2024}
 \citation{tau2bench2025}
-\@writefile{toc}{\contentsline {paragraph}{Prequential evaluation.}{3}{section*.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}Problem and Protocol}{3}{section.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Deployment stream}{3}{subsection.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Evidence tiers}{3}{subsection.3.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Prequential primary metric}{3}{subsection.3.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Budgets and identity}{3}{subsection.3.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Environments}{3}{subsection.3.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4}EGC-TTRL}{4}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Local gate: paired-branch signed credit}{4}{subsection.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Action-token objective}{4}{subsection.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Global gate: SafeCommit}{4}{subsection.4.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces EGC-TTRL: two-scale evidence gating. Local gates decide which action tokens produce gradient; the global gate decides which candidate adapter reaches future tasks.}}{5}{figure.1}\protected@file@percent }
-\newlabel{fig:method}{{1}{5}{EGC-TTRL: two-scale evidence gating. Local gates decide which action tokens produce gradient; the global gate decides which candidate adapter reaches future tasks}{figure.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Prequential AUPC across setups and seeds. Left: CTS 8-task (Qwen3-4B); middle: tau2 8-task (Mistral-7B); right: tau2 16-task pool.}}{5}{figure.2}\protected@file@percent }
-\newlabel{fig:prequential}{{2}{5}{Prequential AUPC across setups and seeds. Left: CTS 8-task (Qwen3-4B); middle: tau2 8-task (Mistral-7B); right: tau2 16-task pool}{figure.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Statistics}{5}{subsection.4.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {5}Results}{5}{section.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Protocol machinery works end-to-end}{5}{subsection.5.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces CTS 8-task pilot: at this scale, parameter updates do not beat the frozen policy on first-attempt prequential scores.}}{6}{figure.3}\protected@file@percent }
-\newlabel{fig:ablation}{{3}{6}{CTS 8-task pilot: at this scale, parameter updates do not beat the frozen policy on first-attempt prequential scores}{figure.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Candidate-archive replay: SafeCommit (EB e-process gate) commits zero harmful candidates while always-commit accepts all of them; commit rates stay non-degenerate.}}{6}{figure.4}\protected@file@percent }
-\newlabel{fig:safecommit}{{4}{6}{Candidate-archive replay: SafeCommit (EB e-process gate) commits zero harmful candidates while always-commit accepts all of them; commit rates stay non-degenerate}{figure.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}SafeCommit reduces catastrophic updates}{6}{subsection.5.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Success-cost Pareto on CTS: Best-of-N dominates; parameter updates add cost without a prequential gain at this scale.}}{7}{figure.5}\protected@file@percent }
-\newlabel{fig:pareto}{{5}{7}{Success-cost Pareto on CTS: Best-of-N dominates; parameter updates add cost without a prequential gain at this scale}{figure.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces tau2 16-task pool, seeds 2-3: frozen outperforms naive first-attempt scores; no stable update gain.}}{7}{figure.6}\protected@file@percent }
-\newlabel{fig:heatmap}{{6}{7}{tau2 16-task pool, seeds 2-3: frozen outperforms naive first-attempt scores; no stable update gain}{figure.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Updates do not produce a stable prequential gain}{7}{subsection.5.3}\protected@file@percent }
-\bibstyle{plainnat}
+\@writefile{toc}{\contentsline {section}{\numberline {4}EGC-TTRL}{3}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Local gate: paired-branch signed credit}{3}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Action-token objective}{3}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Global gate: SafeCommit}{3}{subsection.4.3}\protected@file@percent }
+\bibstyle{acl_natbib}
 \bibdata{references}
-\bibcite{dare2026}{{1}{2026}{{authors}}{{}}}
-\bibcite{causalflow2026}{{2}{2026}{{Bonagiri et~al.}}{{Bonagiri, Borkar, Anderias, Rafatirad, and Homayoun}}}
-\bibcite{memopilot2026}{{3}{2026}{{Cai et~al.}}{{}}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Statistics}{4}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Results}{4}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Protocol machinery works end-to-end}{4}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}SafeCommit reduces catastrophic updates}{4}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Updates do not produce a stable prequential gain}{4}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Interpretation}{4}{subsection.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{4}{section.6}\protected@file@percent }
+\bibcite{causalflow2026}{{1}{2026}{{Bonagiri et~al.}}{{Bonagiri, Borkar, Anderias, Rafatirad, and Homayoun}}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces EGC-TTRL: two-scale evidence gating. Local gates decide which action tokens produce gradient; the global gate decides which candidate adapter reaches future tasks.}}{5}{figure.caption.8}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:method}{{1}{5}{EGC-TTRL: two-scale evidence gating. Local gates decide which action tokens produce gradient; the global gate decides which candidate adapter reaches future tasks}{figure.caption.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Prequential AUPC across setups and seeds. Left: CTS 8-task (Qwen3-4B); middle: tau2 8-task (Mistral-7B); right: tau2 16-task matched control (Mistral-7B, strong updates).}}{5}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:prequential}{{2}{5}{Prequential AUPC across setups and seeds. Left: CTS 8-task (Qwen3-4B); middle: tau2 8-task (Mistral-7B); right: tau2 16-task matched control (Mistral-7B, strong updates)}{figure.caption.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces CTS 8-task pilot: at this scale, parameter updates do not beat the frozen policy on first-attempt prequential scores. Variants marked $*$ are no-op controls (zero gradient tokens; see \S  5.3).}}{5}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:ablation}{{3}{5}{CTS 8-task pilot: at this scale, parameter updates do not beat the frozen policy on first-attempt prequential scores. Variants marked $*$ are no-op controls (zero gradient tokens; see \S 5.3)}{figure.caption.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Candidate-archive replay: SafeCommit (EB e-process gate) commits zero harmful candidates while always-commit accepts all of them; commit rates stay non-degenerate.}}{5}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:safecommit}{{4}{5}{Candidate-archive replay: SafeCommit (EB e-process gate) commits zero harmful candidates while always-commit accepts all of them; commit rates stay non-degenerate}{figure.caption.11}{}}
+\bibcite{memopilot2026}{{2}{2026}{{Cai et~al.}}{{}}}
+\bibcite{dare2026}{{3}{2026}{{Du et~al.}}{{Du, Huang, and Li}}}
 \bibcite{evotest2026}{{4}{2026}{{Feng et~al.}}{{}}}
 \bibcite{amplification2026}{{5}{2026}{{Khattar et~al.}}{{Khattar, Rashid, Choudhury, Liu, Koike-Akino, Jin, and Wang}}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Interpretation}{8}{subsection.5.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{8}{section.6}\protected@file@percent }
-\bibcite{appo2026}{{6}{2026{}}{{Li et~al.}}{{}}}
-\bibcite{shapley2026}{{7}{2026{}}{{Li et~al.}}{{Li, Lee, and Bareinboim}}}
+\bibcite{appo2026}{{6}{2026{a}}{{Li et~al.}}{{}}}
+\bibcite{shapley2026}{{7}{2026{b}}{{Li et~al.}}{{Li, Lee, and Bareinboim}}}
 \bibcite{t3rl2026}{{8}{2026}{{Liao et~al.}}{{Liao, R{\"o}hrich, Wang, Zhang, Samadzadeh, Tresp, and Yeung-Levy}}}
 \bibcite{jitrl2026}{{9}{2026}{{Liu et~al.}}{{}}}
 \bibcite{pace2026}{{10}{2026}{{Mukherjee et~al.}}{{}}}
@@ -91,15 +89,21 @@
 \bibcite{monitoring2025}{{12}{2025}{{Schirmer et~al.}}{{Schirmer, Jazbec, Naesseth, and Nalisnick}}}
 \bibcite{vag2026}{{13}{2026}{{Shang et~al.}}{{Shang, Xu, Sun, Xia, Hu, Xu, and Zheng}}}
 \bibcite{appworld2024}{{14}{2024}{{Trivedi et~al.}}{{Trivedi, Khot, Hartmann, Manku, Dong, Li, Gupta, Sabharwal, and Balasubramanian}}}
-\bibcite{att2026}{{15}{2026{}}{{Wang et~al.}}{{Wang, Hao, et~al.}}}
-\bibcite{cvtrl2026}{{16}{2026{}}{{Wang et~al.}}{{}}}
-\bibcite{sage2026}{{17}{2026{}}{{Wang et~al.}}{{}}}
-\bibcite{treerl2026}{{18}{2026{}}{{Yu et~al.}}{{Yu, Chong, Nandi, Soylu, Sun, Manning, and Shi}}}
-\bibcite{olivia2026}{{19}{2026{}}{{Yu et~al.}}{{Yu, Wu, Li, Kuang, Zhou, Yu, Han, Shang, and McAuley}}}
-\bibcite{seaeval2026}{{20}{2026{}}{{Zhang et~al.}}{{}}}
-\bibcite{staror2026}{{21}{2026{}}{{Zhang et~al.}}{{}}}
-\bibcite{ace2025}{{22}{2025}{{Zhang et~al.}}{{Zhang, Zou, Olukotun, et~al.}}}
-\bibcite{gtta2026}{{23}{2026{}}{{Zhang et~al.}}{{}}}
-\bibcite{ttrl2025}{{24}{2025}{{Zuo et~al.}}{{Zuo, Zhang, Sheng, Qu, Cui, et~al.}}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces First-attempt prequential AUPC (frozen = no update; naive = REINFORCE-style updates; egc = reliability-gated credit). \textdagger {}pending the egc re-run with the corrected stream (the pre-audit egc cell never entered the update path --- dead-code bug, fixed 2026-08-23 --- and is a frozen-equivalent no-op). The CTS egc/egc\_conflict variants produced no reliable paired-branch credit (zero gradient tokens on every task; local gate passed nothing), i.e.\ no-op controls rather than mechanism runs; only frozen vs.\ naive is an informative update contrast at CTS. AppWorld is a floor measurement: the 4B model executes real calls but never meets the hidden checkpoints (n=1 per arm).}}{6}{table.caption.14}\protected@file@percent }
+\newlabel{tab:main}{{1}{6}{First-attempt prequential AUPC (frozen = no update; naive = REINFORCE-style updates; egc = reliability-gated credit). \textdagger {}pending the egc re-run with the corrected stream (the pre-audit egc cell never entered the update path --- dead-code bug, fixed 2026-08-23 --- and is a frozen-equivalent no-op). The CTS egc/egc\_conflict variants produced no reliable paired-branch credit (zero gradient tokens on every task; local gate passed nothing), i.e.\ no-op controls rather than mechanism runs; only frozen vs.\ naive is an informative update contrast at CTS. AppWorld is a floor measurement: the 4B model executes real calls but never meets the hidden checkpoints (n=1 per arm)}{table.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Success-cost sketch on CTS: Best-of-N dominates; parameter updates add cost without a prequential gain at this scale. Costs are approximate relative model-token counts.}}{6}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:pareto}{{5}{6}{Success-cost sketch on CTS: Best-of-N dominates; parameter updates add cost without a prequential gain at this scale. Costs are approximate relative model-token counts}{figure.caption.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces tau2 16-task matched control, per-seed AUPC: no stable update gain under strong updates (16 rollouts, 8 steps, lr $5\times 10^{-5}$).}}{6}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:heatmap}{{6}{6}{tau2 16-task matched control, per-seed AUPC: no stable update gain under strong updates (16 rollouts, 8 steps, lr $5\times 10^{-5}$)}{figure.caption.13}{}}
+\bibcite{att2026}{{15}{2026{a}}{{Wang et~al.}}{{Wang, Hao et~al.}}}
+\bibcite{cvtrl2026}{{16}{2026{b}}{{Wang et~al.}}{{}}}
+\bibcite{sage2026}{{17}{2026{c}}{{Wang et~al.}}{{}}}
+\bibcite{treerl2026}{{18}{2026{a}}{{Yu et~al.}}{{Yu, Chong, Nandi, Soylu, Sun, Manning, and Shi}}}
+\bibcite{olivia2026}{{19}{2026{b}}{{Yu et~al.}}{{Yu, Wu, Li, Kuang, Zhou, Yu, Han, Shang, and McAuley}}}
+\bibcite{seaeval2026}{{20}{2026{a}}{{Zhang et~al.}}{{}}}
+\bibcite{staror2026}{{21}{2026{b}}{{Zhang et~al.}}{{}}}
+\bibcite{ace2025}{{22}{2025}{{Zhang et~al.}}{{Zhang, Zou, Olukotun et~al.}}}
+\bibcite{gtta2026}{{23}{2026{c}}{{Zhang et~al.}}{{}}}
+\bibcite{ttrl2025}{{24}{2025}{{Zuo et~al.}}{{Zuo, Zhang, Sheng, Qu, Cui et~al.}}}
 \bibcite{seal2025}{{25}{2025}{{Zweiger et~al.}}{{Zweiger, Pari, Guo, Aky{\"u}rek, Kim, and Agrawal}}}
-\gdef \@abspage@last{10}
+\gdef \@abspage@last{7}
