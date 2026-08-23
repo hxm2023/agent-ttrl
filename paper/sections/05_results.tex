@@ -1,0 +1,45 @@
+% Results — honest synthesis (all numbers from protocols/runs/, 2026-08-23)
+\documentclass[preview]{standalone}
+\begin{document}
+\section{Results}
+
+\subsection{Protocol machinery works end-to-end}
+The full pipeline (guarded rollout identity, evidence bundles, prequential
+streams, three-channel cost ledger, SafeCommit gate) ran on CTS, AppWorld
+and tau2 with Qwen3-4B and Mistral-7B. All correctness gates passed
+(R001-R003; Guard contract 24/24).
+
+\subsection{SafeCommit reduces catastrophic updates}
+In candidate-archive replay over benign/mixed/poisoned/abrupt-shift
+streams, the empirical-Bernstein e-process gate commits zero harmful
+candidates (catastrophic-update rate relative reduction 100\% vs
+always-commit) while keeping benign/mixed commit rates at 0.11/0.10
+(non-degenerate).
+
+\subsection{Updates do not produce a stable prequential gain}
+\begin{tabular}{lcccc}
+\toprule
+Setup & frozen & naive & egc & n \\
+\midrule
+CTS 8-task (Qwen3-4B) & 0.625 & 0.500 & 0.500 & 2-3 seeds \\
+AppWorld 3-task (Qwen3-4B) & 0.000 & 0.000 & --- & 1 \\
+tau2 8-task (Mistral-7B) & 0.072 & 0.093 & 0.077 & 2 \\
+tau2 16-task (Mistral-7B) & 0.025 & 0.013 & --- & 2 \\
+\bottomrule
+\end{tabular}
+
+LoRA-GRPO updates (4 steps, lr 5e-6, per-task batches) do not improve
+first-attempt performance on future tasks under matched budgets; effect
+directions flip with task pool. Single-step updates produced zero logit
+drift (R002 canary); the 4-step variant changes behavior measurably but
+not in a direction that transfers.
+
+\subsection{Interpretation}
+The paper contributes (a) a validated protocol machinery for
+deployment-period agent RL under partial evidence (evidence tiers,
+prequential induction, budget accounting, risk-controlled commit), and
+(b) a reproducible negative result: at these scales and models,
+test-time LoRA-RL does not yield stable inductive transfer, while
+risk-controlled commit eliminates catastrophic updates. The harness is
+open for stronger backbones and longer streams.
+\end{document}
