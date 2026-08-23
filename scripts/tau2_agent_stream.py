@@ -1,0 +1,238 @@
+"""M6: tau2 retail prequential stream (frozen baseline; design doc §9.3).
+
+LLM agent calls tau2 retail tools directly (func(arg="v")) via the persistent
+tau2 exec server; hidden scoring = evaluation_criteria match (E_hard-visible
+in our adapter; R_hidden for the paper's protocol it is the official
+evaluator proxy). Prequential first-attempt scores per task.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+MODEL_PATH = os.environ.get("GRPO_GUARD_MODEL_PATH", "/root/autodl-tmp/models/Qwen3-4B")
+OUT_ROOT = Path(os.environ.get("ATTRL_M6_OUT", "/root/autodl-tmp/agent-ttrl/artifacts/m6"))
+TAU2_SERVER_PORT = 8800
+MAX_TURNS = 6
+
+SYSTEM_PROMPT = """You are a customer service assistant for a retail company.
+Available tools (call them directly, one per line):
+{tools}
+Policy:
+{policy}
+Task: {instruction}
+Examples of correct calls:
+find_user_id_by_name_zip(first_name="Yusuf", last_name="Rossi", zip="19122")
+search_for_product(keywords="mechanical keyboard", limit=10)
+Return ONLY tool calls, one per line, keyword arguments in double quotes."""
+
+
+def log(msg: str) -> None:
+    print(f"[m6] {msg}", flush=True)
+
+
+def patch_device_normalization() -> None:
+    import torch
+    import trl
+    import vllm
+    from trl.generation.vllm_client import VLLMClient
+    assert trl.__version__ == "1.10.0" and vllm.__version__ == "0.26.0"
+    _orig = VLLMClient.init_communicator
+
+    def _normalized(self, device, *a, **kw):
+        if isinstance(device, torch.device) and device.index is None:
+            device = torch.device(device.type, torch.cuda.current_device())
+        return _orig(self, device, *a, **kw)
+
+    VLLMClient.init_communicator = _normalized
+
+
+def start_server(server_log: Path, port: int) -> subprocess.Popen:
+    trl_bin = os.path.join(os.path.dirname(sys.executable), "trl")
+    proc = subprocess.Popen(
+        [trl_bin, "vllm-serve", "--model", MODEL_PATH, "--port", str(port),
+         "--gpu-memory-utilization", "0.4", "--max-model-len", "4096"],
+        env={**os.environ, "CUDA_VISIBLE_DEVICES": "1"},
+        stdout=open(server_log, "w"), stderr=subprocess.STDOUT, start_new_session=True,
+    )
+    for _ in range(180):
+        time.sleep(2)
+        try:
+            import urllib.request
+            with urllib.request.urlopen(f"http://127.0.0.1:{port}/health", timeout=5) as r:
+                if r.status == 200:
+                    return proc
+        except Exception:
+            pass
+        if proc.poll() is not None:
+            raise RuntimeError(f"server died: {Path(server_log).read_text()[-2000:]}")
+    raise RuntimeError("server not healthy in 360s")
+
+
+def stop_server(proc: subprocess.Popen, port: int) -> None:
+    import signal
+    try:
+        os.killpg(proc.pid, signal.SIGTERM)
+        proc.wait(timeout=30)
+    except (ProcessLookupError, subprocess.TimeoutExpired):
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+    subprocess.run(
+        ["bash", "-c",
+         f"for p in $(nvidia-smi --query-compute-apps=pid --format=csv,noheader); do "
+         f"[ \"$p\" = \"$$\" ] && continue; "
+         f"cmd=$(tr '\\0' ' ' < /proc/$p/cmdline 2>/dev/null); "
+         f"if echo \"$cmd\" | grep -qE 'vllm-serve|VLLM::EngineCore'; then kill -9 $p 2>/dev/null; fi; done"],
+        capture_output=True)
+    time.sleep(5)
+
+
+def _unpack_gen(res: dict):
+    return (res["prompt_ids"], res["completion_ids"], res["logprobs"], res.get("logprob_token_ids"))
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--n-tasks", type=int, default=4)
+    ap.add_argument("--port", type=int, default=8240)
+    ap.add_argument("--group-port", type=int, default=53300)
+    args = ap.parse_args()
+
+    import urllib.request
+    import torch
+    from transformers import AutoTokenizer
+    from trl.generation.vllm_client import VLLMClient
+    patch_device_normalization()
+
+    OUT_DIR = OUT_ROOT / "frozen_stream"
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    t2_server = subprocess.Popen(
+        ["/root/autodl-tmp/appworld-venv/bin/python",
+         "/root/autodl-tmp/agent-ttrl/scripts/tau2_server.py"],
+        env={**os.environ, "TAU2_SERVER_PORT": str(TAU2_SERVER_PORT)},
+        start_new_session=True)
+    time.sleep(10)
+
+    def http_post(path: str, payload: dict) -> dict:
+        req = urllib.request.Request(f"http://127.0.0.1:{TAU2_SERVER_PORT}{path}",
+                                     data=json.dumps(payload).encode(),
+                                     headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=180) as r:
+            return json.loads(r.read())
+
+    # task list + tools via helper
+    helper = r'''
+import json, sys, os
+sys.path.insert(0, "/root/autodl-tmp/tau2-bench/src")
+from tau2.domains.retail.environment import get_environment, get_tasks
+env = get_environment()
+tools = env.get_tools_description("assistant")
+tasks = get_tasks("base")[:8]
+out = []
+for t in tasks:
+    out.append({"id": t.id, "instruction": t.user_scenario.instructions.task_instructions,
+                "known": t.user_scenario.instructions.known_info,
+                "policy": None})
+print(json.dumps({"tools": str(tools)[:4000], "tasks": out}))
+'''
+    hp = OUT_DIR / "tau2_helper.py"
+    hp.write_text(helper, encoding="utf-8")
+    r = subprocess.run(["/root/autodl-tmp/appworld-venv/bin/python", str(hp)],
+                       capture_output=True, text=True, cwd="/root/autodl-tmp/tau2-bench",
+                       env={**os.environ, "PYTHONIOENCODING": "utf-8"})
+    if r.returncode != 0:
+        print("helper failed:", r.stderr[-1500:], flush=True)
+        return 2
+    meta = json.loads(r.stdout.strip().splitlines()[-1])
+    tools_text = meta["tools"]
+    tasks = meta["tasks"]
+    log(f"loaded {len(tasks)} tau2 retail tasks; tools desc {len(tools_text)} chars")
+
+    server = start_server(OUT_DIR / "vllm_server.log", args.port)
+    try:
+        client = VLLMClient(base_url=f"http://127.0.0.1:{args.port}", group_port=args.group_port,
+                            connection_timeout=300)
+        tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, trust_remote_code=True)
+
+        stream_log = []
+        for t_idx in range(min(args.n_tasks, len(tasks))):
+            task = tasks[t_idx]
+            for _try in range(5):
+                try:
+                    http_post("/init", {"task_id": task["id"]})
+                    break
+                except Exception:
+                    if _try == 4:
+                        raise
+                    time.sleep(8)
+            prompt = SYSTEM_PROMPT.format(tools=tools_text, policy="Follow store policy.",
+                                          instruction=task["instruction"])
+            conversation = ""
+            turn_log = []
+            for turn in range(MAX_TURNS):
+                p = prompt
+                if conversation:
+                    p += "\n\nPrevious observations:\n" + conversation[-2500:]
+                res_g = client.generate([p], n=1, temperature=0.3, top_p=1.0,
+                                        top_k=0, max_tokens=256, logprobs=0)
+                _, cid, _, _ = _unpack_gen(res_g)
+                text = tokenizer.decode(cid[0], skip_special_tokens=True)
+                import re as _re
+                lines = []
+                for m in _re.finditer(r"[a-zA-Z_][a-zA-Z0-9_]*\([^\n]{0,160}\)", text):
+                    frag = m.group(0).strip()
+                    if frag not in lines:
+                        lines.append(frag)
+                lines = lines[:4]
+                if not lines:
+                    if turn >= 3:
+                        break
+                    continue
+                for line in lines:
+                    try:
+                        out = http_post("/exec", {"code": line})
+                        obs = json.dumps(out)[:250]
+                    except Exception as e:
+                        obs = f"EXEC_HTTP_ERROR: {e}"
+                    turn_log.append({"turn": turn, "call": line, "obs": obs})
+                    conversation += f"\nCALL: {line}\nOBS: {obs[:200]}"
+            try:
+                eval_out = http_post("/eval", {})
+                y_pre = 1.0 if eval_out.get("success") else 0.0
+            except Exception as e:
+                eval_out = {"error": str(e)[:150]}
+                y_pre = 0.0
+            try:
+                http_post("/reset", {})
+            except Exception:
+                pass
+            stream_log.append({"task": t_idx, "task_id": task["id"], "y_pre": y_pre,
+                               "eval": eval_out, "turns": turn_log})
+            log(f"task {task['id']}: y_pre={y_pre} eval={str(eval_out)[:110]}")
+
+        aupc = sum(s["y_pre"] for s in stream_log) / max(1, len(stream_log))
+        report = {"run_id": "m6-frozen-stream", "variant": "frozen",
+                  "aupc_prequential": round(aupc, 4), "tasks": stream_log,
+                  "parallel_with": "GRPO-Guard-idle"}
+        (OUT_DIR / "run_manifest.json").write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+        log(f"AUPC_prequential={aupc:.4f} over {len(stream_log)} tasks")
+        return 0
+    finally:
+        stop_server(server, args.port)
+        try:
+            http_post("/reset", {})
+        except Exception:
+            pass
+        t2_server.kill()
+
+
+if __name__ == "__main__":
+    sys.exit(main())
