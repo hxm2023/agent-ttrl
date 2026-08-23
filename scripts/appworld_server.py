@@ -71,4 +71,4 @@ def reset():
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=int(os.environ.get("APWORLD_SERVER_PORT", "8700")))
+    app.run(host="127.0.0.1", port=int(os.environ.get("APWORLD_SERVER_PORT", "8700")), threaded=False)

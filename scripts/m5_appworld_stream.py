@@ -103,7 +103,7 @@ def _unpack_gen(res: dict):
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--variant", choices=["frozen"], default="frozen")
+    ap.add_argument("--variant", choices=["frozen", "naive"], default="frozen")
     ap.add_argument("--n-tasks", type=int, default=3)
     ap.add_argument("--start-idx", type=int, default=0)
     ap.add_argument("--port", type=int, default=8230)
@@ -112,6 +112,7 @@ def main() -> int:
 
     import urllib.request
     import torch
+    from transformers import AutoModelForCausalLM as _T_LLM
     from transformers import AutoTokenizer
     from trl.generation.vllm_client import VLLMClient
     patch_device_normalization()
@@ -243,10 +244,74 @@ print(json.dumps(out))
                 http_post("/reset", {})
             except Exception:
                 pass
+
+            # ---- naive variant: LoRA-GRPO update from accessible call evidence ----
+            update_info = {"updated": False}
+            if args.variant == "naive":
+                import torch as _T
+                from peft import LoraConfig, get_peft_model
+                if "model" not in dir():
+                    _base = _T_LLM.from_pretrained(MODEL_PATH, torch_dtype=_T.bfloat16,
+                                                   device_map="cuda:0")
+                    _base.eval()
+                    _lora_cfg = LoraConfig(r=16, lora_alpha=32, lora_dropout=0.0,
+                                           target_modules=["q_proj", "k_proj", "v_proj", "o_proj",
+                                                           "gate_proj", "up_proj", "down_proj"],
+                                           task_type="CAUSAL_LM")
+                    model = get_peft_model(_base, _lora_cfg)
+                    model.train()
+                    optimizer = _T.optim.AdamW(model.parameters(), lr=5e-6)
+                    _T_LLM_REF = _T
+                # sample 4 rollouts; reward = fraction of calls that executed OK
+                gens = []
+                for _g in range(4):
+                    res_g = client.generate([prompt], n=1, temperature=1.0, top_p=1.0,
+                                            top_k=0, max_tokens=512, logprobs=0)
+                    _, cid_g, _, _ = _unpack_gen(res_g)
+                    text_g = tokenizer.decode(cid_g[0], skip_special_tokens=True)
+                    calls_g = [l.strip() for l in text_g.splitlines()
+                               if "apis." in l and "(" in l and ")" in l][:4]
+                    ok = 0
+                    for c in calls_g:
+                        try:
+                            out = http_post("/exec", {"code": c})
+                            if out.get("ok") and "failed" not in str(out.get("output", ""))[:60]:
+                                ok += 1
+                        except Exception:
+                            pass
+                    util = ok / max(1, len(calls_g))
+                    gens.append({"cid": cid_g[0], "u": util})
+                utils = [g["u"] for g in gens]
+                import numpy as _np
+                advs = ( _np.array(utils) - _np.mean(utils)) / (_np.std(utils) + 1e-3)
+                # update: one clipped-GRPO step over the sampled completions
+                model.train()
+                optimizer.zero_grad()
+                total = 0.0
+                for g, a in zip(gens, advs):
+                    if a == 0.0:
+                        continue
+                    ids = _T.tensor([prompt_ids + g["cid"]], device="cuda:0")
+                    mask = _T.zeros_like(ids)
+                    mask[0, len(prompt_ids):] = 1.0
+                    out = model(input_ids=ids)
+                    logp = _T.log_softmax(out.logits, dim=-1)
+                    shift_logp = logp[:, :-1, :]
+                    shift_ids = ids[:, 1:]
+                    shift_mask = mask[:, 1:]
+                    tok_logp = shift_logp.gather(-1, shift_ids.unsqueeze(-1)).squeeze(-1)
+                    masked = (tok_logp * shift_mask).sum()
+                    n = shift_mask.sum().clamp(min=1.0)
+                    total += -float(a) * masked / n
+                if total != 0.0:
+                    total.backward()
+                    _T.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                    optimizer.step()
+                    update_info = {"updated": True, "n_rows": 4, "adv": [round(float(a), 3) for a in advs]}
             stream_log.append({"task": t_idx, "task_id": task["id"], "y_pre": y_pre,
                                "completed": completed, "calls": n_calls,
-                               "eval": eval_out, "turns": turn_log})
-            log(f"task {task['id']}: y_pre={y_pre} calls={n_calls} eval={str(eval_out)[:100]}")
+                               "eval": eval_out, "turns": turn_log, **update_info})
+            log(f"task {task['id']}: y_pre={y_pre} calls={n_calls} {update_info}")
 
         aupc = sum(s["y_pre"] for s in stream_log) / max(1, len(stream_log))
         report = {"run_id": f"m5-{args.variant}-stream", "variant": args.variant,
