@@ -100,6 +100,7 @@ def _unpack_gen(res: dict):
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default=os.environ.get("GRPO_GUARD_MODEL_PATH", "/root/autodl-tmp/models/Qwen3-4B"))
+    ap.add_argument("--variant", choices=["frozen", "naive"], default="frozen")
     ap.add_argument("--n-tasks", type=int, default=4)
     ap.add_argument("--port", type=int, default=8240)
     ap.add_argument("--group-port", type=int, default=53300)
@@ -108,11 +109,12 @@ def main() -> int:
 
     import urllib.request
     import torch
+    from transformers import AutoModelForCausalLM as _T_LLM
     from transformers import AutoTokenizer
     from trl.generation.vllm_client import VLLMClient
     patch_device_normalization()
 
-    OUT_DIR = OUT_ROOT / f"frozen_stream_{Path(model_path).name}"
+    OUT_DIR = OUT_ROOT / f"{args.variant}_stream_{Path(model_path).name}"
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     t2_server = subprocess.Popen(
@@ -184,7 +186,8 @@ print(json.dumps({"tools": str(tools)[:4000], "tasks": out}))
                     p += "\n\nPrevious observations:\n" + conversation[-2500:]
                 res_g = client.generate([p], n=1, temperature=0.3, top_p=1.0,
                                         top_k=0, max_tokens=256, logprobs=0)
-                _, cid, _, _ = _unpack_gen(res_g)
+                pids_first, cid, _, _ = _unpack_gen(res_g)
+                prompt_ids = pids_first[0] if turn == 0 else prompt_ids
                 text = tokenizer.decode(cid[0], skip_special_tokens=True)
                 import re as _re
                 lines = []
@@ -211,12 +214,74 @@ print(json.dumps({"tools": str(tools)[:4000], "tasks": out}))
             except Exception as e:
                 eval_out = {"error": str(e)[:150]}
                 y_pre = 0.0
+            update_info = {"updated": False}
+            if args.variant == "naive" and "model" not in dir():
+                import torch as _T
+                from peft import LoraConfig, get_peft_model
+                _base = _T_LLM.from_pretrained(model_path, torch_dtype=_T.bfloat16, device_map="cuda:0")
+                _base.eval()
+                _lora_cfg = LoraConfig(r=16, lora_alpha=32, lora_dropout=0.0,
+                                       target_modules=["q_proj", "k_proj", "v_proj", "o_proj",
+                                                       "gate_proj", "up_proj", "down_proj"],
+                                       task_type="CAUSAL_LM")
+                model = get_peft_model(_base, _lora_cfg)
+                model.train()
+                optimizer = _T.optim.AdamW(model.parameters(), lr=5e-6)
+                import numpy as _np
+            if args.variant == "naive":
+                # sample 4 rollouts; utility = fraction of calls that executed OK
+                gens = []
+                for _g in range(4):
+                    res_g = client.generate([prompt], n=1, temperature=0.9, top_p=1.0,
+                                            top_k=0, max_tokens=256, logprobs=0)
+                    _, cid_g, _, _ = _unpack_gen(res_g)
+                    text_g = tokenizer.decode(cid_g[0], skip_special_tokens=True)
+                    import re as _re
+                    call_frags = [m.group(0) for m in _re.finditer(
+                        r"[a-zA-Z_][a-zA-Z0-9_]*\([^\n]{0,160}\)", text_g)][:4]
+                    ok = 0
+                    for frag in call_frags:
+                        try:
+                            out = http_post("/exec", {"code": frag})
+                            if out.get("ok") and out.get("n_ok", 0) > 0:
+                                ok += 1
+                        except Exception:
+                            pass
+                    util = ok / max(1, len(call_frags))
+                    gens.append({"cid": cid_g[0], "u": util})
+                if gens and max(g["u"] for g in gens) > min(g["u"] for g in gens):
+                    utils = _np.array([g["u"] for g in gens])
+                    advs = (utils - utils.mean()) / (utils.std() + 1e-3)
+                    model.train()
+                    optimizer.zero_grad()
+                    total = 0.0
+                    for g, a in zip(gens, advs):
+                        if a == 0.0:
+                            continue
+                        ids = _T.tensor([prompt_ids + g["cid"]], device="cuda:0")
+                        mask = _T.zeros_like(ids)
+                        mask[0, len(prompt_ids):] = 1.0
+                        out = model(input_ids=ids)
+                        logp = _T.log_softmax(out.logits, dim=-1)
+                        shift_logp = logp[:, :-1, :]
+                        shift_ids = ids[:, 1:]
+                        shift_mask = mask[:, 1:]
+                        tok_logp = shift_logp.gather(-1, shift_ids.unsqueeze(-1)).squeeze(-1)
+                        masked = (tok_logp * shift_mask).sum()
+                        n = shift_mask.sum().clamp(min=1.0)
+                        total += -float(a) * masked / n
+                    if total != 0.0:
+                        total.backward()
+                        _T.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                        optimizer.step()
+                        update_info = {"updated": True, "n_rollouts": 4,
+                                       "utils": [round(float(u), 3) for u in utils]}
             try:
                 http_post("/reset", {})
             except Exception:
                 pass
             stream_log.append({"task": t_idx, "task_id": task["id"], "y_pre": y_pre,
-                               "eval": eval_out, "turns": turn_log})
+                               "eval": eval_out, "turns": turn_log, **update_info})
             log(f"task {task['id']}: y_pre={y_pre} eval={str(eval_out)[:110]}")
 
         aupc = sum(s["y_pre"] for s in stream_log) / max(1, len(stream_log))
