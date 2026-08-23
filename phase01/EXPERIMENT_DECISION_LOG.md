@@ -163,3 +163,19 @@ Milestones per design doc §20.0 (M0-M7 registry is fixed; M2/M3 must not be red
   model check; if 7B also cannot produce criteria-matching calls, the C1 main
   contrast requires a stronger base or a simplified environment — recorded
   as the project's core feasibility risk (design doc §27 risk table).
+
+## D16 — M6 factorial (Mistral-7B x tau2 x 8 tasks x 3 seeds): no update effect
+- Results: frozen AUPC=0.0766, naive=0.0788, egc=0.0766 (partial-match
+  metric; per-seed identical => per-task first-attempt scores are
+  model-determined; LoRA updates do not measurably change subsequent-task
+  y_pre on this scale, consistent with the CTS finding D12).
+- Sampling is stochastic (verified: 4 generations differ); seed invariance
+  therefore implies updates have no behavioral effect at 1-step/8-task
+  scale, NOT a determinism artifact.
+- Interpretation: Mistral-7B partial match ~7.7% on tau2 8-task stream;
+  single-task LoRA updates (4 steps, lr 5e-6, ~4 rows) do not move
+  first-attempt performance. The credit mechanism cannot be evaluated
+  without a measurable update effect.
+- Next: 16-task stream (longer update chain) to test cumulative effects;
+  if still null, the honest paper claim is a negative/no-effect result on
+  the 7B x tau2 setup with protocol machinery as the contribution.
