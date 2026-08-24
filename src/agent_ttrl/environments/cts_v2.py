@@ -183,9 +183,11 @@ class TaskTemplate:
     name: str
     goal: str
     tools: list[str]
-    success: callable  # (world) -> bool
+    success: callable  # (world) -> bool  (hidden oracle — L0 diagnostic ONLY)
     init: callable  # (rng, world) -> None  (materializes order/user/item)
     perms: set = None  # permissions available at start (None = per-init)
+    target_status: str = ""   # accessible target: order.status value that
+    # proves task completion via lookup_order (E_hard, agent-visible)
 
     def __post_init__(self):
         if self.perms is None:
@@ -337,22 +339,42 @@ class TaskV2:
 
     @property
     def hidden_success(self) -> bool:
+        """Hidden oracle — L0 diagnostic ONLY. Never enters training."""
         return bool(self.template.success(self.world))
+
+    def accessible_success(self) -> bool:
+        """Task-completion check from AGENT-VISIBLE evidence only: run a
+        lookup_order (E_hard tool) and compare the returned status to the
+        template's accessible target. Never touches the hidden oracle."""
+        if not self.template.target_status:
+            return False
+        g = getattr(self.world, "_goal", {})
+        oid = g.get("order")
+        if not oid:
+            return False
+        res = _lookup_order(self.world, oid)
+        if not res.ok:
+            return False
+        status = res.data.get("status")
+        if self.template.target_status == "exchanged":
+            # exchange: order still delivered but sku changed
+            return status == "delivered" and res.data.get("sku") != g.get("old")
+        return status == self.template.target_status
 
 
 TEMPLATES = {
     "F1_refund": TaskTemplate("F1", "refund", "Refund order {order} for user {user}",
                               ["lookup_order", "lookup_user", "refund_order"],
-                              _ok_f1_refund, _init_f1_refund),
+                              _ok_f1_refund, _init_f1_refund, target_status="refunded"),
     "F1_cancel": TaskTemplate("F1", "cancel", "Cancel order {order}",
                               ["lookup_order", "cancel_order"],
-                              _ok_f1_cancel, _init_f1_cancel),
+                              _ok_f1_cancel, _init_f1_cancel, target_status="cancelled"),
     "F1_exchange": TaskTemplate("F1", "exchange", "Exchange item {old} for {new} on order {order}",
                                 ["lookup_order", "exchange_item"],
-                                _ok_f1_exchange, _init_f1_exchange),
+                                _ok_f1_exchange, _init_f1_exchange, target_status="exchanged"),
     "F3_recover": TaskTemplate("F3", "recover", "Ship order {order} to {user} (may need permission)",
                                ["lookup_order", "lookup_user", "ship_order"],
-                               _ok_f3_recover, _init_f3_recover),
+                               _ok_f3_recover, _init_f3_recover, target_status="shipped"),
     # deceptive-evidence variants: the goal names a wrong user (drawn from
     # the SAME id range so it looks plausible); the agent must verify against
     # the accessible order state before acting
@@ -360,18 +382,20 @@ TEMPLATES = {
         "F1", "refund_v", "Refund order {order} for user {user}",
         ["lookup_order", "lookup_user", "refund_order"],
         _ok_f1_refund,
-        lambda rng, w: _init_f1_refund(rng, w, deceptive_user=f"user-{rng.randint(1, 99)}")),
+        lambda rng, w: _init_f1_refund(rng, w, deceptive_user=f"user-{rng.randint(1, 99)}"),
+        target_status="refunded"),
     "F3_recover_v": TaskTemplate(
         "F3", "recover_v", "Ship order {order} to {user} (may need permission)",
         ["lookup_order", "lookup_user", "request_shipping_permission", "ship_order"],
         _ok_f3_recover,
-        lambda rng, w: _init_f3_recover(rng, w, deceptive_user=f"user-{rng.randint(1, 99)}")),
+        lambda rng, w: _init_f3_recover(rng, w, deceptive_user=f"user-{rng.randint(1, 99)}"),
+        target_status="shipped"),
     # within-family variants: SAME latent workflow, harder conditions — this
     # is what makes leave-one-template-out transfer measurable (the held-out
     # template shares the refund/recovery skill with the adaptation set)
     "F1_refund_delivered": TaskTemplate(
         "F1", "refund_delivered", "Refund order {order} for user {user}",
         ["lookup_order", "lookup_user", "refund_order"],
-        _ok_f1_refund_delivered, _init_f1_refund_delivered),
+        _ok_f1_refund_delivered, _init_f1_refund_delivered, target_status="refunded"),
 }
 

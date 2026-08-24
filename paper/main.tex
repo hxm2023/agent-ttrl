@@ -18,22 +18,10 @@
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/fig1_method.png}
-  \caption{Policy-Consistent EGC-TTRL: the same PEFT model serves every
-  first attempt and receives updates; request-scoped RNG isolates purposes;
-  canonical action rows accumulate in an intent-balanced replay buffer with
-  rehearsal anchors; evidence-gated counterfactual credit (goal-entity vs.\
-  evidence-discovered entity) provides signed signals; commits are atomic
-  under a canary.}
-  \label{fig:method}
-\end{figure*}
-
-\begin{figure*}[t]
-  \centering
   \includegraphics[width=0.98\textwidth]{figures/fig2_prequential.png}
   \caption{CTS-v2 16-task stream, 8 paired seeds (Mistral-7B): per-seed
   first-attempt prequential AUPC. Deployment-period updates (naive) exceed
-  the frozen policy on 7/8 seeds (mean $+0.070$, $p{=}0.016$); the
+  the frozen policy on 6/8 seeds (mean $+0.070$, $p{=}0.032$); the
   reliability-gated EGC arm moves in the same direction.}
   \label{fig:prequential}
 \end{figure*}

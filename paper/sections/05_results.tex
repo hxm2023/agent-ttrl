@@ -18,15 +18,22 @@ template, 8 paired seeds, Mistral-7B), deployment-period updates with the
 cross-task replay buffer improve first-attempt prequential AUPC over the
 frozen policy: frozen 0.4531 vs.\ naive 0.5234, paired per-seed deltas
 $+0.06,+0.12,+0.06,+0.06,+0.06,+0.06,0.00,+0.12$ (mean $+0.070$,
-exact two-sided sign-flip $p{=}0.016$, 7/8 seeds positive, 0 negative;
+exact two-sided sign-flip $p{=}0.032$, 6/8 seeds positive, 0 negative;
 Fig.~\ref{fig:prequential}). The gains concentrate in the
 tool-composition template (F1-exchange): the update teaches the
 evidence-to-argument binding (extract the item ids from the goal) that
-the frozen policy misses on 3-4 of 8 seeds. The reliability-gated EGC
-credit (goal-user vs.\ evidence-user counterfactuals, Fig.~\ref{fig:ablation})
-moves in the same direction (mean $+0.047$, $p{=}0.11$, 6/8 positive) and
-its credit signs are correct on deceptive tasks (real-user actions get
-positive credit, goal-user actions negative).
+the frozen policy misses (exchange success 4/16 frozen vs.\ 16/16
+naive). Per-template, the update also slightly helps cancel (14/16 vs.\
+15/16) and slightly hurts refund (24/24 vs.\ 20/24) and recover (16/16
+vs.\ 15/16) --- a small negative transfer disclosed here. The sealed
+held-out template (refund with a deceptive goal user) remains at 0/16
+(frozen) and 1/16 (naive): the inductive probe is null; the reported
+gain is transductive (on the adaptation templates). The
+reliability-gated EGC credit (goal-user vs.\ evidence-user
+counterfactuals, Fig.~\ref{fig:ablation}) moves in the same direction
+(mean $+0.047$, $p{=}0.11$, 6/8 positive) and its credit signs are
+correct on deceptive tasks (real-user actions get positive credit,
+goal-user actions negative).
 
 \subsection{What makes the transfer appear}
 Three v2 mechanisms are jointly necessary (ablations): (i) \emph{served

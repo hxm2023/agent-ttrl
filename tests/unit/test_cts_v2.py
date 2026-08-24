@@ -97,3 +97,23 @@ def test_replay_buffer_anchors_never_evicted():
     assert any(r.task_id == "anchor" for r in rb.rows)
     batch = rb.sample_update_batch(8)
     assert any(r.task_id == "anchor" for r in batch)
+
+
+def test_accessible_success_matches_hidden_on_executed_trajectory():
+    rng = random.Random(11)
+    task = _tpl("F1_refund").instantiate(rng)
+    g = task.world._goal
+    assert not task.accessible_success()
+    task.exec_call("refund_order", {"order_id": g["order"], "user_id": g["user"]})
+    assert task.accessible_success() and task.hidden_success
+
+
+def test_accessible_success_is_agent_visible_only():
+    # hidden oracle reads world internals; accessible uses lookup only
+    rng = random.Random(12)
+    task = _tpl("F3_recover").instantiate(rng)
+    g = task.world._goal
+    task.world.permissions.add("shipping")          # environment grants silently
+    task.exec_call("ship_order", {"order_id": g["order"], "address": "addr-1"})
+    assert task.hidden_success
+    assert task.accessible_success()                # lookup shows shipped too

@@ -230,7 +230,7 @@ def main() -> int:
                 for r in range(R):
                     rtask = tpl.instantiate(random.Random(1000 + args.seed * 100 + t_idx))
                     res = rtask.exec_call(name, kwargs)
-                    row.append(1.0 if (res.ok and rtask.hidden_success) else
+                    row.append(1.0 if (res.ok and rtask.accessible_success()) else
                                (0.6 if res.ok else 0.0))
                 U.append(row)
             if G > 0 and R > 0:
@@ -304,7 +304,7 @@ def main() -> int:
                         ok_calls += 1
                 # accessible utility: fraction of calls that executed OK AND
                 # progress visible in the final accessible state
-                final_ok = 1.0 if rtask.hidden_success else 0.0
+                final_ok = 1.0 if rtask.accessible_success() else 0.0
                 util = 0.6 * (ok_calls / 4.0) + 0.4 * final_ok
                 utils.append(util)
                 # CANONICAL completion: the extracted ACTION sequence only
