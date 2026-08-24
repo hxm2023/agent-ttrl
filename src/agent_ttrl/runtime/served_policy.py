@@ -71,22 +71,26 @@ class ColocatedPolicy:
         self.model = get_peft_model(base, lora_cfg)
         self.model.train()
         self.policy_version = 0
-        # parent snapshot for rollback (initial served state)
-        self._parent = {n: p.detach().clone() for n, p in self.model.named_parameters()
-                        if p.requires_grad}
+        # stack of served states; rollback pops back to the previously
+        # committed (or initial) state
+        self._stack = [{n: p.detach().clone() for n, p in self.model.named_parameters()
+                        if p.requires_grad}]
 
     # ---------------------------------------------------------------- generation
     def generate(self, seed: RequestSeed, prompt: str, max_tokens: int = 128,
                  temperature: float = 0.7) -> tuple[list[int], str]:
-        """Deterministic per-request generation (torch RNG state restored after)."""
+        """Deterministic per-request generation (torch RNG state restored after).
+        temperature <= 0 => greedy (do_sample=False), used by canaries."""
         ids = self.tokenizer(prompt, return_tensors="pt").input_ids.to(self.device)
         rng_state = torch.random.get_rng_state()
         torch.manual_seed(seed.seed())
         try:
             with torch.no_grad():
                 out = self.model.generate(
-                    ids, max_new_tokens=max_tokens, do_sample=True,
-                    temperature=temperature, top_p=1.0, pad_token_id=self.tokenizer.eos_token_id)
+                    ids, max_new_tokens=max_tokens,
+                    do_sample=temperature > 0.0,
+                    temperature=temperature if temperature > 0.0 else 1.0,
+                    top_p=1.0, pad_token_id=self.tokenizer.eos_token_id)
         finally:
             torch.random.set_rng_state(rng_state)
         gen = out[0][ids.shape[1]:].tolist()
@@ -127,20 +131,34 @@ class ColocatedPolicy:
         """Hash the current (candidate) adapter state without serving it yet."""
         return _adapter_hash(self.model)
 
+    def _logits_with(self, state: dict, ids: torch.Tensor) -> torch.Tensor:
+        """Forward with a given parameter state without mutating the model."""
+        saved = {n: p.detach().clone() for n, p in self.model.named_parameters()
+                 if p.requires_grad}
+        try:
+            with torch.no_grad():
+                for n, p in self.model.named_parameters():
+                    if p.requires_grad and n in state:
+                        p.data.copy_(state[n])
+                out = self.model(input_ids=ids).logits
+        finally:
+            for n, p in self.model.named_parameters():
+                if p.requires_grad and n in saved:
+                    p.data.copy_(saved[n])
+        return out
+
     def commit(self, candidate_sha: str, canary_prompt: str, canary_seed: RequestSeed,
                logit_tol: float = 1e-3) -> CanaryResult:
-        """Atomically serve the candidate: verify adapter hash + canary change,
-        then bump policy_version (the state IS the served state — colocated)."""
+        """Serve the candidate: verify adapter hash + canary change (logit-level
+        KL vs parent + deterministic output change), then bump policy_version."""
         cur = _adapter_hash(self.model)
         if cur != candidate_sha:
             return CanaryResult(False, cur, 0.0, False,
                                 f"adapter hash mismatch: {cur[:12]} != {candidate_sha[:12]}")
-        parent = self._parent
-        kl = 0.0
-        for n, p in self.model.named_parameters():
-            if p.requires_grad and n in parent:
-                kl = max(kl, _kl(p.detach().float().reshape(1, -1),
-                                 parent[n].float().reshape(1, -1)))
+        ids = self.tokenizer(canary_prompt, return_tensors="pt").input_ids.to(self.device)
+        logits_cur = self._logits_with({}, ids)
+        logits_parent = self._logits_with(self._stack[-1], ids)
+        kl = _kl(logits_cur, logits_parent)
         before, _ = self.generate(canary_seed, canary_prompt, max_tokens=16, temperature=0.0)
         self.policy_version += 1
         after, _ = self.generate(canary_seed, canary_prompt, max_tokens=16, temperature=0.0)
@@ -148,14 +166,18 @@ class ColocatedPolicy:
         if not changed:
             self.policy_version -= 1
             return CanaryResult(False, cur, kl, False, "canary: no observable change")
-        self._parent = {n: p.detach().clone() for n, p in self.model.named_parameters()
-                        if p.requires_grad}
+        # push the current (now served) state onto the stack; rollback pops
+        self._stack.append({n: p.detach().clone() for n, p in self.model.named_parameters()
+                            if p.requires_grad})
         return CanaryResult(True, cur, kl, changed)
 
     def rollback(self) -> str:
-        """Restore the parent (last committed) state."""
+        """Pop the stack and restore the previously committed state."""
+        if len(self._stack) > 1:
+            self._stack.pop()
+        parent = self._stack[-1]
         with torch.no_grad():
             for n, p in self.model.named_parameters():
-                if p.requires_grad and n in self._parent:
-                    p.copy_(self._parent[n])
+                if p.requires_grad and n in parent:
+                    p.data.copy_(parent[n])
         return _adapter_hash(self.model)
