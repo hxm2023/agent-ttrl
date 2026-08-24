@@ -162,6 +162,31 @@ class ColocatedPolicy:
         self._candidate = {n: p.detach().clone()
                            for n, p in self.model.named_parameters() if p.requires_grad}
 
+    def generate_with(self, state: dict, seed: RequestSeed, prompt: str,
+                      max_tokens: int = 128, temperature: float = 0.3) -> tuple[list[int], str]:
+        """Generate with an arbitrary parameter state (used by the commit
+        gate to compare candidate vs committed behavior)."""
+        self._swap_to(state)
+        try:
+            return self.generate(seed, prompt, max_tokens=max_tokens, temperature=temperature)
+        finally:
+            self._swap_to(self._committed)
+
+    def gate_validate(self, eval_fn, n_per_intent: int = 2) -> float:
+        """Compare candidate vs committed on validation instances (provided
+        by eval_fn(state, i) -> success 0/1). Returns improvement rate.
+        The commit gate commits only if the candidate is not clearly worse."""
+        if getattr(self, "_candidate", None) is None:
+            return 0.0
+        wins = 0
+        total = 0
+        for i in range(n_per_intent):
+            c = eval_fn(self._committed, i)
+            k = eval_fn(self._candidate, i)
+            total += 1
+            wins += 1 if k > c else 0
+        return wins / max(1, total)
+
     def candidate_hash(self) -> str:
         return _adapter_hash_state(self._candidate) if getattr(self, "_candidate", None) else ""
 

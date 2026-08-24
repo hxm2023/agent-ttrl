@@ -57,6 +57,23 @@ def parse_calls(text: str) -> list[tuple[str, dict]]:
     return out
 
 
+def _gate_eval(policy, state, tpl_name, seed, t_idx):
+    """Validation instance on a BASE template (within policy capability):
+    generate with the given parameter state, execute, return accessible
+    success (0/1). Used by the commit gate — must discriminate, so it never
+    uses the hard deceptive variants."""
+    from agent_ttrl.environments.cts_v2 import TEMPLATES
+    from agent_ttrl.runtime.request_seed import RequestSeed
+    tpl = TEMPLATES[tpl_name]
+    vt = tpl.instantiate(random.Random(7000 + seed * 100 + t_idx))
+    vprompt = SYSTEM.format(tools=vt.tool_descriptions, goal=vt.goal)
+    gs = RequestSeed(PROTO, seed, f"gate{t_idx}", 0, "shadow_gain")
+    _, vtext = policy.generate_with(state, gs, vprompt, max_tokens=96, temperature=0.3)
+    for name, kwargs in parse_calls(vtext)[:4]:
+        vt.exec_call(name, kwargs)
+    return 1.0 if vt.accessible_success() else 0.0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--variant", choices=["frozen", "naive", "egc"], required=True)
@@ -294,13 +311,29 @@ def main() -> int:
                     if n_used > 0:
                         canary = RequestSeed(PROTO, args.seed, "canary", t_idx,
                                              "canary", policy_version=policy.policy_version)
-                        res = policy.commit_candidate(prompt, canary)
-                        update_info = {"updated": res.passed, "canary": res.reason or "ok",
-                                       "rows": len(batch), "n_used": n_used,
-                                       "policy_version": policy.policy_version,
-                                       **update_info}
-                        if not res.passed:
-                            violations.append({"task": t_idx, "reason": res.reason})
+                        _gate_base = ["F1_refund", "F1_cancel", "F1_exchange", "F3_recover"]
+                        gate_rate = policy.gate_validate(
+                            lambda st, i: _gate_eval(policy, st,
+                                                     _gate_base[(t_idx + i) % len(_gate_base)],
+                                                     args.seed, t_idx),
+                            n_per_intent=4)
+                        update_info["gate"] = round(gate_rate, 2)
+                        if gate_rate >= 0.25:
+                            res = policy.commit_candidate(prompt, canary)
+                            update_info = {"updated": res.passed, "canary": res.reason or "ok",
+                                           "rows": len(batch), "n_used": n_used,
+                                           "policy_version": policy.policy_version,
+                                           **update_info}
+                            if not res.passed:
+                                violations.append({"task": t_idx, "reason": res.reason})
+                        else:
+                            policy._candidate = None
+                            update_info["updated"] = False
+                            update_info["canary"] = "gate-rejected"
+                            update_info["rows"] = len(batch)
+                            update_info["n_used"] = n_used
+                            update_info["policy_version"] = policy.policy_version
+                            update_info["gate"] = round(gate_rate, 2)
         if args.variant == "naive" and not sealed:
             # credit rollouts (purpose-isolated RNG), accessible utility
             utils = []
@@ -331,6 +364,15 @@ def main() -> int:
                 canonical = "\n".join(
                     f'{n}(' + ",".join(f'{k}="{v}"' for k, v in c.items()) + ")"
                     for n, c in action_calls)
+                # evidence->action pattern: when a credited action carries a
+                # user_id that differs from the goal user (deceptive tasks),
+                # the trained completion includes the lookup step so the
+                # policy learns to VERIFY before acting
+                goal_user = task.world._goal.get("user") if hasattr(task.world, "_goal") else None
+                if (canonical and "user_id" in canonical
+                        and goal_user and f'user_id="{goal_user}"' not in canonical):
+                    canonical = (f'lookup_order(order_id="{task.world._goal.get("order", "")}")\n'
+                                 + canonical)
                 cid_canon = policy.tokenizer(canonical).input_ids if canonical else []
                 rollout_rows.append((cid_canon, util, final_ok))
                 rollout_diag.append({"g": g, "n_calls": len(calls), "util": round(util, 3),
@@ -364,12 +406,28 @@ def main() -> int:
                 if n_used > 0:
                     canary = RequestSeed(PROTO, args.seed, "canary", t_idx,
                                          "canary", policy_version=policy.policy_version)
-                    res = policy.commit_candidate(prompt, canary)
-                    update_info = {"updated": res.passed, "canary": res.reason or "ok",
-                                   "rows": len(batch), "n_used": n_used,
-                                   "policy_version": policy.policy_version}
-                    if not res.passed:
-                        violations.append({"task": t_idx, "reason": res.reason})
+                    _gate_base = ["F1_refund", "F1_cancel", "F1_exchange", "F3_recover"]
+                    gate_rate = policy.gate_validate(
+                        lambda st, i: _gate_eval(policy, st,
+                                                 _gate_base[(t_idx + i) % len(_gate_base)],
+                                                 args.seed, t_idx),
+                        n_per_intent=4)
+                    update_info["gate"] = round(gate_rate, 2)
+                    if gate_rate >= 0.25:
+                        res = policy.commit_candidate(prompt, canary)
+                        update_info["updated"] = res.passed
+                        update_info["canary"] = res.reason or "ok"
+                        if not res.passed:
+                            violations.append({"task": t_idx, "reason": res.reason})
+                    else:
+                        # gate rejects: discard the candidate; served state
+                        # (committed) is untouched — no harmful update
+                        policy._candidate = None
+                        update_info["updated"] = False
+                        update_info["canary"] = "gate-rejected"
+                        update_info["rows"] = len(batch)
+                        update_info["n_used"] = n_used
+                        update_info["policy_version"] = policy.policy_version
 
         # A0 built-in check: frozen arm's generations must be reproducible
         if args.variant == "frozen":
