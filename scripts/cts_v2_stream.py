@@ -89,34 +89,33 @@ def main() -> int:
     log(f"held-out template: {held_out}; adapt: {adapt}")
 
     # pre-registered anchors: one canonical demo trajectory per adaptation
-    # template so the update never forgets the base workflow (rehearsal).
-    # The demo is a REAL call sequence (lookup -> action), tokenized as the
-    # completion the policy should keep emitting.
+    # template, drawn from a DISJOINT PRE-DEPLOYMENT split (fixed seed 9000+,
+    # never part of the stream). The demo is constructed by SIMULATING THE
+    # AGENT'S OWN ACCESSIBLE FLOW on the demo instance: call lookup_order,
+    # read the returned user_id from the observation, then act on it — the
+    # anchor therefore contains only evidence the policy could have seen.
     for tname in adapt:
         tpl = TEMPLATES[tname]
-        t = tpl.instantiate(random.Random(999))
+        t = tpl.instantiate(random.Random(9000 + adapt.index(tname)))
         g = t.world._goal
-        real_user = next(iter(t.world.users))   # deceptive goals name a fake user
+        # accessible observation flow: lookup_order returns the order's user
+        look = t.exec_call("lookup_order", {"order_id": g["order"]})
+        assert look.ok and "user_id" in look.data
+        evidence_user = look.data["user_id"]
         deceptive = tpl.name.endswith("_v") or tpl.name.endswith("_delivered")
         if tpl.family == "F3":
-            # verification skill: lookup reveals the REAL user; permission
-            # and ship act on the real user, not the (possibly fake) goal user
             demo_calls = [f'lookup_order(order_id="{g["order"]}")',
-                          f'request_shipping_permission(user_id="{real_user}", order_id="{g["order"]}")',
+                          f'request_shipping_permission(user_id="{evidence_user}", order_id="{g["order"]}")',
                           f'ship_order(order_id="{g["order"]}", address="addr-1")']
         elif tpl.name.startswith("refund"):
             demo_calls = [f'lookup_order(order_id="{g["order"]}")',
-                          f'refund_order(order_id="{g["order"]}", user_id="{real_user}")']
+                          f'refund_order(order_id="{g["order"]}", user_id="{evidence_user}")']
         elif tpl.name == "cancel":
             demo_calls = [f'lookup_order(order_id="{g["order"]}")',
                           f'cancel_order(order_id="{g["order"]}")']
         else:  # exchange
             demo_calls = [f'lookup_order(order_id="{g["order"]}")',
                           f'exchange_item(order_id="{g["order"]}", old_item_id="{g["old"]}", new_item_id="{g["new"]}")']
-        # for deceptive variants the anchor explicitly models the VERIFY
-        # pattern: lookup first, act on the discovered real user
-        if deceptive:
-            demo_calls.insert(0, f'lookup_order(order_id="{g["order"]}")')
         demo_prompt = SYSTEM.format(tools=t.tool_descriptions, goal=t.goal)
         demo_completion = "\n".join(demo_calls)
         demo_ids = policy.tokenizer(demo_completion).input_ids
@@ -140,19 +139,24 @@ def main() -> int:
 
         # ---- production first attempt (served policy, request-seeded)
         prod_seed = RequestSeed(PROTO, args.seed, f"t{t_idx}", 0,
-                                policy.policy_version, "production_first_attempt")
+                                "production_first_attempt",
+                                policy_version=policy.policy_version)
         conversation = ""
         exec_log = []
         y_pre = 0.0
         for turn in range(MAX_TURNS):
             p = prompt + (("\n\nPrevious:\n" + conversation[-1500:]) if conversation else "")
-            cid, _ = policy.generate(prod_seed, p, max_tokens=128, temperature=0.3)
+            # per-turn exogenous seed (v3: seed never contains treatment)
+            turn_seed = RequestSeed(PROTO, args.seed, f"t{t_idx}", turn,
+                                    "production_first_attempt",
+                                    policy_version=policy.policy_version)
+            cid, _ = policy.generate(turn_seed, p, max_tokens=128, temperature=0.3)
             text = policy.tokenizer.decode(cid, skip_special_tokens=True)
             calls = parse_calls(text)
             if not calls:
                 # empty/echo degeneracy: retry greedily once (post-update
                 # policies sometimes collapse to empty or conversation echo)
-                cid2, text2 = policy.generate(prod_seed, p, max_tokens=128, temperature=0.0)
+                cid2, text2 = policy.generate(turn_seed, p, max_tokens=128, temperature=0.0)
                 calls2 = parse_calls(text2)
                 if calls2:
                     text, calls = text2, calls2
@@ -170,45 +174,46 @@ def main() -> int:
                     obs = ("OK" if res.ok else f"ERR {res.error}")
                 exec_log.append({"turn": turn, "call": f"{name}({kwargs})", "obs": obs})
                 conversation += f"\nCALL {name}({kwargs})\nOBS {obs}"
-            if task.hidden_success:
-                y_pre = 1.0
-                break
-        if task.hidden_success:
-            y_pre = 1.0
-
+            # v3: NO hidden-based early stop — the episode runs a fixed
+            # horizon; the hidden evaluator scores it offline only
         # ---- L0 diagnostic only: hidden oracle read, never trained on
         hidden = task.hidden_success
+        y_pre = 1.0 if hidden else 0.0
 
         update_info = {"updated": False}
         if args.variant == "egc" and not sealed:
-            # EGC-v2: at the decision point (after the first turn reveals
-            # state, e.g. lookup returns the real user), sample G distinct
-            # actions from the SERVED policy, execute each on R fresh
-            # snapshots of the SAME task instance, and credit by the GxR
-            # utility matrix (paired_credit_v2). Positive-credit actions
-            # enter the replay buffer as canonical rows.
+            # EGC-v3: candidates are built ONLY from serialized observations
+            # (the conversation the policy actually saw) — never from world
+            # internals. The goal user comes from the task goal string; the
+            # evidence-discovered user comes from parsing lookup_order
+            # observations in the conversation. If no lookup evidence exists,
+            # only the goal-user candidate is available (correctly reflecting
+            # that the policy does not know the real user).
             dec = "CALL " + conversation.strip() if conversation else ""
             branch_prompt = (prompt + "\n\nEvidence so far:\n" + dec +
                              "\nExecute the FINAL action to complete the task now (one call only, no lookup):")
-            # grammar-valid counterfactual candidates: the goal user vs the
-            # evidence-discovered real user is THE decision on deceptive
-            # tasks; model proposals (if any) are appended for coverage
+            goal_user = task.world._goal.get("user") if hasattr(task.world, "_goal") else None
+            g_goal = getattr(task.world, "_goal", {})
+            # evidence user from conversation (agent-visible lookup results)
+            evidence_user = None
+            import re as _re
+            for m in _re.finditer(r"lookup_order\([^)]*\)\nOBS OK [^\n]*user_id=([A-Za-z0-9_-]+)", conversation):
+                evidence_user = m.group(1)
             proposals = []
             seen = set()
-            g = task.world._goal
-            g_goal = g
-            real = next(iter(task.world.users)) if task.world.users else None
             if tpl.name.startswith("refund"):
-                cands = [("refund_order", {"order_id": g["order"], "user_id": u})
-                         for u in dict.fromkeys([g["user"], real])]
+                users = [u for u in dict.fromkeys([goal_user, evidence_user]) if u]
+                cands = [("refund_order", {"order_id": g_goal["order"], "user_id": u})
+                         for u in users]
             elif tpl.name == "cancel":
-                cands = [("cancel_order", {"order_id": g["order"]})]
+                cands = [("cancel_order", {"order_id": g_goal["order"]})]
             elif tpl.family == "F3":
-                cands = [("request_shipping_permission", {"user_id": u, "order_id": g["order"]})
-                         for u in dict.fromkeys([g["user"], real])]
+                users = [u for u in dict.fromkeys([goal_user, evidence_user]) if u]
+                cands = [("request_shipping_permission", {"user_id": u, "order_id": g_goal["order"]})
+                         for u in users]
             else:
-                cands = [("exchange_item", {"order_id": g["order"],
-                                            "old_item_id": g["old"], "new_item_id": g["new"]})]
+                cands = [("exchange_item", {"order_id": g_goal["order"],
+                                            "old_item_id": g_goal["old"], "new_item_id": g_goal["new"]})]
             for c in cands:
                 key = f"{c[0]}{sorted(c[1].items())}"
                 if key not in seen:
@@ -216,43 +221,52 @@ def main() -> int:
                     proposals.append(c)
             for g2 in range(4):          # model proposals for coverage
                 gseed = RequestSeed(PROTO, args.seed, f"t{t_idx}", 1,
-                                    policy.policy_version, "credit_action_proposal",
-                                    branch_group=g2)
+                                    "credit_action_proposal", branch_group=g2,
+                                    policy_version=policy.policy_version)
                 _, gtext = policy.generate(gseed, branch_prompt, max_tokens=64, temperature=0.9)
                 for c in [c for c in parse_calls(gtext) if not c[0].startswith("lookup")][:1]:
                     key = f"{c[0]}{sorted(c[1].items())}"
                     if key not in seen:
                         seen.add(key)
                         proposals.append(c)
+            # R continuation: execute the candidate action, then let the
+            # policy CONTINUE under a distinct continuation seed (v3: real
+            # counterfactual continuation, not identical forced repeats)
             U, G, R = [], len(proposals), 4
-            for g, (name, kwargs) in enumerate(proposals):
+            for gi, (name, kwargs) in enumerate(proposals):
                 row = []
                 for r in range(R):
                     rtask = tpl.instantiate(random.Random(1000 + args.seed * 100 + t_idx))
                     res = rtask.exec_call(name, kwargs)
-                    row.append(1.0 if (res.ok and rtask.accessible_success()) else
-                               (0.6 if res.ok else 0.0))
+                    util = 1.0 if (res.ok and rtask.accessible_success()) else (0.6 if res.ok else 0.0)
+                    if res.ok and not rtask.accessible_success():
+                        # continue: the policy acts further under seed r
+                        cseed = RequestSeed(PROTO, args.seed, f"t{t_idx}", 2,
+                                            "credit_continuation", branch_group=gi,
+                                            continuation_id=r,
+                                            policy_version=policy.policy_version)
+                        cp = prompt + f"\n\nAfter {name}({kwargs}):\nOBS OK\nNext action:"
+                        _, ctext = policy.generate(cseed, cp, max_tokens=64, temperature=0.5)
+                        for cn, ckw in parse_calls(ctext)[:2]:
+                            rtask.exec_call(cn, ckw)
+                        if rtask.accessible_success():
+                            util = 1.0
+                    row.append(util)
                 U.append(row)
             if G > 0 and R > 0:
                 from agent_ttrl.credit.branch_executor_v2 import paired_credit_v2
                 credits, _ = paired_credit_v2(U, G, R)
-                # find the evidence-discovered user (the counterfactual that
-                # actually succeeded), for the verification pattern
-                evidence_user = real
                 for g, (name, kwargs) in enumerate(proposals):
-                    if credits[g] > 0.05:
+                    # v3: SIGNED replay — both positive and negative credit
+                    # rows enter the buffer (negatives teach what NOT to do)
+                    if abs(credits[g]) > 0.05:
                         canonical = f'{name}(' + ",".join(f'{k}="{v}"' for k, v in kwargs.items()) + ")"
-                        # VERIFICATION pattern: when the positively-credited
-                        # action acts on the evidence-discovered user (not the
-                        # goal user), the model must first LOOK UP the order
-                        # to discover that user at test time — so the trained
-                        # completion includes the lookup step (v2 fix:
-                        # action-only rows assumed knowledge the policy does
-                        # not have at test time)
-                        acts_on_evidence = any(
-                            v == evidence_user for v in kwargs.values())
-                        goal_user = task.world._goal.get("user")
-                        if acts_on_evidence and kwargs.get("user_id") != goal_user:
+                        # VERIFICATION pattern: when the credited action acts
+                        # on the evidence-discovered user (not the goal user),
+                        # the trained completion includes the lookup step
+                        acts_on_evidence = any(v == evidence_user for v in kwargs.values())
+                        if (acts_on_evidence and kwargs.get("user_id") != goal_user
+                                and credits[g] > 0):
                             canonical = (f'lookup_order(order_id="{kwargs.get("order_id", g_goal["order"])}")\n'
                                          + canonical)
                         cid_canon = policy.tokenizer(canonical).input_ids
@@ -264,10 +278,11 @@ def main() -> int:
                                       "credits": [round(float(c), 3) for c in credits]}
                 # periodic batch update (same schedule as naive)
                 if t_idx >= args.update_every - 1 and (t_idx + 1) % args.update_every == 0:
-                    batch = buffer.sample_update_batch(args.batch_size)
+                    batch = buffer.sample_update_batch(args.batch_size, seed=args.seed * 1000 + t_idx)
                     pos = [r for r in batch if r.advantage > 0]
                     neg = [r for r in batch if r.advantage < 0]
                     n_used = 0
+                    policy.begin_candidate()   # v3: shadow candidate; served state untouched
                     for r in (pos + neg)[: args.batch_size // 2]:
                         if not r.completion_ids:
                             continue
@@ -275,10 +290,9 @@ def main() -> int:
                                           advantage=r.advantage, lr=args.lr)
                         n_used += 1
                     if n_used > 0:
-                        cand = policy.freeze_candidate()
                         canary = RequestSeed(PROTO, args.seed, "canary", t_idx,
-                                             policy.policy_version, "canary")
-                        res = policy.commit(cand, prompt, canary)
+                                             "canary", policy_version=policy.policy_version)
+                        res = policy.commit_candidate(prompt, canary)
                         update_info = {"updated": res.passed, "canary": res.reason or "ok",
                                        "rows": len(batch), "n_used": n_used,
                                        "policy_version": policy.policy_version,
@@ -292,8 +306,8 @@ def main() -> int:
             rollout_diag = []
             for g in range(args.n_rollouts):
                 rseed = RequestSeed(PROTO, args.seed, f"t{t_idx}", 0,
-                                    policy.policy_version, "credit_action_proposal",
-                                    branch_group=g)
+                                    "credit_action_proposal", branch_group=g,
+                                    policy_version=policy.policy_version)
                 rcid, rtext = policy.generate(rseed, prompt, max_tokens=128, temperature=0.3)
                 rtask = tpl.instantiate(random.Random(1000 + args.seed * 100 + t_idx))
                 calls = parse_calls(rtext)
@@ -323,11 +337,10 @@ def main() -> int:
             std = (sum((u - mean) ** 2 for u in utils) / max(1, len(utils))) ** 0.5
             for g, (cid_canon, util, final_ok) in enumerate(rollout_rows):
                 adv = (util - mean) / (std + 1e-3)
-                # only SUCCESSFUL, informative rows enter the buffer:
-                # partially-successful but wrong-order rollouts (e.g.
-                # ship-then-permission) were polluting the update with bad
-                # action sequences (v2 evidence-quality gate)
-                if final_ok == 1.0 and util > 0.3 and abs(adv) >= 0.25 and cid_canon:
+                # v3: SIGNED replay — informative rows of BOTH signs enter
+                # the buffer (negative rows teach which sequences NOT to
+                # produce); the reliability gate filters near-zero credit
+                if abs(adv) >= 0.25 and cid_canon:
                     buffer.add(EvidenceRow(f"t{t_idx}", tname,
                                            policy.tokenizer(prompt).input_ids,
                                            cid_canon, advantage=adv,
@@ -335,10 +348,11 @@ def main() -> int:
             update_info["rollouts"] = rollout_diag
             # periodic batch update from the replay buffer
             if t_idx >= args.update_every - 1 and (t_idx + 1) % args.update_every == 0:
-                batch = buffer.sample_update_batch(args.batch_size)
+                batch = buffer.sample_update_batch(args.batch_size, seed=args.seed * 1000 + t_idx)
                 pos = [r for r in batch if r.advantage > 0]
                 neg = [r for r in batch if r.advantage < 0]
                 n_used = 0
+                policy.begin_candidate()   # v3: shadow candidate; served state untouched
                 for r in (pos + neg)[: args.batch_size // 2]:
                     if not r.completion_ids:
                         continue
@@ -346,10 +360,9 @@ def main() -> int:
                                       advantage=r.advantage, lr=args.lr)
                     n_used += 1
                 if n_used > 0:
-                    cand = policy.freeze_candidate()
                     canary = RequestSeed(PROTO, args.seed, "canary", t_idx,
-                                         policy.policy_version, "canary")
-                    res = policy.commit(cand, prompt, canary)
+                                         "canary", policy_version=policy.policy_version)
+                    res = policy.commit_candidate(prompt, canary)
                     update_info = {"updated": res.passed, "canary": res.reason or "ok",
                                    "rows": len(batch), "n_used": n_used,
                                    "policy_version": policy.policy_version}
@@ -358,7 +371,8 @@ def main() -> int:
 
         # A0 built-in check: frozen arm's generations must be reproducible
         if args.variant == "frozen":
-            s2 = RequestSeed(PROTO, args.seed, f"t{t_idx}", 0, 0, "production_first_attempt")
+            s2 = RequestSeed(PROTO, args.seed, f"t{t_idx}", 0,
+                             "production_first_attempt", policy_version=0)
             cid2, _ = policy.generate(s2, prompt, max_tokens=96, temperature=0.7)
             if cid2 != exec_log and exec_log:
                 pass  # different prompt -> different ids; identity check below

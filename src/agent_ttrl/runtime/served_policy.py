@@ -43,6 +43,14 @@ def _adapter_hash(model) -> str:
     return h.hexdigest()
 
 
+def _adapter_hash_state(state: dict) -> str:
+    h = hashlib.sha256()
+    for name in sorted(state):
+        h.update(name.encode())
+        h.update(state[name].detach().cpu().to(torch.float32).numpy().tobytes())
+    return h.hexdigest()
+
+
 def _kl(a: torch.Tensor, b: torch.Tensor) -> float:
     loga = torch.log_softmax(a.float(), dim=-1)
     logb = torch.log_softmax(b.float(), dim=-1)
@@ -71,10 +79,13 @@ class ColocatedPolicy:
         self.model = get_peft_model(base, lora_cfg)
         self.model.train()
         self.policy_version = 0
+        # v3: committed (served) state vs shadow candidate
+        self._committed = {n: p.detach().clone()
+                           for n, p in self.model.named_parameters() if p.requires_grad}
+        self._candidate = None
         # stack of served states; rollback pops back to the previously
         # committed (or initial) state
-        self._stack = [{n: p.detach().clone() for n, p in self.model.named_parameters()
-                        if p.requires_grad}]
+        self._stack = [self._committed]
 
     # ---------------------------------------------------------------- generation
     def generate(self, seed: RequestSeed, prompt: str, max_tokens: int = 128,
@@ -97,13 +108,14 @@ class ColocatedPolicy:
         return gen, self.tokenizer.decode(gen, skip_special_tokens=True)
 
     # ---------------------------------------------------------------- training
-    def train_step(self, prompt_ids: list[int], completion_ids: list[int],
-                   advantage: float, lr: float, max_grad_norm: float = 1.0) -> dict:
-        """REINFORCE-style step over the completion span (same update rule as
-        v2 streams; v1 simplification retained but now on the SERVED policy)."""
-        ids = torch.tensor([prompt_ids + completion_ids], device=self.device)
-        mask = torch.zeros_like(ids)
-        mask[0, len(prompt_ids):] = 1.0
+    def _swap_to(self, state: dict) -> None:
+        with torch.no_grad():
+            for n, p in self.model.named_parameters():
+                if p.requires_grad and n in state:
+                    p.data.copy_(state[n])
+
+    def _optim_step(self, ids: torch.Tensor, mask: torch.Tensor,
+                    advantage: float, lr: float) -> dict:
         opt = torch.optim.AdamW([p for p in self.model.parameters() if p.requires_grad], lr=lr)
         opt.zero_grad()
         out = self.model(input_ids=ids)
@@ -116,11 +128,73 @@ class ColocatedPolicy:
         n = shift_mask.sum().clamp(min=1.0)
         loss = -float(advantage) * masked / n
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_grad_norm)
+        torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_grad_norm=1.0)
         opt.step()
         self.model.zero_grad()
         torch.cuda.empty_cache()
         return {"loss": float(loss.item()), "tokens": int(n.item())}
+
+    def _ids_mask(self, prompt_ids, completion_ids):
+        ids = torch.tensor([prompt_ids + completion_ids], device=self.device)
+        mask = torch.zeros_like(ids)
+        mask[0, len(prompt_ids):] = 1.0
+        return ids, mask
+
+    def train_step(self, prompt_ids: list[int], completion_ids: list[int],
+                   advantage: float, lr: float, max_grad_norm: float = 1.0) -> dict:
+        """REINFORCE-style step. v3: trains the SHADOW CANDIDATE state only;
+        the served (committed) state is untouched until commit_candidate()."""
+        if getattr(self, "_candidate", None) is None:
+            raise RuntimeError("train_step requires begin_candidate() first")
+        self._swap_to(self._candidate)
+        ids, mask = self._ids_mask(prompt_ids, completion_ids)
+        r = self._optim_step(ids, mask, advantage, lr)
+        # snapshot the trained candidate
+        for n, p in self.model.named_parameters():
+            if p.requires_grad:
+                self._candidate[n].copy_(p.data)
+        self._swap_to(self._committed)
+        return r
+
+    def begin_candidate(self) -> None:
+        """Start a shadow candidate: generation keeps serving the committed
+        state; training writes only to the candidate copy."""
+        self._candidate = {n: p.detach().clone()
+                           for n, p in self.model.named_parameters() if p.requires_grad}
+
+    def candidate_hash(self) -> str:
+        return _adapter_hash_state(self._candidate) if getattr(self, "_candidate", None) else ""
+
+    def commit_candidate(self, canary_prompt: str, canary_seed: RequestSeed,
+                         logit_tol: float = 1e-3) -> CanaryResult:
+        """Canary-check the candidate against the committed state; on pass,
+        atomically serve it (swap model params + bump version); on fail,
+        discard the candidate. The served state never changes before this."""
+        cand = getattr(self, "_candidate", None)
+        if cand is None:
+            return CanaryResult(False, "", 0.0, False, "no candidate in flight")
+        ids = self.tokenizer(canary_prompt, return_tensors="pt").input_ids.to(self.device)
+        logits_cand = self._logits_with(cand, ids)
+        logits_committed = self._logits_with(self._committed, ids)
+        kl = _kl(logits_cand, logits_committed)
+        before, _ = self.generate(canary_seed, canary_prompt, max_tokens=16, temperature=0.0)
+        # serve candidate only for the canary rollout, then restore
+        self._swap_to(cand)
+        after, _ = self.generate(canary_seed, canary_prompt, max_tokens=16, temperature=0.0)
+        self._swap_to(self._committed)
+        changed = before != after or kl > logit_tol
+        if not changed:
+            self._candidate = None
+            return CanaryResult(False, "", kl, False, "canary: no observable change")
+        # atomic swap: candidate becomes the served state
+        self._swap_to(cand)
+        self._committed = {n: p.detach().clone()
+                           for n, p in self.model.named_parameters() if p.requires_grad}
+        self._stack.append(self._committed)
+        self.policy_version += 1
+        cur = _adapter_hash_state(self._committed)
+        self._candidate = None
+        return CanaryResult(True, cur, kl, changed)
 
     def update_params(self, lr: float) -> None:
         """Expose LR changes (A0 uses lr=0 to prove RNG/schedule isolation)."""
@@ -149,35 +223,17 @@ class ColocatedPolicy:
 
     def commit(self, candidate_sha: str, canary_prompt: str, canary_seed: RequestSeed,
                logit_tol: float = 1e-3) -> CanaryResult:
-        """Serve the candidate: verify adapter hash + canary change (logit-level
-        KL vs parent + deterministic output change), then bump policy_version."""
-        cur = _adapter_hash(self.model)
-        if cur != candidate_sha:
-            return CanaryResult(False, cur, 0.0, False,
-                                f"adapter hash mismatch: {cur[:12]} != {candidate_sha[:12]}")
-        ids = self.tokenizer(canary_prompt, return_tensors="pt").input_ids.to(self.device)
-        logits_cur = self._logits_with({}, ids)
-        logits_parent = self._logits_with(self._stack[-1], ids)
-        kl = _kl(logits_cur, logits_parent)
-        before, _ = self.generate(canary_seed, canary_prompt, max_tokens=16, temperature=0.0)
-        self.policy_version += 1
-        after, _ = self.generate(canary_seed, canary_prompt, max_tokens=16, temperature=0.0)
-        changed = before != after or kl > logit_tol
-        if not changed:
-            self.policy_version -= 1
-            return CanaryResult(False, cur, kl, False, "canary: no observable change")
-        # push the current (now served) state onto the stack; rollback pops
-        self._stack.append({n: p.detach().clone() for n, p in self.model.named_parameters()
-                            if p.requires_grad})
-        return CanaryResult(True, cur, kl, changed)
+        """Back-compat wrapper: commit_candidate under the v3 shadow protocol."""
+        if getattr(self, "_candidate", None) is None:
+            self.begin_candidate()
+        return self.commit_candidate(canary_prompt, canary_seed, logit_tol)
 
     def rollback(self) -> str:
         """Pop the stack and restore the previously committed state."""
         if len(self._stack) > 1:
             self._stack.pop()
         parent = self._stack[-1]
-        with torch.no_grad():
-            for n, p in self.model.named_parameters():
-                if p.requires_grad and n in parent:
-                    p.data.copy_(parent[n])
+        self._swap_to(parent)
+        self._committed = {n: p.detach().clone()
+                           for n, p in self.model.named_parameters() if p.requires_grad}
         return _adapter_hash(self.model)

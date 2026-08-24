@@ -62,7 +62,7 @@ def test_a0_extra_rollouts_do_not_change_production():
 def _overfit_step(pol):
     """Generate a completion, then train the model to RE-EMIT that same
     completion with high probability (a real overfit step on real tokens)."""
-    s = RequestSeed(PROTO, 0, "overfit", 0, pol.policy_version, "canary")
+    s = RequestSeed(PROTO, 0, "overfit", 0, "canary", policy_version=pol.policy_version)
     ids = pol.tokenizer(PROMPT, return_tensors="pt").input_ids.tolist()[0]
     cid, _ = pol.generate(s, PROMPT, max_tokens=24)
     assert cid, "overfit source completion must be non-empty"
@@ -74,10 +74,10 @@ def test_a1_commit_changes_served_output():
     pol = _policy()
     s = _seed("t3", 0, "production_first_attempt")
     before, _ = pol.generate(s, PROMPT, max_tokens=32)
+    pol.begin_candidate()
     _overfit_step(pol)
-    cand = pol.freeze_candidate()
-    canary = RequestSeed(PROTO, 0, "canary1", 0, pol.policy_version, "canary")
-    res = pol.commit(cand, PROMPT, canary)
+    canary = RequestSeed(PROTO, 0, "canary1", 0, "canary", policy_version=pol.policy_version)
+    res = pol.commit_candidate(PROMPT, canary)
     assert res.passed, f"canary failed: {res.reason}"
     after, _ = pol.generate(s, PROMPT, max_tokens=32)
     assert before != after, "committed adapter must observably change served output"
@@ -90,10 +90,10 @@ def test_a2_rollback_restores_parent():
     pol = _policy()
     s = _seed("t4", 0, "production_first_attempt")
     before, _ = pol.generate(s, PROMPT, max_tokens=32)
+    pol.begin_candidate()
     _overfit_step(pol)
-    cand = pol.freeze_candidate()
-    canary = RequestSeed(PROTO, 0, "canary2", 0, pol.policy_version, "canary")
-    assert pol.commit(cand, PROMPT, canary).passed
+    canary = RequestSeed(PROTO, 0, "canary2", 0, "canary", policy_version=pol.policy_version)
+    assert pol.commit_candidate(PROMPT, canary).passed
     pol.rollback()
     after, _ = pol.generate(s, PROMPT, max_tokens=32)
     assert before == after, "rollback must restore parent behavior"

@@ -27,10 +27,16 @@ def test_identity_components_change_seed():
     assert base.seed() != _s(task_id="t2").seed()
     assert base.seed() != _s(stream_seed=1).seed()
     assert base.seed() != _s(turn_id=1).seed()
-    assert base.seed() != _s(policy_version=1).seed()
     assert base.seed() != _s(branch_group=1).seed()
     assert base.seed() != _s(action_id=1).seed()
     assert base.seed() != _s(continuation_id=1).seed()
+
+
+def test_policy_version_never_enters_seed():
+    """v3 exogenous CRN: treatment (policy_version) must NOT change the
+    production seed — frozen and update arms draw the same sequence."""
+    assert _s().seed() == _s(policy_version=1).seed()
+    assert _s().seed() == _s(policy_version=7).seed()
 
 
 def test_extra_branches_do_not_change_production_seed():
