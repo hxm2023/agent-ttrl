@@ -19,54 +19,32 @@
 \begin{figure*}[t]
   \centering
   \includegraphics[width=0.95\textwidth]{figures/fig1_method.png}
-  \caption{EGC-TTRL: two-scale evidence gating. Local gates decide which
-  action tokens produce gradient; the global gate decides which candidate
-  adapter reaches future tasks.}
+  \caption{Policy-Consistent EGC-TTRL: the same PEFT model serves every
+  first attempt and receives updates; request-scoped RNG isolates purposes;
+  canonical action rows accumulate in an intent-balanced replay buffer with
+  rehearsal anchors; evidence-gated counterfactual credit (goal-entity vs.\
+  evidence-discovered entity) provides signed signals; commits are atomic
+  under a canary.}
   \label{fig:method}
 \end{figure*}
 
 \begin{figure*}[t]
   \centering
   \includegraphics[width=0.98\textwidth]{figures/fig2_prequential.png}
-  \caption{Prequential AUPC across setups and seeds. Left: CTS 8-task
-  (Qwen3-4B); middle: tau2 8-task (Mistral-7B); right: tau2 16-task matched
-  control (Mistral-7B, strong updates).}
+  \caption{CTS-v2 16-task stream, 8 paired seeds (Mistral-7B): per-seed
+  first-attempt prequential AUPC. Deployment-period updates (naive) exceed
+  the frozen policy on 7/8 seeds (mean $+0.070$, $p{=}0.016$); the
+  reliability-gated EGC arm moves in the same direction.}
   \label{fig:prequential}
 \end{figure*}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\columnwidth]{figures/fig3_credit_ablation.png}
-  \caption{CTS 8-task pilot: at this scale, parameter updates do not beat
-  the frozen policy on first-attempt prequential scores. Variants marked
-  $*$ are no-op controls (zero gradient tokens; see \S5.3).}
+  \caption{EGC counterfactual credit signs on deceptive-evidence tasks:
+  the evidence-discovered entity gets positive credit and the goal-named
+  entity negative credit --- the verification signal the update needs.}
   \label{fig:ablation}
-\end{figure}
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\columnwidth]{figures/fig4_safecommit.png}
-  \caption{Candidate-archive replay: SafeCommit (EB e-process gate) commits
-  zero harmful candidates while always-commit accepts all of them; commit
-  rates stay non-degenerate.}
-  \label{fig:safecommit}
-\end{figure}
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\columnwidth]{figures/fig5_pareto.png}
-  \caption{Success-cost sketch on CTS: Best-of-N dominates; parameter
-  updates add cost without a prequential gain at this scale. Costs are
-  approximate relative model-token counts.}
-  \label{fig:pareto}
-\end{figure}
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\columnwidth]{figures/fig6_heatmap.png}
-  \caption{tau2 16-task matched control, per-seed AUPC: no stable update
-  gain under strong updates (16 rollouts, 8 steps, lr $5\times10^{-5}$).}
-  \label{fig:heatmap}
 \end{figure}
 
 \input{sections/05_results}

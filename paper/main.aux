@@ -51,8 +51,6 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Policy-consistent runtime (serving transaction)}{3}{subsection.4.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Cross-task evidence replay}{3}{subsection.4.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Evidence-gated counterfactual credit (EGC)}{3}{subsection.4.3}\protected@file@percent }
-\bibstyle{acl_natbib}
-\bibdata{references}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Evaluation protocol}{4}{subsection.4.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {5}Results}{4}{section.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Policy-consistent runtime is correct (P0 gate)}{4}{subsection.5.1}\protected@file@percent }
@@ -60,6 +58,8 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.3}What makes the transfer appear}{4}{subsection.5.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Deceptive-evidence tasks remain hard}{4}{subsection.5.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{4}{section.6}\protected@file@percent }
+\bibstyle{acl_natbib}
+\bibdata{references}
 \bibcite{causalflow2026}{{1}{2026}{{Bonagiri et~al.}}{{Bonagiri, Borkar, Anderias, Rafatirad, and Homayoun}}}
 \bibcite{memopilot2026}{{2}{2026}{{Cai et~al.}}{{}}}
 \bibcite{gtta2026}{{3}{2026}{{Chen et~al.}}{{Chen, Liu, Zhang et~al.}}}
@@ -71,12 +71,12 @@
 \bibcite{t3rl2026}{{9}{2026}{{Liao et~al.}}{{Liao, R{\"o}hrich, Wang, Zhang, Samadzadeh, Tresp, and Yeung-Levy}}}
 \bibcite{jitrl2026}{{10}{2026}{{Liu et~al.}}{{}}}
 \bibcite{pace2026}{{11}{2026}{{Mukherjee et~al.}}{{}}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Policy-Consistent EGC-TTRL: the same PEFT model serves every first attempt and receives updates; request-scoped RNG isolates purposes; canonical action rows accumulate in an intent-balanced replay buffer with rehearsal anchors; evidence-gated counterfactual credit (goal-entity vs.\ evidence-discovered entity) provides signed signals; commits are atomic under a canary.}}{5}{figure.caption.8}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:method}{{1}{5}{Policy-Consistent EGC-TTRL: the same PEFT model serves every first attempt and receives updates; request-scoped RNG isolates purposes; canonical action rows accumulate in an intent-balanced replay buffer with rehearsal anchors; evidence-gated counterfactual credit (goal-entity vs.\^^Mevidence-discovered entity) provides signed signals; commits are atomic under a canary}{figure.caption.8}{}}
 \bibcite{tau2bench2025}{{12}{2025}{{Research}}{{}}}
 \bibcite{monitoring2025}{{13}{2025}{{Schirmer et~al.}}{{Schirmer, Jazbec, Naesseth, and Nalisnick}}}
 \bibcite{vag2026}{{14}{2026}{{Shang et~al.}}{{Shang, Xu, Sun, Xia, Hu, Xu, and Zheng}}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces EGC-TTRL: two-scale evidence gating. Local gates decide which action tokens produce gradient; the global gate decides which candidate adapter reaches future tasks.}}{5}{figure.caption.8}\protected@file@percent }
-\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:method}{{1}{5}{EGC-TTRL: two-scale evidence gating. Local gates decide which action tokens produce gradient; the global gate decides which candidate adapter reaches future tasks}{figure.caption.8}{}}
 \bibcite{appworld2024}{{15}{2024}{{Trivedi et~al.}}{{Trivedi, Khot, Hartmann, Manku, Dong, Li, Gupta, Sabharwal, and Balasubramanian}}}
 \bibcite{att2026}{{16}{2026{a}}{{Wang et~al.}}{{Wang, Hao et~al.}}}
 \bibcite{cvtrl2026}{{17}{2026{b}}{{Wang et~al.}}{{}}}
@@ -85,17 +85,11 @@
 \bibcite{olivia2026}{{20}{2026{b}}{{Yu et~al.}}{{Yu, Wu, Li, Kuang, Zhou, Yu, Han, Shang, and McAuley}}}
 \bibcite{seaeval2026}{{21}{2026{a}}{{Zhang et~al.}}{{}}}
 \bibcite{staror2026}{{22}{2026{b}}{{Zhang et~al.}}{{}}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Prequential AUPC across setups and seeds. Left: CTS 8-task (Qwen3-4B); middle: tau2 8-task (Mistral-7B); right: tau2 16-task matched control (Mistral-7B, strong updates).}}{6}{figure.caption.9}\protected@file@percent }
-\newlabel{fig:prequential}{{2}{6}{Prequential AUPC across setups and seeds. Left: CTS 8-task (Qwen3-4B); middle: tau2 8-task (Mistral-7B); right: tau2 16-task matched control (Mistral-7B, strong updates)}{figure.caption.9}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces CTS 8-task pilot: at this scale, parameter updates do not beat the frozen policy on first-attempt prequential scores. Variants marked $*$ are no-op controls (zero gradient tokens; see \S  5.3).}}{6}{figure.caption.10}\protected@file@percent }
-\newlabel{fig:ablation}{{3}{6}{CTS 8-task pilot: at this scale, parameter updates do not beat the frozen policy on first-attempt prequential scores. Variants marked $*$ are no-op controls (zero gradient tokens; see \S 5.3)}{figure.caption.10}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Candidate-archive replay: SafeCommit (EB e-process gate) commits zero harmful candidates while always-commit accepts all of them; commit rates stay non-degenerate.}}{6}{figure.caption.11}\protected@file@percent }
-\newlabel{fig:safecommit}{{4}{6}{Candidate-archive replay: SafeCommit (EB e-process gate) commits zero harmful candidates while always-commit accepts all of them; commit rates stay non-degenerate}{figure.caption.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces CTS-v2 16-task stream, 8 paired seeds (Mistral-7B): per-seed first-attempt prequential AUPC. Deployment-period updates (naive) exceed the frozen policy on 7/8 seeds (mean $+0.070$, $p{=}0.016$); the reliability-gated EGC arm moves in the same direction.}}{6}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:prequential}{{2}{6}{CTS-v2 16-task stream, 8 paired seeds (Mistral-7B): per-seed first-attempt prequential AUPC. Deployment-period updates (naive) exceed the frozen policy on 7/8 seeds (mean $+0.070$, $p{=}0.016$); the reliability-gated EGC arm moves in the same direction}{figure.caption.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces EGC counterfactual credit signs on deceptive-evidence tasks: the evidence-discovered entity gets positive credit and the goal-named entity negative credit --- the verification signal the update needs.}}{6}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:ablation}{{3}{6}{EGC counterfactual credit signs on deceptive-evidence tasks: the evidence-discovered entity gets positive credit and the goal-named entity negative credit --- the verification signal the update needs}{figure.caption.10}{}}
 \bibcite{ace2025}{{23}{2025}{{Zhang et~al.}}{{Zhang, Zou, Olukotun et~al.}}}
 \bibcite{ttrl2025}{{24}{2025}{{Zuo et~al.}}{{Zuo, Zhang, Sheng, Qu, Cui et~al.}}}
 \bibcite{seal2025}{{25}{2025}{{Zweiger et~al.}}{{Zweiger, Pari, Guo, Aky{\"u}rek, Kim, and Agrawal}}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Success-cost sketch on CTS: Best-of-N dominates; parameter updates add cost without a prequential gain at this scale. Costs are approximate relative model-token counts.}}{7}{figure.caption.12}\protected@file@percent }
-\newlabel{fig:pareto}{{5}{7}{Success-cost sketch on CTS: Best-of-N dominates; parameter updates add cost without a prequential gain at this scale. Costs are approximate relative model-token counts}{figure.caption.12}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces tau2 16-task matched control, per-seed AUPC: no stable update gain under strong updates (16 rollouts, 8 steps, lr $5\times 10^{-5}$).}}{7}{figure.caption.13}\protected@file@percent }
-\newlabel{fig:heatmap}{{6}{7}{tau2 16-task matched control, per-seed AUPC: no stable update gain under strong updates (16 rollouts, 8 steps, lr $5\times 10^{-5}$)}{figure.caption.13}{}}
 \gdef \@abspage@last{7}
