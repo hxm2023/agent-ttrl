@@ -5,7 +5,7 @@
 \usepackage{latexsym}
 \usepackage{booktabs,amsmath,amssymb}
 \usepackage{graphicx}
-\title{Evidence-Gated Counterfactual Test-Time RL for Stateful Tool Agents}
+\title{Silent Failure Modes in Agent Test-Time RL: Served-Policy Drift, Evaluator Leakage, and the Phantom Transfer They Produce}
 \author{Anonymous}
 \date{}
 \begin{document}
@@ -18,21 +18,22 @@
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=0.98\textwidth]{figures/fig2_prequential.png}
-  \caption{CTS-v2 16-task stream, 8 paired seeds (Mistral-7B): per-seed
-  first-attempt prequential AUPC. Deployment-period updates (naive) exceed
-  the frozen policy on 6/8 seeds (mean $+0.070$, $p{=}0.032$); the
-  reliability-gated EGC arm moves in the same direction.}
-  \label{fig:prequential}
+  \includegraphics[width=0.98\textwidth]{figures/fig2_audit_arc.png}
+  \caption{The three-stage audit arc: each protocol fix changes the
+  conclusion. F1 (static serving): update arms indistinguishable from
+  frozen (96/96 identical outcomes). F2 (leakage): phantom transfer
+  $+0.070$ ($p{=}0.016$). F3 (full isolation): updates significantly
+  harmful ($-0.19$, $p{=}0.008$); the pre-commit gate restores parity.}
+  \label{fig:audit}
 \end{figure*}
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=\columnwidth]{figures/fig3_credit_ablation.png}
-  \caption{EGC counterfactual credit signs on deceptive-evidence tasks:
-  the evidence-discovered entity gets positive credit and the goal-named
-  entity negative credit --- the verification signal the update needs.}
-  \label{fig:ablation}
+  \includegraphics[width=\columnwidth]{figures/fig3_v3_seeds.png}
+  \caption{Per-seed AUPC under full protocol isolation (v3): frozen is
+  deterministic across seeds; naive and egc are below frozen on all 8
+  seeds (exact two-sided $p{=}0.008$).}
+  \label{fig:v3}
 \end{figure}
 
 \input{sections/05_results}

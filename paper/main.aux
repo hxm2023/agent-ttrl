@@ -4,7 +4,6 @@
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
 \citation{ttrl2025}
-\citation{ttrl2025}
 \citation{t3rl2026}
 \citation{staror2026}
 \citation{att2026}
@@ -28,8 +27,6 @@
 \citation{vag2026}
 \citation{monitoring2025}
 \citation{sage2026}
-\citation{seaeval2026}
-\citation{evotest2026}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Test-time RL on unlabeled reasoning.}{2}{section*.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Deployment-time adaptation without parameter updates.}{2}{section*.2}\protected@file@percent }
@@ -37,36 +34,41 @@
 \@writefile{toc}{\contentsline {paragraph}{Counterfactual and sibling-branch credit.}{2}{section*.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Commit gates and risk control.}{2}{section*.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Continual self-improvement.}{2}{section*.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Prequential evaluation.}{2}{section*.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}Problem and Protocol}{2}{section.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Deployment stream}{2}{subsection.3.1}\protected@file@percent }
+\citation{seaeval2026}
+\citation{evotest2026}
 \citation{appworld2024}
 \citation{tau2bench2025}
+\@writefile{toc}{\contentsline {paragraph}{Prequential evaluation.}{3}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Problem and Protocol}{3}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Deployment stream}{3}{subsection.3.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Evidence tiers}{3}{subsection.3.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Prequential primary metric}{3}{subsection.3.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Budgets and identity}{3}{subsection.3.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Environments}{3}{subsection.3.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4}Policy-Consistent EGC-TTRL}{3}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Policy-consistent runtime (serving transaction)}{3}{subsection.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Cross-task evidence replay}{3}{subsection.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Evidence-gated counterfactual credit (EGC)}{3}{subsection.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Evaluation protocol}{4}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}The Audit Chain}{3}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Environment and protocol}{3}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Hidden-evaluator isolation}{3}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Request-scoped common random numbers}{4}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Cross-task replay with evidence provenance}{4}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Atomic shadow commits and the pre-commit gate}{4}{subsection.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Statistics}{4}{subsection.4.6}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {5}Results}{4}{section.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Policy-consistent runtime is correct (P0 gate)}{4}{subsection.5.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Cross-task replay transfers on CTS-v2}{4}{subsection.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}What makes the transfer appear}{4}{subsection.5.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Deceptive-evidence tasks remain hard}{4}{subsection.5.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{4}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}F1: static serving produces pure-RNG artifacts}{4}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}F2: evaluator leakage and anchor injection produce phantom transfer}{4}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}F3: protocol-correct updates are significantly harmful}{4}{subsection.5.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces The three-stage audit arc: each protocol fix changes the conclusion. F1 (static serving): update arms indistinguishable from frozen (96/96 identical outcomes). F2 (leakage): phantom transfer $+0.070$ ($p{=}0.016$). F3 (full isolation): updates significantly harmful ($-0.19$, $p{=}0.008$); the pre-commit gate restores parity.}}{5}{figure.caption.8}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:audit}{{1}{5}{The three-stage audit arc: each protocol fix changes the conclusion. F1 (static serving): update arms indistinguishable from frozen (96/96 identical outcomes). F2 (leakage): phantom transfer $+0.070$ ($p{=}0.016$). F3 (full isolation): updates significantly harmful ($-0.19$, $p{=}0.008$); the pre-commit gate restores parity}{figure.caption.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Per-seed AUPC under full protocol isolation (v3): frozen is deterministic across seeds; naive and egc are below frozen on all 8 seeds (exact two-sided $p{=}0.008$).}}{5}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:v3}{{2}{5}{Per-seed AUPC under full protocol isolation (v3): frozen is deterministic across seeds; naive and egc are below frozen on all 8 seeds (exact two-sided $p{=}0.008$)}{figure.caption.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Gated updates restore parity}{5}{subsection.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Summary}{5}{subsection.5.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion and Implications}{5}{section.6}\protected@file@percent }
 \bibstyle{acl_natbib}
 \bibdata{references}
 \bibcite{causalflow2026}{{1}{2026}{{Bonagiri et~al.}}{{Bonagiri, Borkar, Anderias, Rafatirad, and Homayoun}}}
 \bibcite{memopilot2026}{{2}{2026}{{Cai et~al.}}{{}}}
 \bibcite{gtta2026}{{3}{2026}{{Chen et~al.}}{{Chen, Liu, Zhang et~al.}}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces CTS-v2 16-task stream, 8 paired seeds (Mistral-7B): per-seed first-attempt prequential AUPC. Deployment-period updates (naive) exceed the frozen policy on 6/8 seeds (mean $+0.070$, $p{=}0.032$); the reliability-gated EGC arm moves in the same direction.}}{5}{figure.caption.8}\protected@file@percent }
-\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:prequential}{{1}{5}{CTS-v2 16-task stream, 8 paired seeds (Mistral-7B): per-seed first-attempt prequential AUPC. Deployment-period updates (naive) exceed the frozen policy on 6/8 seeds (mean $+0.070$, $p{=}0.032$); the reliability-gated EGC arm moves in the same direction}{figure.caption.8}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces EGC counterfactual credit signs on deceptive-evidence tasks: the evidence-discovered entity gets positive credit and the goal-named entity negative credit --- the verification signal the update needs.}}{5}{figure.caption.9}\protected@file@percent }
-\newlabel{fig:ablation}{{2}{5}{EGC counterfactual credit signs on deceptive-evidence tasks: the evidence-discovered entity gets positive credit and the goal-named entity negative credit --- the verification signal the update needs}{figure.caption.9}{}}
 \bibcite{dare2026}{{4}{2026}{{Du et~al.}}{{Du, Huang, and Li}}}
 \bibcite{evotest2026}{{5}{2026}{{Feng et~al.}}{{}}}
 \bibcite{amplification2026}{{6}{2026}{{Khattar et~al.}}{{Khattar, Rashid, Choudhury, Liu, Koike-Akino, Jin, and Wang}}}
@@ -89,4 +91,4 @@
 \bibcite{ace2025}{{23}{2025}{{Zhang et~al.}}{{Zhang, Zou, Olukotun et~al.}}}
 \bibcite{ttrl2025}{{24}{2025}{{Zuo et~al.}}{{Zuo, Zhang, Sheng, Qu, Cui et~al.}}}
 \bibcite{seal2025}{{25}{2025}{{Zweiger et~al.}}{{Zweiger, Pari, Guo, Aky{\"u}rek, Kim, and Agrawal}}}
-\gdef \@abspage@last{6}
+\gdef \@abspage@last{7}

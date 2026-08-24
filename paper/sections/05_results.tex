@@ -1,59 +1,75 @@
-% Results — v2 (2026-08-24): policy-consistent runtime, positive transfer on CTS-v2
-
+% Results — Route B: three-stage audit arc (2026-08-25)
 \section{Results}
 
-\subsection{Policy-consistent runtime is correct (P0 gate)}
-The v2 runtime (Sect.~4.1) passes the A0--A2 correctness gate on
-Mistral-7B: (A0) the same \texttt{RequestSeed} yields bitwise-identical
-generations, and extra update-arm rollouts do not shift any future
-production first attempt; (A1) a committed LoRA adapter observably
-changes served output (adapter hash + logit-level KL + deterministic
-canary); (A2) rollback restores the parent behavior exactly. This closes
-the v1 defect where the trained model never became the serving policy and
-per-task ``update effects'' were sampling-stream displacement.
+\subsection{F1: static serving produces pure-RNG artifacts}
+The v1 pipeline served every first attempt from a static base-model
+vLLM server while a separate HF/PEFT model received updates. Per-task
+``update effects'' were unidentifiable: across the tau2 8/16-task
+streams, naive and egc arms produced 96/96 identical task outcomes
+(they differ only in extra RNG draws), and frozen-vs-update differences
+were consistent with sampling-stream displacement. No learning-effect
+claim survives this stage (invalidation record:
+AUDIT\_INVALIDATION.md).
 
-\subsection{Cross-task replay transfers on CTS-v2}
-On the 16-task CTS-v2 stream (6 adaptation templates, 1 sealed held-out
-template, 8 paired seeds, Mistral-7B), deployment-period updates with the
-cross-task replay buffer improve first-attempt prequential AUPC over the
-frozen policy: frozen 0.4531 vs.\ naive 0.5234, paired per-seed deltas
-$+0.06,+0.12,+0.06,+0.06,+0.06,+0.06,0.00,+0.12$ (mean $+0.070$,
-exact two-sided sign-flip $p{=}0.032$, 6/8 seeds positive, 0 negative;
-Fig.~\ref{fig:prequential}). The gains concentrate in the
-tool-composition template (F1-exchange): the update teaches the
-evidence-to-argument binding (extract the item ids from the goal) that
-the frozen policy misses (exchange success 4/16 frozen vs.\ 16/16
-naive). Per-template, the update also slightly helps cancel (14/16 vs.\
-15/16) and slightly hurts refund (24/24 vs.\ 20/24) and recover (16/16
-vs.\ 15/16) --- a small negative transfer disclosed here. The sealed
-held-out template (refund with a deceptive goal user) remains at 0/16
-(frozen) and 1/16 (naive): the inductive probe is null; the reported
-gain is transductive (on the adaptation templates). The
-reliability-gated EGC credit (goal-user vs.\ evidence-user
-counterfactuals, Fig.~\ref{fig:ablation}) moves in the same direction
-(mean $+0.047$, $p{=}0.11$, 6/8 positive) and its credit signs are
-correct on deceptive tasks (real-user actions get positive credit,
-goal-user actions negative).
+\subsection{F2: evaluator leakage and anchor injection produce phantom transfer}
+After colocating training and serving (same PEFT model generates and
+trains), with (a) the hidden evaluator terminating episodes early and
+(b) hand-constructed ground-truth anchors seeding the replay buffer,
+updates appeared to transfer on a 16-task CTS-v2 latent-skill stream
+(8 paired seeds, Mistral-7B): frozen 0.4531 vs.\ naive 0.5234,
+$+0.070$ AUPC, exact two-sided sign-flip $p{=}0.016$, 7/8 seeds
+positive. The gains concentrated in one template (F1-exchange 4/16 to
+16/16). Removing the leakage --- hidden evaluator made reporting-only
+(fixed episode horizon), anchors rebuilt from accessible evidence on a
+disjoint pre-deployment split, negative-credit rows admitted, replay
+sampler seeded --- the apparent transfer \emph{vanishes}: the same
+protocol under full isolation shows updates that are not better than
+frozen (this is the F3 stage below). The $+0.070$ was an artifact of
+the two leaks, not of learning.
 
-\subsection{What makes the transfer appear}
-Three v2 mechanisms are jointly necessary (ablations): (i) \emph{served
-policy consistency} --- the same model that generates the first attempt
-receives the update; (ii) \emph{canonical action completions} --- updates
-train on the extracted action sequence (with the verification lookup step
-when the positively-credited action acts on evidence-discovered
-entities), not on raw prose; (iii) \emph{intent-balanced replay with
-anchor rehearsal} --- updates sample equally across tool intents with
-20--40\% rehearsal rows, which removes the catastrophic forgetting seen
-when a single intent dominates the buffer. Without any of these, updates
-either do nothing (v1 static serving) or harm the policy (v1/large-LR
-runs: 2e-4 $\times$ 3 steps drops AUPC below frozen on 3/3 seeds).
+\subsection{F3: protocol-correct updates are significantly harmful}
+Under full isolation (exogenous request RNG without treatment-dependent
+seeds; observation-only counterfactual candidates; signed replay;
+atomic shadow commits with canary), the same REINFORCE-style updates
+significantly \emph{degrade} first-attempt AUPC on the same stream:
 
-\subsection{Deceptive-evidence tasks remain hard}
-The sealed held-out template (a refund task whose goal names a wrong
-user, requiring lookup-verification) is solved by neither arm at 8-task
-scale; the bottleneck is the policy's within-episode correction behavior
-(after a failed action it echoes the error rather than retrying with the
-evidence-discovered argument), not the credit signal --- the EGC
-counterfactual credit correctly identifies the right action but the
-update cannot yet overcome this model-capability boundary. This is the
-clear next target (longer streams, larger batch, stronger backbones).
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+arm & AUPC mean & delta vs frozen & exact two-sided p \\
+\midrule
+frozen & 0.5625 & --- & --- \\
+naive  & 0.3750 & $-0.1875$ (0/8 positive) & 0.0078 \\
+egc    & 0.3281 & $-0.2344$ (0/8 positive) & 0.0078 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Per-seed deltas for naive: $-0.125,-0.125,-0.375,-0.1875,-0.0625,
+-0.25,-0.125,-0.25$. The frozen baseline is fully deterministic (all 8
+seeds identical, common-random-numbers verified), so the degradation
+is not noise. Diagnosis: the canonical-action REINFORCE rows trained on
+partially-correct rollouts with negative advantages; the update
+suppressed tool names the model partially knew and reinforced
+hallucinated entity ids (e.g.\ the few-shot example's
+\texttt{order-EXAMPLE} leaking into actions).
+
+\subsection{Gated updates restore parity}
+A pre-commit gate validates each candidate adapter against the
+committed policy on accessible-evidence instances drawn from the base
+templates (4 instances); candidates that do not improve are discarded
+(served state untouched). With the gate, both naive and egc match the
+frozen baseline exactly (AUPC 0.5625), with 0/8 seeds harmed --- the
+gate turns the harmful update loop into a safe no-op. This is the
+first stage of the audit arc with a \emph{positive} control outcome:
+risk-controlled commits eliminate the harm that protocol-correct
+updates would otherwise inflict.
+
+\subsection{Summary}
+Each audit stage is a checkpoint in the same harness: the pipeline at
+stage $k$ differs from stage $k-1$ only by the audited fix, and every
+stage ships immutable manifests (protocol hash, per-seed logs, adapter
+hashes, gate outcomes). The harness --- policy-consistent runtime,
+request-scoped RNG, hidden-evaluator isolation, accessible-evidence
+utilities, integration gates A0--A2 --- is released so that any agent
+test-time RL pipeline can be checked for these three failure modes.

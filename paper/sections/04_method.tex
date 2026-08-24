@@ -1,53 +1,63 @@
-% Method — v2 (2026-08-24)
-\section{Policy-Consistent EGC-TTRL}
+% Method — Route B: audit chain (2026-08-25)
+\section{The Audit Chain}
 
-\subsection{Policy-consistent runtime (serving transaction)}
-Every generation request is drawn from a \emph{request-scoped} RNG:
-$\mathrm{seed}=\mathrm{H}(\mathrm{protocol}, \mathrm{stream\_seed},
-\mathrm{task\_id}, \mathrm{turn\_id}, \mathrm{policy\_version},
-\mathrm{purpose}, \mathrm{branch\_group},\dots)$ where \texttt{purpose}
-separates production first attempts from credit rollouts, branches, and
-canaries. A \textbf{colocated backend} runs training and serving on the
-same PEFT model (slow but provably consistent): the model that samples
-the next first attempt is the model that received the update. Adapter
-commits are atomic: the candidate state is hashed, the canary checks (a)
-adapter hash equality, (b) parent-vs-candidate logit KL on a fixed
-prompt, (c) an observably changed deterministic rollout; only then does
-the policy version advance. Rollback restores the previously served
-state from a stack. The A0 gate verifies bitwise identity under
-repeated seeds and that update-arm RNG draws never shift production
-seeds.
+We describe the harness used at every stage; each stage differs only by
+which checks are enabled, and all stages share the same environment
+(CTS-v2 latent-skill families), model (Mistral-7B-Instruct-v0.3), and
+prequential protocol.
 
-\subsection{Cross-task evidence replay}
-Single-task updates are too weak and noisy (v1). We aggregate
-\emph{evidence rows} across tasks in a session-scoped buffer:
-each row is the canonical action sequence extracted from a rollout
-(lookup/exploration calls removed; the verification lookup step retained
-when the credited action acts on evidence-discovered entities), with its
-group-relative signed advantage, producer prompt/completion ids, and a
-hash. Updates run every $K{=}2$--4 tasks on a batch sampled
-\textbf{intent-balanced} (equal budget per tool workflow) plus
-20--40\% \emph{anchor} rehearsal rows (canonical demo trajectories) to
-guard against catastrophic forgetting. All arms share the same buffer
-capacity and update-token caps.
+\subsection{Environment and protocol}
+CTS-v2 defines 7 task templates across two latent families (F1:
+refund/cancel/exchange policy rules; F3: permission-recovery), each
+instantiated over unseen entities. Streams are leave-one-template-out:
+6 adaptation templates plus a sealed held-out template (a refund task
+whose goal names a wrong user, requiring lookup-verification). The
+first-attempt prequential metric $Y^{\mathrm{pre}}_k$ is scored by the
+hidden evaluator \emph{after} the episode, and only for reporting.
+Training utilities are computed from \emph{accessible evidence} only:
+a task counts as solved when \texttt{lookup\_order} returns the
+target status (E-hard), never from the hidden oracle.
 
-\subsection{Evidence-gated counterfactual credit (EGC)}
-At a decision point (after the first turn reveals state), we construct a
-grammar-valid counterfactual set: for entity-selection decisions the set
-is \emph{goal-entity vs.\ evidence-discovered entity} (e.g., the refund
-target named in the goal vs.\ the user returned by
-\texttt{lookup\_order}), plus model proposals for coverage. Each
-candidate action executes on $R{=}4$ fresh snapshots of the same task
-instance; the utility matrix $U[G,R]$ yields group-relative signed
-credit via paired credit with across-seed variance. Positive-credit
-actions become replay rows; the reliability gate requires
-$|\mathrm{credit}|>0.05$. The naive arm uses the same replay machinery
-with terminal trajectory utility instead of branch credit.
+\subsection{Hidden-evaluator isolation}
+The episode runs a fixed horizon (6 turns). The hidden evaluator never
+terminates, retries, or selects episodes; it is invoked offline after
+the trajectory completes. Training signals use
+\texttt{accessible\_success()}, which replays a \texttt{lookup\_order}
+and compares the returned status to the template's accessible target.
 
-\subsection{Evaluation protocol}
-Prequential first-attempt AUPC (hidden oracle used only as an L0
-diagnostic, never in training); sealed held-out template appears only in
-the final phase and is never trained on; statistics use exact two-sided
-sign-flip over paired seeds plus hierarchical bootstrap; runs carry
-immutable manifests (seed list, policy versions, adapter hashes, buffer
-stats, violations).
+\subsection{Request-scoped common random numbers}
+Every generation request derives its seed from exogenous identity
+only:
+$\mathrm{seed}=\mathrm{H}(\mathrm{protocol},\mathrm{stream\_seed},
+\mathrm{task},\mathrm{turn},\mathrm{purpose},\mathrm{branch},
+\mathrm{action},\mathrm{continuation})$.
+Policy version and treatment are recorded in manifests but never in
+seeds, so frozen and update arms draw identical production sequences
+under the same seed (verified: frozen 8/8 seeds bitwise identical).
+
+\subsection{Cross-task replay with evidence provenance}
+Rollouts are parsed into canonical action sequences; a row enters the
+buffer only if its group-relative credit passes a reliability gate
+($|\mathrm{adv}|\ge 0.25$), and \emph{both signs} are admitted (signed
+replay). Anchors are constructed from a disjoint pre-deployment split
+by simulating the agent's own accessible flow (call
+\texttt{lookup\_order}, read the returned user, act on it) --- they
+contain only evidence the policy could have seen. The sampler is
+seeded for reproducibility. Updates run every 2 tasks on an
+intent-balanced batch with 40\% anchor rehearsal.
+
+\subsection{Atomic shadow commits and the pre-commit gate}
+Training writes only to a shadow candidate parameter copy; generation
+always serves the committed state. A canary checks candidate-vs-
+committed logit KL and deterministic-output change. Additionally, the
+pre-commit gate validates the candidate against the committed policy
+on 4 accessible-evidence instances drawn from the base templates
+(rotating); candidates that do not strictly improve are discarded, so
+a harmful update never reaches the served policy. All gates and
+commit decisions are recorded in the run manifest.
+
+\subsection{Statistics}
+All reported tests are exact two-sided sign-flip tests (2$^n$
+enumeration) over paired seeds, with per-seed deltas and per-template
+breakdowns reported alongside. Runs carry immutable manifests
+(protocol hash, seeds, adapter hashes, gate outcomes).

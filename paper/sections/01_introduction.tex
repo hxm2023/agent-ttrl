@@ -1,50 +1,63 @@
-% Introduction — v2 (2026-08-24)
+% Introduction — Route B (2026-08-25)
 \section{Introduction}
-Deployed tool-using agents receive feedback that is partial, endogenous,
-and often unreliable: an API receipt may report success while the
-underlying state did not change; a verifier may agree with a wrong
-consensus; and the agent's own choices determine what evidence it sees.
-A natural goal is \emph{deployment-period improvement}: let the agent
-update its policy from the tasks it encounters, so that later, unseen
-tasks in the same domain are handled better. This is test-time
-reinforcement learning (TTRL)~\cite{ttrl2025} moved from unlabeled math
-reasoning to stateful tool use.
+Test-time reinforcement learning for language agents --- updating the
+policy from the tasks it encounters during deployment so later tasks are
+handled better --- has become a crowded and optimistic space. Systems
+report gains on math reasoning~\cite{ttrl2025}, tool
+use~\cite{t3rl2026}, instance-specific
+refinement~\cite{staror2026}, and live in-episode updates with runtime
+serving~\cite{att2026}. The deployment setting is genuinely important:
+agents deployed in production receive partial, endogenous feedback and
+cannot be retrained offline.
 
-The literature has moved fast: test-time self-consistency
-rewards~\cite{ttrl2025}, tool-verified pseudo-labels~\cite{t3rl2026},
-instance-level LoRA refinement~\cite{staror2026}, and live-episode
-updates with runtime serving~\cite{att2026} all report gains on their
-targets. Yet a silent failure mode runs through most pipelines:
-\textbf{the model that receives the gradient is not the model that
-generates the next first attempt}. When training and serving diverge,
-``update effects'' are unidentifiable --- per-task differences between
-frozen and update arms can come entirely from sampling-stream
-displacement, not from policy change. In our own v1 pipeline this defect
-invalidated every learning-effect claim (audit in
-AUDIT\_INVALIDATION.md): the LoRA-updated HF model never reached the
-vLLM server, and 96/96 task outcomes matched across ``different''
-update arms.
+But the setting is also uniquely hard to evaluate honestly. Three
+properties conspire:
 
-We rebuild the loop around one principle: \emph{the policy that serves
-the next task must be the policy that was updated, provably}. We
-contribute:
 \begin{itemize}
-\item \textbf{Policy-consistent runtime}: request-scoped RNG (seeds
-  derived from protocol/task/turn/policy-version/purpose), a colocated
-  backend where the same PEFT model generates and trains, and atomic
-  adapter commits under a canary (adapter hash, logit KL, deterministic
-  output change) with rollback. Verified by A0--A2 integration gates.
-\item \textbf{Cross-task evidence replay}: a session-scoped buffer of
-  canonical action sequences with signed advantages, intent-balanced
-  sampling and anchor rehearsal against catastrophic forgetting ---
-  fixing the weakness of per-task micro-updates.
-\item \textbf{Evidence-gated counterfactual credit (EGC)}:
-  grammar-valid counterfactual branches (goal-entity vs.\
-  evidence-discovered entity) produce signed credit whose signs are
-  correct on deceptive-evidence tasks.
-\item \textbf{A positive transfer result}: on a 16-task latent-skill
-  stream with 8 paired seeds, deployment-period updates improve
-  first-attempt prequential AUPC over the frozen policy by $+0.070$
-  (exact two-sided sign-flip $p{=}0.032$; 6/8 seeds positive, 0
-  negative).
+\item \textbf{Training and serving can silently diverge.} The model
+  that receives the gradient may not be the model that generates the
+  next first attempt. When they diverge, per-task differences between
+  frozen and update arms are unidentifiable: they can come entirely
+  from sampling-stream displacement --- update arms draw more random
+  numbers --- rather than from policy change.
+\item \textbf{The evaluator is entangled with the episode.} Hidden
+  evaluators that score first attempts are routinely also used to
+  terminate episodes early, select retries, or construct training
+  labels. Any of those turns the evaluation signal into a training
+  signal.
+\item \textbf{Replay and anchors can inject ground truth.} Cross-task
+  replay buffers are useful, but if their contents are constructed from
+  world internals or hand-labeled correct answers, the ``learned''
+  behavior is SFT on leaked labels.
 \end{itemize}
+
+We demonstrate, by auditing and progressively repairing one pipeline
+(``Agent-TTRL''), that these are not hypothetical concerns. Running the
+same experimental protocol at three audit levels produces three
+different conclusions:
+
+\begin{enumerate}
+\item[F1.] With static serving (the updated model never serves), update
+  arms show per-task differences that are pure RNG displacement;
+  96/96 task outcomes match across ``different'' update variants.
+\item[F2.] After colocating training and serving, but with the hidden
+  evaluator controlling early stops and hand-constructed anchors in the
+  replay buffer, updates appear to transfer ($+0.070$ AUPC,
+  $p{=}0.016$, 7/8 seeds positive). Both effects vanish when the
+  leakage is removed.
+\item[F3.] Under full protocol isolation (exogenous request RNG,
+  observation-only credit, signed replay, atomic shadow commits), the
+  same REINFORCE-style updates significantly \emph{harm} performance:
+  naive $-0.19$ AUPC ($p{=}0.008$, 0/8 seeds positive), egc $-0.23$
+  ($p{=}0.008$) on a 16-task latent-skill stream with Mistral-7B.
+\end{enumerate}
+
+The takeaway is not that agent test-time RL cannot work --- it is that
+\textbf{positive results in this area must first survive an audit
+chain} covering served-policy identity, evaluator isolation, evidence
+provenance, and update-commit safety. We contribute that chain as a
+reproducible harness, together with a defense that works: a pre-commit
+gate validating candidate adapters on accessible-evidence instances
+restores AUPC to frozen parity (harmful-commit rate 0/8), and a
+frozen baseline that is fully deterministic across seeds under
+common-random-numbers pairing.

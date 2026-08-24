@@ -1,26 +1,31 @@
-% Conclusion — v2 (2026-08-24)
-\section{Conclusion}
-We rebuilt deployment-period agent RL around policy consistency: the
-same model that serves every first attempt receives the update;
-request-scoped randomness isolates production from credit computation;
-adapter commits are atomic and canary-verified; and a cross-task replay
-buffer turns sparse per-task signals into learnable, intent-balanced
-batches with rehearsal anchors. On a 16-task latent-skill stream,
-updates improve first-attempt prequential AUPC over the frozen policy by
-$+0.070$ ($p{=}0.032$, 6/8 seeds positive), concentrated in
-tool-composition tasks where the update teaches evidence-to-argument
-binding. EGC counterfactual credit produces correct signs on
-deceptive-evidence decisions and moves in the same direction.
+% Conclusion — Route B (2026-08-25)
+\section{Conclusion and Implications}
+We audited one agent test-time RL pipeline through three increasingly
+strict protocol stages and found that each stage changed the
+conclusion: static serving produced unidentifiable RNG artifacts;
+evaluator leakage and hand-constructed anchors produced a phantom
+$+0.070$ transfer; full protocol isolation revealed that the same
+updates are significantly \emph{harmful} ($-0.19$, $p{=}0.008$, 0/8
+seeds). A pre-commit gate that validates candidate adapters on
+accessible evidence restored parity with the frozen baseline and
+eliminated harmful commits.
 
-Three caveats bound the claim. First, the effect is small and measured
-on one environment/model; the honest headline is that a correctly
-implemented pipeline finally \emph{can} show transfer, where the
-uncorrected pipeline showed only artifacts. Second, deceptive-evidence
-tasks (goal names a wrong user) remain unsolved --- the bottleneck is
-within-episode correction behavior, not the credit signal. Third, the
-full protocol (sealed multi-environment evaluation, official
-benchmarks, hierarchical statistics, stronger backbones) is the
-immediate next step. We release the complete runtime, environment, and
-all run manifests so that any pipeline can be checked for the served
-policy, RNG, and evidence-integrity properties that this paper shows
-are decisive.
+Three implications follow. First, 	extbf{positive results in agent
+test-time RL should be treated as unverified until served-policy
+identity, evaluator isolation, evidence provenance, and commit safety
+are audited} --- our three failure modes are simple, silent, and
+decisive, and the audit chain that catches them is cheap to run.
+Second, 	extbf{the honest baseline may be stronger than the update}:
+at this scale and with this update rule, the fully deterministic
+frozen policy is the correct default, and ``no harm'' (gated updates)
+is a positive engineering outcome. Third, 	extbf{the release of
+audit-grade harnesses matters}: any pipeline can now be checked for
+these exact failure modes with the provided runtime, gates, and
+integration tests.
+
+Limitations: the audit covers one environment/model/update-rule
+combination; the harmful-update finding and the gate's protective
+effect should be replicated across environments (official tau2,
+AppWorld) and backbones, and the update rule itself (not just its
+safety) needs redesign before agent test-time RL can claim transfer
+at this scale.
