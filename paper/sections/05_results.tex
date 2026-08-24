@@ -65,6 +65,24 @@ first stage of the audit arc with a \emph{positive} control outcome:
 risk-controlled commits eliminate the harm that protocol-correct
 updates would otherwise inflict.
 
+\subsection{Update-rule alternatives do not recover transfer}
+We tested two additional update rules under the same audit chain:
+verified-success-only REINFORCE (negative rows excluded) and a DPO-style
+pair loss over (verified-success, verified-failure) sequence pairs, the
+latter with negatives drawn from the raw generated text (failure is
+typically prose, unparseable to a canonical action). The pair loss
+finally produces candidate updates that pass the pre-commit gate (3/8
+commits on the 8-task stream) --- but first-attempt AUPC on the
+production stream still does not improve over frozen (0.375 vs.\ frozen
+0.5 on 8-task). The gate's validation instances (base templates) are
+not representative of the production distribution (which includes
+harder variants and the sealed template), so even gated updates can be
+harmful in production. This closes the audit loop: the protective gate
+is necessary but not sufficient; the update rule itself, the
+validation distribution, and the environment scale all need further
+work before agent test-time RL can claim transfer under a clean
+protocol.
+
 \subsection{Summary}
 Each audit stage is a checkpoint in the same harness: the pipeline at
 stage $k$ differs from stage $k-1$ only by the audited fix, and every

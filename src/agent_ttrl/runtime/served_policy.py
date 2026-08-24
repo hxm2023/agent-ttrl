@@ -162,6 +162,47 @@ class ColocatedPolicy:
         self._candidate = {n: p.detach().clone()
                            for n, p in self.model.named_parameters() if p.requires_grad}
 
+    def train_pair_step(self, pos_prompt_ids, pos_completion_ids,
+                        neg_prompt_ids, neg_completion_ids,
+                        lr: float, beta: float = 0.5, max_grad_norm: float = 1.0) -> dict:
+        """DPO-style pair loss on the SHADOW candidate:
+        loss = -log sigmoid(beta * (mean_logp_pos - mean_logp_neg)).
+        Teaches the preference 'verified-success sequence > verified-failure
+        sequence' without REINFORCE's negative-advantage pathology that
+        suppressed partially-correct tool names (v3 harm)."""
+        if getattr(self, "_candidate", None) is None:
+            raise RuntimeError("train_pair_step requires begin_candidate() first")
+        self._swap_to(self._candidate)
+        ids_p, mask_p = self._ids_mask(pos_prompt_ids, pos_completion_ids)
+        ids_n, mask_n = self._ids_mask(neg_prompt_ids, neg_completion_ids)
+        opt = torch.optim.AdamW([p for p in self.model.parameters() if p.requires_grad], lr=lr)
+        opt.zero_grad()
+        out_p = self.model(input_ids=ids_p)
+        out_n = self.model(input_ids=ids_n)
+        logp_p = torch.log_softmax(out_p.logits.float(), dim=-1)
+        logp_n = torch.log_softmax(out_n.logits.float(), dim=-1)
+        def seq_logp(logits, ids, mask):
+            shift_logp = logits[:, :-1, :]
+            shift_ids = ids[:, 1:]
+            shift_mask = mask[:, 1:]
+            tok = shift_logp.gather(-1, shift_ids.unsqueeze(-1)).squeeze(-1)
+            n = shift_mask.sum().clamp(min=1.0)
+            return (tok * shift_mask).sum() / n
+        lp_pos = seq_logp(logp_p, ids_p, mask_p)
+        lp_neg = seq_logp(logp_n, ids_n, mask_n)
+        logit = beta * (lp_pos - lp_neg)
+        loss = -torch.log(torch.sigmoid(logit) + 1e-8)
+        loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_grad_norm)
+        opt.step()
+        self.model.zero_grad()
+        for n, p in self.model.named_parameters():
+            if p.requires_grad:
+                self._candidate[n].copy_(p.data)
+        self._swap_to(self._committed)
+        torch.cuda.empty_cache()
+        return {"loss": float(loss.item()), "logit": float(logit.item())}
+
     def generate_with(self, state: dict, seed: RequestSeed, prompt: str,
                       max_tokens: int = 128, temperature: float = 0.3) -> tuple[list[int], str]:
         """Generate with an arbitrary parameter state (used by the commit

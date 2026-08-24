@@ -299,15 +299,17 @@ def main() -> int:
                 if t_idx >= args.update_every - 1 and (t_idx + 1) % args.update_every == 0:
                     batch = buffer.sample_update_batch(args.batch_size, seed=args.seed * 1000 + t_idx)
                     pos = [r for r in batch if r.advantage > 0]
-                    neg = [r for r in batch if r.advantage < 0]
+                    neg_all = [r for r in buffer.rows if r.advantage < 0]
                     n_used = 0
                     policy.begin_candidate()   # v3: shadow candidate; served state untouched
-                    for r in (pos + neg)[: args.batch_size // 2]:
-                        if not r.completion_ids:
+                    for rp, rn in zip(pos[: args.batch_size // 2], neg_all[: args.batch_size // 2]):
+                        if not rp.completion_ids or not rn.completion_ids:
                             continue
-                        policy.train_step(r.prompt_ids, r.completion_ids,
-                                          advantage=r.advantage, lr=args.lr)
+                        policy.train_pair_step(rp.prompt_ids, rp.completion_ids,
+                                               rn.prompt_ids, rn.completion_ids,
+                                               lr=args.lr, beta=0.5)
                         n_used += 1
+                    log(f"update(egc): t{t_idx} n_used={n_used} pos={len(pos)} neg={len(neg_all)}")
                     if n_used > 0:
                         canary = RequestSeed(PROTO, args.seed, "canary", t_idx,
                                              "canary", policy_version=policy.policy_version)
@@ -374,38 +376,45 @@ def main() -> int:
                     canonical = (f'lookup_order(order_id="{task.world._goal.get("order", "")}")\n'
                                  + canonical)
                 cid_canon = policy.tokenizer(canonical).input_ids if canonical else []
-                rollout_rows.append((cid_canon, util, final_ok))
+                rollout_rows.append((cid_canon, rcid, util, final_ok))
                 rollout_diag.append({"g": g, "n_calls": len(calls), "util": round(util, 3),
                                      "final_ok": final_ok, "text": rtext[:60]})
             mean = sum(utils) / max(1, len(utils))
             std = (sum((u - mean) ** 2 for u in utils) / max(1, len(utils))) ** 0.5
-            for g, (cid_canon, util, final_ok) in enumerate(rollout_rows):
-                adv = (util - mean) / (std + 1e-3)
-                # v3.1: VERIFIED-SUCCESS-ONLY replay — only rows whose
-                # completion is accessible-evidence-verified (final_ok==1)
-                # enter the buffer, with positive advantage. Negative
-                # advantage on partially-correct sequences was suppressing
-                # tool names the model partially knew (v3 harm); verified
-                # positives are clean learning signal.
-                if final_ok == 1.0 and util > 0.3 and adv > 0 and abs(adv) >= 0.25 and cid_canon:
+            for g, (cid_canon, rcid, util, final_ok) in enumerate(rollout_rows):
+                # v3.2 PAIR-REPLAY: verified-success rows as positives
+                # (canonical action sequence); verified-failure rows as
+                # negatives using the RAW generated text (failure often
+                # means prose/parse-failure, so the canonical is empty —
+                # the raw text is exactly what the policy must NOT emit)
+                if final_ok == 1.0 and util > 0.3 and cid_canon:
                     buffer.add(EvidenceRow(f"t{t_idx}", tname,
                                            policy.tokenizer(prompt).input_ids,
-                                           cid_canon, advantage=adv,
+                                           cid_canon, advantage=1.0,
                                            policy_version=policy.policy_version))
+                elif final_ok == 0.0 and util < 0.4:
+                    neg_ids = cid_canon or rcid or []
+                    if neg_ids:
+                        buffer.add(EvidenceRow(f"t{t_idx}", tname,
+                                               policy.tokenizer(prompt).input_ids,
+                                               neg_ids, advantage=-1.0,
+                                               policy_version=policy.policy_version))
             update_info["rollouts"] = rollout_diag
             # periodic batch update from the replay buffer
             if t_idx >= args.update_every - 1 and (t_idx + 1) % args.update_every == 0:
                 batch = buffer.sample_update_batch(args.batch_size, seed=args.seed * 1000 + t_idx)
                 pos = [r for r in batch if r.advantage > 0]
-                neg = [r for r in batch if r.advantage < 0]
+                neg_all = [r for r in buffer.rows if r.advantage < 0]
                 n_used = 0
                 policy.begin_candidate()   # v3: shadow candidate; served state untouched
-                for r in (pos + neg)[: args.batch_size // 2]:
-                    if not r.completion_ids:
+                for rp, rn in zip(pos[: args.batch_size // 2], neg_all[: args.batch_size // 2]):
+                    if not rp.completion_ids or not rn.completion_ids:
                         continue
-                    policy.train_step(r.prompt_ids, r.completion_ids,
-                                      advantage=r.advantage, lr=args.lr)
+                    policy.train_pair_step(rp.prompt_ids, rp.completion_ids,
+                                           rn.prompt_ids, rn.completion_ids,
+                                           lr=args.lr, beta=0.5)
                     n_used += 1
+                log(f"update: t{t_idx} n_used={n_used} pos={len(pos)} neg={len(neg_all)}")
                 if n_used > 0:
                     canary = RequestSeed(PROTO, args.seed, "canary", t_idx,
                                          "canary", policy_version=policy.policy_version)
