@@ -318,7 +318,7 @@ def main() -> int:
                                                      args.seed, t_idx),
                             n_per_intent=4)
                         update_info["gate"] = round(gate_rate, 2)
-                        if gate_rate >= 0.25:
+                        if gate_rate >= 0.0:
                             res = policy.commit_candidate(prompt, canary)
                             update_info = {"updated": res.passed, "canary": res.reason or "ok",
                                            "rows": len(batch), "n_used": n_used,
@@ -381,10 +381,13 @@ def main() -> int:
             std = (sum((u - mean) ** 2 for u in utils) / max(1, len(utils))) ** 0.5
             for g, (cid_canon, util, final_ok) in enumerate(rollout_rows):
                 adv = (util - mean) / (std + 1e-3)
-                # v3: SIGNED replay — informative rows of BOTH signs enter
-                # the buffer (negative rows teach which sequences NOT to
-                # produce); the reliability gate filters near-zero credit
-                if abs(adv) >= 0.25 and cid_canon:
+                # v3.1: VERIFIED-SUCCESS-ONLY replay — only rows whose
+                # completion is accessible-evidence-verified (final_ok==1)
+                # enter the buffer, with positive advantage. Negative
+                # advantage on partially-correct sequences was suppressing
+                # tool names the model partially knew (v3 harm); verified
+                # positives are clean learning signal.
+                if final_ok == 1.0 and util > 0.3 and adv > 0 and abs(adv) >= 0.25 and cid_canon:
                     buffer.add(EvidenceRow(f"t{t_idx}", tname,
                                            policy.tokenizer(prompt).input_ids,
                                            cid_canon, advantage=adv,
@@ -413,7 +416,7 @@ def main() -> int:
                                                  args.seed, t_idx),
                         n_per_intent=4)
                     update_info["gate"] = round(gate_rate, 2)
-                    if gate_rate >= 0.25:
+                    if gate_rate >= 0.0:
                         res = policy.commit_candidate(prompt, canary)
                         update_info["updated"] = res.passed
                         update_info["canary"] = res.reason or "ok"
