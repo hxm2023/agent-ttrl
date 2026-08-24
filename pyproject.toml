@@ -12,12 +12,16 @@ dependencies = [
     "pydantic>=2.7",
     "jsonschema>=4.22",
     "numpy>=1.26",
+    "torch>=2.2",
+    "transformers>=4.40",
+    "peft>=0.10",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.2",
     "hypothesis>=6.100",
+    "matplotlib>=3.7",
 ]
 
 [tool.hatch.build.targets.wheel]

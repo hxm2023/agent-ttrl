@@ -33,8 +33,9 @@ for k in "${!MANIFESTS[@]}"; do
 done
 
 echo "=== 2/4 M4 SafeCommit stress simulation re-run (CPU, deterministic) ==="
-python scripts/m4_stress_simulation.py > /tmp/m4_repro.log 2>&1 || true
-python - <<'EOF'
+PYTHON="${PYTHON:-python}"
+$PYTHON scripts/m4_stress_simulation.py > /tmp/m4_repro.log 2>&1 || true
+$PYTHON - <<'EOF'
 import json, subprocess, tempfile, os
 try:
     committed = json.load(open("protocols/runs/M4_stress_simulation.json", encoding="utf-8"))
@@ -63,7 +64,7 @@ else:
 EOF
 
 echo "=== 3/4 figure regeneration ==="
-python scripts/make_figures.py > /tmp/figs.log 2>&1
+$PYTHON scripts/make_figures.py > /tmp/figs.log 2>&1 || $PYTHON scripts/make_v2_figures.py > /tmp/figs.log 2>&1
 for f in fig1_method fig2_prequential fig3_credit_ablation fig4_safecommit fig5_pareto fig6_heatmap; do
   [ -f "paper/figures/$f.png" ] && pass "figure: $f.png" || fail "missing figure: $f.png"
 done
