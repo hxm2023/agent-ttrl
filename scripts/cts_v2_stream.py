@@ -95,7 +95,10 @@ def main() -> int:
         t = tpl.instantiate(random.Random(999))
         g = t.world._goal
         real_user = next(iter(t.world.users))   # deceptive goals name a fake user
+        deceptive = tpl.name.endswith("_v")
         if tpl.family == "F3":
+            # verification skill: lookup reveals the REAL user; permission
+            # and ship act on the real user, not the (possibly fake) goal user
             demo_calls = [f'lookup_order(order_id="{g["order"]}")',
                           f'request_shipping_permission(user_id="{real_user}", order_id="{g["order"]}")',
                           f'ship_order(order_id="{g["order"]}", address="addr-1")']
@@ -108,6 +111,10 @@ def main() -> int:
         else:  # exchange
             demo_calls = [f'lookup_order(order_id="{g["order"]}")',
                           f'exchange_item(order_id="{g["order"]}", old_item_id="{g["old"]}", new_item_id="{g["new"]}")']
+        # for deceptive variants the anchor explicitly models the VERIFY
+        # pattern: lookup first, act on the discovered real user
+        if deceptive:
+            demo_calls.insert(0, f'lookup_order(order_id="{g["order"]}")')
         demo_prompt = SYSTEM.format(tools=t.tool_descriptions, goal=t.goal)
         demo_completion = "\n".join(demo_calls)
         demo_ids = policy.tokenizer(demo_completion).input_ids
@@ -137,13 +144,20 @@ def main() -> int:
         y_pre = 0.0
         for turn in range(MAX_TURNS):
             p = prompt + (("\n\nPrevious:\n" + conversation[-1500:]) if conversation else "")
-            cid, _ = policy.generate(prod_seed, p, max_tokens=96, temperature=0.3)
+            cid, _ = policy.generate(prod_seed, p, max_tokens=128, temperature=0.3)
             text = policy.tokenizer.decode(cid, skip_special_tokens=True)
             calls = parse_calls(text)
+            if not calls:
+                # empty/echo degeneracy: retry greedily once (post-update
+                # policies sometimes collapse to empty or conversation echo)
+                cid2, text2 = policy.generate(prod_seed, p, max_tokens=128, temperature=0.0)
+                calls2 = parse_calls(text2)
+                if calls2:
+                    text, calls = text2, calls2
             exec_log.append({"turn": turn, "raw": text[:110], "n_calls": len(calls)})
             if not calls:
                 break
-            for name, kwargs in calls[:2]:
+            for name, kwargs in calls[:4]:
                 res = task.exec_call(name, kwargs)
                 obs = ("OK " + json.dumps(res.data)[:150]) if res.ok else f"ERR {res.error}"
                 exec_log.append({"turn": turn, "call": f"{name}({kwargs})", "obs": obs})
