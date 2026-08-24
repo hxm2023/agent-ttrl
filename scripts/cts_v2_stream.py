@@ -22,9 +22,9 @@ OUT_ROOT = Path("/root/autodl-tmp/agent-ttrl/artifacts/v2/cts")
 PROTO = hashlib.sha256(b"agent-ttrl-v2-cts1").hexdigest()
 MAX_TURNS = 6
 N_ROLLOUTS = 8
-UPDATE_EVERY = 4          # tasks per update epoch
+UPDATE_EVERY = 2          # tasks per update epoch
 BATCH_SIZE = 48
-LR = 2e-4
+LR = 5e-5
 
 SYSTEM = """You are an order-processing assistant. Available tools:
 {tools}
@@ -32,7 +32,8 @@ Task: {goal}
 Return ONLY tool calls, one per line, in this exact format:
 lookup_order(order_id="order-1")
 refund_order(order_id="order-1", user_id="user-1")
-No explanations, no commentary."""
+No explanations, no commentary. If a call fails, read the error,
+fix the arguments, and retry."""
 
 
 def log(msg):
@@ -78,12 +79,13 @@ def main() -> int:
     policy = ColocatedPolicy(args.model, lora_rank=16, lora_alpha=32, device=args.device)
     buffer = ReplayBuffer(capacity=256, anchor_fraction=0.4)
 
-    # leave-one-template-out stream: adapt on 2 templates, target the held-out
-    rng = random.Random(args.seed)
-    names = list(TEMPLATES)
-    rng.shuffle(names)
-    held_out = names[0]                 # sealed template (target of transfer)
-    adapt = names[1:]                   # adaptation templates
+    # leave-one-template-out stream: the held-out (sealed) template is the
+    # verification variant of a family whose BASE workflow is in the adapt
+    # set — so inductive transfer measures whether the update generalizes
+    # the verification skill (lookup -> act on evidence) within the family.
+    held_out = "F1_refund_v"
+    adapt = ["F1_refund", "F1_refund_delivered", "F1_cancel", "F1_exchange",
+             "F3_recover", "F3_recover_v"]
     log(f"held-out template: {held_out}; adapt: {adapt}")
 
     # pre-registered anchors: one canonical demo trajectory per adaptation
@@ -159,7 +161,13 @@ def main() -> int:
                 break
             for name, kwargs in calls[:4]:
                 res = task.exec_call(name, kwargs)
-                obs = ("OK " + json.dumps(res.data)[:150]) if res.ok else f"ERR {res.error}"
+                if res.ok and res.data:
+                    # structured key=value labels (v2 fix: truncated JSON in
+                    # the conversation made evidence->action argument binding
+                    # too hard for the policy)
+                    obs = "OK " + " ".join(f"{k}={v}" for k, v in res.data.items())
+                else:
+                    obs = ("OK" if res.ok else f"ERR {res.error}")
                 exec_log.append({"turn": turn, "call": f"{name}({kwargs})", "obs": obs})
                 conversation += f"\nCALL {name}({kwargs})\nOBS {obs}"
             if task.hidden_success:
@@ -188,6 +196,7 @@ def main() -> int:
             proposals = []
             seen = set()
             g = task.world._goal
+            g_goal = g
             real = next(iter(task.world.users)) if task.world.users else None
             if tpl.name.startswith("refund"):
                 cands = [("refund_order", {"order_id": g["order"], "user_id": u})
@@ -227,9 +236,25 @@ def main() -> int:
             if G > 0 and R > 0:
                 from agent_ttrl.credit.branch_executor_v2 import paired_credit_v2
                 credits, _ = paired_credit_v2(U, G, R)
+                # find the evidence-discovered user (the counterfactual that
+                # actually succeeded), for the verification pattern
+                evidence_user = real
                 for g, (name, kwargs) in enumerate(proposals):
                     if credits[g] > 0.05:
                         canonical = f'{name}(' + ",".join(f'{k}="{v}"' for k, v in kwargs.items()) + ")"
+                        # VERIFICATION pattern: when the positively-credited
+                        # action acts on the evidence-discovered user (not the
+                        # goal user), the model must first LOOK UP the order
+                        # to discover that user at test time — so the trained
+                        # completion includes the lookup step (v2 fix:
+                        # action-only rows assumed knowledge the policy does
+                        # not have at test time)
+                        acts_on_evidence = any(
+                            v == evidence_user for v in kwargs.values())
+                        goal_user = task.world._goal.get("user")
+                        if acts_on_evidence and kwargs.get("user_id") != goal_user:
+                            canonical = (f'lookup_order(order_id="{kwargs.get("order_id", g_goal["order"])}")\n'
+                                         + canonical)
                         cid_canon = policy.tokenizer(canonical).input_ids
                         buffer.add(EvidenceRow(f"t{t_idx}", tname,
                                                policy.tokenizer(prompt).input_ids,
@@ -246,9 +271,8 @@ def main() -> int:
                     for r in (pos + neg)[: args.batch_size // 2]:
                         if not r.completion_ids:
                             continue
-                        for _st in range(3):      # multi-step update (v2 §11.2)
-                            policy.train_step(r.prompt_ids, r.completion_ids,
-                                              advantage=r.advantage, lr=args.lr)
+                        policy.train_step(r.prompt_ids, r.completion_ids,
+                                          advantage=r.advantage, lr=args.lr)
                         n_used += 1
                     if n_used > 0:
                         cand = policy.freeze_candidate()
