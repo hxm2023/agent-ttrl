@@ -16,6 +16,11 @@ Cai et~al. 2026.
 \newblock In \emph{ICML 2026}.
 \newblock ArXiv:2606.08656.
 
+\bibitem[{Chen et~al.(2026)Chen, Liu, Zhang et~al.}]{gtta2026}
+Arthur Chen, Zuxin Liu, Jianguo Zhang, et~al. 2026.
+\newblock Test-time adaptation for llm agents via environment interaction.
+\newblock ArXiv:2511.04847.
+
 \bibitem[{Du et~al.(2026)Du, Huang, and Li}]{dare2026}
 Bodong Du, Xuanqi Huang, and Xiaomeng Li. 2026.
 \newblock Distribution-aware reward estimation for test-time reinforcement
@@ -138,12 +143,6 @@ Qizheng Zhang, James Zou, Kunle Olukotun, et~al. 2025.
 \newblock Agentic context engineering: Evolving contexts for self-improving
   language models.
 \newblock \emph{arXiv preprint arXiv:2510.04618}.
-
-\bibitem[{Zhang et~al.(2026{\natexlab{c}})}]{gtta2026}
-Xiaofeng Zhang et~al. 2026{\natexlab{c}}.
-\newblock Test-time adaptation for llm agents via environment interaction.
-\newblock In \emph{ICLR 2026}.
-\newblock ArXiv:2511.04847.
 
 \bibitem[{Zuo et~al.(2025)Zuo, Zhang, Sheng, Qu, Cui et~al.}]{ttrl2025}
 Yuxin Zuo, Kaiyan Zhang, Li~Sheng, Shang Qu, Ganqu Cui, et~al. 2025.

@@ -1,10 +1,10 @@
 % Method
 \section{EGC-TTRL}
 EGC-TTRL instantiates one principle: \emph{uncertain deployment-time
-evidence should not unconditionally change the future policy}. Two gates
-implement it at two scales: a \textbf{local gate} decides which action
-tokens may produce gradient; a \textbf{global gate} decides whether the
-resulting candidate adapter may reach future tasks.
+evidence should not unconditionally change the future policy} (Fig.~\ref{fig:method}).
+Two gates implement it at two scales: a \textbf{local gate} decides which
+action tokens may produce gradient; a \textbf{global gate} decides whether
+the resulting candidate adapter may reach future tasks.
 
 \subsection{Local gate: paired-branch signed credit}
 At a selected decision state $s_t$, we restore the sealed snapshot and

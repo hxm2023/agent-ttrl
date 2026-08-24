@@ -11,10 +11,11 @@ reliability-gated action credit, and gates candidate adapters through a
 risk-controlled commit gate (empirical-Bernstein e-process) before they
 reach future tasks. The protocol machinery runs end-to-end on CTS,
 AppWorld and tau2 with Qwen3-4B and Mistral-7B; SafeCommit eliminates
-catastrophic updates in stress simulation while remaining
-non-degenerate. Our empirical synthesis is honest: at the scales and
-update magnitudes tested, deployment-period LoRA-RL yields no stable
-inductive-future-transfer gain. We contribute the validated protocol
-machinery, the commit-gate result, and a fully reproducible harness
-with all run manifests.
+catastrophic updates in stress simulation (100\% relative reduction
+where always-commit had nonzero catastrophic rates) while keeping
+commit rates non-degenerate on benign/mixed streams. Our empirical
+synthesis is honest: at the scales and update magnitudes tested,
+deployment-period LoRA-RL yields no stable inductive-future-transfer
+gain. We contribute the validated protocol machinery, the commit-gate
+result, and a fully reproducible harness with all run manifests.
 \end{abstract}

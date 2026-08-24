@@ -15,8 +15,10 @@ and tau2 with Qwen3-4B and Mistral-7B. All correctness gates passed
 \subsection{SafeCommit reduces catastrophic updates}
 In candidate-archive replay over benign/mixed/poisoned/abrupt-shift
 streams, the empirical-Bernstein e-process gate commits zero harmful
-candidates (catastrophic-update rate relative reduction 100\% vs
-always-commit; Fig.~\ref{fig:safecommit}). Commit rates per stream:
+candidates; relative to always-commit this is a 100\% catastrophic-update
+reduction on the streams where always-commit had nonzero catastrophic
+rates (mixed/poisoned/abrupt-shift; benign had zero harmful commits
+either way; Fig.~\ref{fig:safecommit}). Commit rates per stream:
 benign 0.115, mixed 0.102, poisoned 0.068, abrupt-shift 0.111.
 Benign/mixed are non-degenerate per the pre-registered [0.10, 0.90]
 bound; poisoned falls below it (0.068) — expected behavior given that
@@ -56,20 +58,25 @@ hidden checkpoints (n=1 per arm).}
 
 The update rule (Sect.~4.2; REINFORCE-style, group-relative advantage,
 $\le$4 sequential steps on the same materialized rollouts) does not
-improve first-attempt performance on future tasks under matched budgets.
-The tau2 rows are the matched strong-update control (16 rollouts, 8
-steps, lr $5\times10^{-5}$, 4 seeds, two pools). Paired per-seed deltas
+improve first-attempt performance on future tasks under matched budgets
+(Fig.~\ref{fig:prequential}, Fig.~\ref{fig:heatmap}). The tau2 rows are
+the matched strong-update control (16 rollouts, 8
+steps, lr $5\times10^{-5}$, 4 seeds, two pools; Fig.~\ref{fig:ablation}
+shows the CTS pilot contrast). Paired per-seed deltas
 (naive $-$ frozen): 16-task pool $+0.006, -0.005, -0.018, -0.001$
 (mean $-0.004$, permutation $p{=}0.75$); 8-task pool
-$+0.004, -0.036, -0.031, +0.023$ (mean $-0.010$, $p{=}0.81$). The strong
-updates measurably change subsequent-task first-attempt scores in both
-directions, yet the net prequential effect is null on both pools. An
-earlier 8-task run with weak updates (1 step, lr $5\times10^{-6}$) had
-reported a slightly positive direction (naive 0.093 vs.\ frozen 0.072,
-run logs D16/D17, whose seed manifests were overwritten); the matched
-control does not reproduce that direction. Single-step weak updates
-produced zero logit drift (R002 canary); the strong 8-step variant
-changes behavior without a stable transfer gain.
+$+0.004, -0.036, -0.031, +0.023$ (mean $-0.010$, $p{=}0.81$). At
+$n{=}4$ seeds these contrasts are underpowered; they are reported as
+null, not as significant. The strong updates measurably change
+subsequent-task first-attempt scores in both directions, yet the net
+prequential effect is null on both pools. An earlier 8-task run with
+weak updates (1 step, lr $5\times10^{-6}$) had reported a slightly
+positive direction (naive 0.093 vs.\ frozen 0.072, run logs D16/D17,
+whose seed manifests were overwritten); the matched control does not
+reproduce that direction. Single-step weak updates produced zero logit
+drift (R002 canary); the strong 8-step variant changes behavior without
+a stable transfer gain. On the same task pool, Best-of-N remains the
+cost-effective baseline (Fig.~\ref{fig:pareto}).
 
 \subsection{Interpretation}
 The paper contributes (a) a validated protocol machinery for

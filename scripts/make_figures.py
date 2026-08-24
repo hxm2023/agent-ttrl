@@ -81,10 +81,10 @@ def fig1_method():
 # ---------------------------------------------------------------- fig2: prequential curves
 def fig2_prequential():
     # Left: CTS 8-task from m3 v2 manifests (variant/seed fields correct there).
-    # Middle/right: tau2 manifests were overwritten by later 16-task control runs
-    # and the M6 manifest writer originally hardcoded variant="frozen", so the
-    # tau2 panels use the paper-table synthesis (built from run logs before the
-    # overwrite) — per-seed points where they survive, table means otherwise.
+    # Middle: tau2 8-task fresh matched control (protocols/runs/m6/ctl6_*.json).
+    # Right: tau2 16-task fresh matched control (ctl/ctl3 manifests). All tau2
+    # panels are manifest-backed (the old log-derived table synthesis was
+    # superseded by the ctl reruns, 2026-08-24).
     fig, axes = plt.subplots(1, 3, figsize=(14, 3.8))
     styles = {"frozen": "-", "naive": "--", "egc": ":", "egc_conflict": "-.", "random_branch": "x-"}
     jitter = {"frozen": 0.0, "naive": -0.05, "egc": -0.025, "egc_conflict": 0.025, "random_branch": 0.05}
