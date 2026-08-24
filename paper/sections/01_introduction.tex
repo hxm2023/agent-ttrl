@@ -1,4 +1,4 @@
-% Introduction
+% Introduction — v2 (2026-08-24)
 \section{Introduction}
 Deployed tool-using agents receive feedback that is partial, endogenous,
 and often unreliable: an API receipt may report success while the
@@ -10,38 +10,41 @@ tasks in the same domain are handled better. This is test-time
 reinforcement learning (TTRL)~\cite{ttrl2025} moved from unlabeled math
 reasoning to stateful tool use.
 
-The literature has moved fast. Test-time self-consistency rewards
-improve math reasoning~\cite{ttrl2025} and can be stabilized with tool
-verification~\cite{t3rl2026}, but they amplify wrong consensus and even
-harmful behavior when unverified~\cite{amplification2026}. Context
-engineering~\cite{ace2025}, memory RL~\cite{memopilot2026}, action-layer
-bandits~\cite{olivia2026}, and syntactic adaptation
-vectors~\cite{gtta2026} adapt deployed agents without touching weights.
-Counterfactual machinery exists for offline trace
-repair~\cite{causalflow2026} and general RL credit~\cite{shapley2026},
-and commit gates are studied for self-evolving
-systems~\cite{pace2026,vag2026}. What is missing is a closed loop that
-combines deployment-period parameter updates, partial-evidence credit,
-risk-controlled commit, and prequential evaluation of future transfer
-under one budget and identity discipline.
+The literature has moved fast: test-time self-consistency
+rewards~\cite{ttrl2025}, tool-verified pseudo-labels~\cite{t3rl2026},
+instance-level LoRA refinement~\cite{staror2026}, and live-episode
+updates with runtime serving~\cite{att2026} all report gains on their
+targets. Yet a silent failure mode runs through most pipelines:
+\textbf{the model that receives the gradient is not the model that
+generates the next first attempt}. When training and serving diverge,
+``update effects'' are unidentifiable --- per-task differences between
+frozen and update arms can come entirely from sampling-stream
+displacement, not from policy change. In our own v1 pipeline this defect
+invalidated every learning-effect claim (audit in
+AUDIT\_INVALIDATION.md): the LoRA-updated HF model never reached the
+vLLM server, and 96/96 task outcomes matched across ``different''
+update arms.
 
-This paper builds and evaluates that loop. We contribute:
+We rebuild the loop around one principle: \emph{the policy that serves
+the next task must be the policy that was updated, provably}. We
+contribute:
 \begin{itemize}
-\item \textbf{Protocol machinery}: evidence tiers (hard/soft in
-  adaptation; hidden evaluator never), prequential induction as the
-  primary metric, three-channel budget accounting, and policy identity
-  binding on a guarded rollout--update chain.
-\item \textbf{EGC-TTRL}: evidence-gated counterfactual test-time RL --
-  paired counterfactual branches at selected decision states produce
-  signed, reliability-gated action credit that drives LoRA updates
-  (action-token masked in the Guard-validated chain; full-completion
-  masks in the mass streams, \S4.2); a risk-controlled commit gate
-  (empirical-Bernstein e-process) decides whether a candidate adapter
-  reaches future tasks.
-\item \textbf{An honest empirical synthesis}: across CTS, AppWorld, and
-  tau2 with two model families, the protocol machinery runs
-  end-to-end, SafeCommit eliminates catastrophic updates in stress
-  simulation, and deployment-period LoRA-RL does not produce a stable
-  inductive-transfer gain at the scales tested -- a reproducible negative
-  result with an open harness.
+\item \textbf{Policy-consistent runtime}: request-scoped RNG (seeds
+  derived from protocol/task/turn/policy-version/purpose), a colocated
+  backend where the same PEFT model generates and trains, and atomic
+  adapter commits under a canary (adapter hash, logit KL, deterministic
+  output change) with rollback. Verified by A0--A2 integration gates.
+\item \textbf{Cross-task evidence replay}: a session-scoped buffer of
+  canonical action sequences with signed advantages, intent-balanced
+  sampling and anchor rehearsal against catastrophic forgetting ---
+  fixing the weakness of per-task micro-updates.
+\item \textbf{Evidence-gated counterfactual credit (EGC)}:
+  grammar-valid counterfactual branches (goal-entity vs.\
+  evidence-discovered entity) produce signed credit whose signs are
+  correct on deceptive-evidence tasks.
+\item \textbf{A positive transfer result}: on a 16-task latent-skill
+  stream with 8 paired seeds, deployment-period updates improve
+  first-attempt prequential AUPC over the frozen policy by $+0.070$
+  (exact two-sided sign-flip $p{=}0.016$; 7/8 seeds positive, 0
+  negative).
 \end{itemize}

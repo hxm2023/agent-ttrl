@@ -1,70 +1,53 @@
-% Method
-\section{EGC-TTRL}
-EGC-TTRL instantiates one principle: \emph{uncertain deployment-time
-evidence should not unconditionally change the future policy} (Fig.~\ref{fig:method}).
-Two gates implement it at two scales: a \textbf{local gate} decides which
-action tokens may produce gradient; a \textbf{global gate} decides whether
-the resulting candidate adapter may reach future tasks.
+% Method — v2 (2026-08-24)
+\section{Policy-Consistent EGC-TTRL}
 
-\subsection{Local gate: paired-branch signed credit}
-At a selected decision state $s_t$, we restore the sealed snapshot and
-sample $G=4$ grammar-valid alternative actions from the parent policy,
-each continued under $R=2$ common-random-number seeds with the same
-continuation protocol. Executing each branch in the environment yields
-an evidence utility matrix $U\in[0,1]^{G\times R}$; the signed credit of
-action $i$ is
-\begin{equation}
-\hat c_i=\bar U_i-\tfrac{1}{G}\sum_j \bar U_j,
-\qquad
-z_{i,r}=U_{i,r}-\tfrac{1}{G}\sum_j U_{j,r},
-\end{equation}
-with a reliability interval $[\hat c_i-b_i,\hat c_i+b_i]$ where
-$b_i=t_{R-1,0.90}\sqrt{\hat v_i/R}$ and $\hat v_i$ is the across-seed
-variance of $z$. The local gate passes action $i$ iff its interval is
-disjoint from $[-\eta_{\mathrm{credit}},+\eta_{\mathrm{credit}}]$;
-credit is clipped and group-normalized. An alternative local gate uses
-\textbf{evidence conflict}: when hard evidence contradicts the soft
-verifier (e.g., a poisoned receipt vs.\ a state invariant), the whole
-group abstains and a drift monitor may halt adaptation.
+\subsection{Policy-consistent runtime (serving transaction)}
+Every generation request is drawn from a \emph{request-scoped} RNG:
+$\mathrm{seed}=\mathrm{H}(\mathrm{protocol}, \mathrm{stream\_seed},
+\mathrm{task\_id}, \mathrm{turn\_id}, \mathrm{policy\_version},
+\mathrm{purpose}, \mathrm{branch\_group},\dots)$ where \texttt{purpose}
+separates production first attempts from credit rollouts, branches, and
+canaries. A \textbf{colocated backend} runs training and serving on the
+same PEFT model (slow but provably consistent): the model that samples
+the next first attempt is the model that received the update. Adapter
+commits are atomic: the candidate state is hashed, the canary checks (a)
+adapter hash equality, (b) parent-vs-candidate logit KL on a fixed
+prompt, (c) an observably changed deterministic rollout; only then does
+the policy version advance. Rollback restores the previously served
+state from a stack. The A0 gate verifies bitwise identity under
+repeated seeds and that update-arm RNG draws never shift production
+seeds.
 
-\subsection{Action-token objective}
-Each passed action yields one immutable update row over its own
-generated action-token span (never observation/prefix tokens). The
-Guard-validated chain (R002) uses a clipped policy ratio with
-KL-to-parent regularization and behavior log-probabilities from the
-generation service. The mass stream experiments (M3/M6) used a
-documented simplification: a REINFORCE-style objective
-$L=-\hat a_i\,\overline{\log p_\theta}$ over each rollout's completion
-span with nonzero advantage, where $\hat a_i$ is the group-relative
-advantage of the rollout utilities and the average is over completion
-tokens; no importance ratio, no KL term, and $\leq 4$ sequential steps
-on the same materialized rollouts (off-policy repeats without
-correction). The baseline naive variant uses the same objective with
-full-completion masks and terminal utilities; EGC differs only in the
-credit signal. This simplification is part of the honest negative:
-even the unregularized update produces no stable prequential gain.
+\subsection{Cross-task evidence replay}
+Single-task updates are too weak and noisy (v1). We aggregate
+\emph{evidence rows} across tasks in a session-scoped buffer:
+each row is the canonical action sequence extracted from a rollout
+(lookup/exploration calls removed; the verification lookup step retained
+when the credited action acts on evidence-discovered entities), with its
+group-relative signed advantage, producer prompt/completion ids, and a
+hash. Updates run every $K{=}2$--4 tasks on a batch sampled
+\textbf{intent-balanced} (equal budget per tool workflow) plus
+20--40\% \emph{anchor} rehearsal rows (canonical demo trajectories) to
+guard against catastrophic forgetting. All arms share the same buffer
+capacity and update-token caps.
 
-\subsection{Global gate: SafeCommit}
-Each update produces a non-servable candidate adapter $\phi'_k$. A
-shadow evaluation compares candidate vs.\ parent on fresh sentinel gain
-tasks and anchor capability tasks, with per-candidate error budgets
-$\alpha_k=6\alpha_{\mathrm{total}}/(\pi^2 k^2)$. The commit decision
-uses an empirical-Bernstein e-process confidence sequence (frozen by a
-pre-registered coverage simulator over 162 configurations, where the
-fixed-n Hoeffding alternative passed no operating point):
-\begin{equation}
-\mathrm{LCB}_{\mathrm{gain}}\ge \varepsilon_{\mathrm{gain}}
-\;\wedge\;
-\mathrm{UCB}_{\mathrm{harm}}\le \varepsilon_{\mathrm{harm}}
-\;\wedge\;
-\mathrm{Guard}=\mathrm{ALLOW}.
-\end{equation}
-Otherwise the candidate is rolled back atomically. Sentinel items are
-used at most once; coverage claims are restricted to the proxy-mean
-decision error.
+\subsection{Evidence-gated counterfactual credit (EGC)}
+At a decision point (after the first turn reveals state), we construct a
+grammar-valid counterfactual set: for entity-selection decisions the set
+is \emph{goal-entity vs.\ evidence-discovered entity} (e.g., the refund
+target named in the goal vs.\ the user returned by
+\texttt{lookup\_order}), plus model proposals for coverage. Each
+candidate action executes on $R{=}4$ fresh snapshots of the same task
+instance; the utility matrix $U[G,R]$ yields group-relative signed
+credit via paired credit with across-seed variance. Positive-credit
+actions become replay rows; the reliability gate requires
+$|\mathrm{credit}|>0.05$. The naive arm uses the same replay machinery
+with terminal trajectory utility instead of branch credit.
 
-\subsection{Statistics}
-Primary contrasts use paired hierarchical bootstrap over
-seed/domain-stream and task families, with pre-registered tests at
-$p<0.01$ plus effect sizes; the number of seeds is frozen before test
-data is seen.
+\subsection{Evaluation protocol}
+Prequential first-attempt AUPC (hidden oracle used only as an L0
+diagnostic, never in training); sealed held-out template appears only in
+the final phase and is never trained on; statistics use exact two-sided
+sign-flip over paired seeds plus hierarchical bootstrap; runs carry
+immutable manifests (seed list, policy versions, adapter hashes, buffer
+stats, violations).
