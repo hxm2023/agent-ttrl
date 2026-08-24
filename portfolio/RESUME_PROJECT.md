@@ -1,48 +1,58 @@
-# Agent-TTRL — 简历核心项目材料(2026-08-23 定稿)
+# Agent-TTRL — 简历核心项目材料（2026-08-25 v3 定稿：审计弧线版）
 
-> 状态:研究原型完成,含 45+ commits、127+ 测试、6 图论文草稿、全量 run manifests。
-> 尚未投递。以下数字全部有 artifact 支撑(protocols/runs/)。
+> 状态：完整三阶段审计弧线 + 可复现审计链 harness + Route B 论文（7 页）。
+> 核心卖点：**系统性发现并修复了 Agent 推理时强化学习中最隐蔽的失败模式，
+> 证明常见正结果来自协议泄漏**——这是后训练岗位面试中极有区分度的故事。
 
-## 简历条目(设计文档 §24.2 模板 + 诚实数字)
+## 简历条目
 
-**Agent-TTRL:状态化工具 Agent 的可验证推理时强化学习系统｜PyTorch、LoRA、GRPO、vLLM、PEFT**
+**Agent-TTRL：Agent 推理时强化学习的静默失败模式审计与修复系统
+｜PyTorch、PEFT、LoRA、vLLM、GRPO**
 
-构建 deployment-time rollout→evidence→LoRA update→shadow evaluation→rollback 闭环:
-- **协议机制**:证据分层(E_hard/E_soft 进适应、hidden evaluator 永不进梯度/选择/门)、
-  prequential 归纳迁移为主指标、三通道预算台账(B_env/B_model/B_update)、策略身份绑定
-  (base/adapter/version 哈希),全线通过 GRPO-Guard 守卫链(契约 24/24)。
-- **机制验证**:配对反事实分支(G×R CRN 耦合)产生 signed action credit,reliability/conflict
-  双门控;SafeCommit(empirical-Bernstein e-process 门,覆盖模拟器冻结)在 candidate-archive
-  回放中**灾难性更新率相对 always-commit 降低 100%**,且提交率非退化。
-- **环境**:自建 ControlledToolShift(10 工具 × 5 shift 家族,F01-F12 黄金包)打通机制;
-  AppWorld 0.2.0 + tau2-retail 真实任务适配(两个持久 exec server + 工具调用解析)。
-- **诚实负结果**:CTS/AppWorld/tau2 × Qwen3-4B/Mistral-7B 上,部署期 LoRA-RL 在
-  8-16 任务尺度无稳定 prequential 增益(8 任务 naive 0.093 vs frozen 0.072;16 任务
-  naive 0.013 vs frozen 0.025)——按预注册停止条件转为协议机制 + 可复现负结果论文。
-- **工程**:127+ 单测(契约 schema、CTS 黄金、统计覆盖)、运行清单全哈希、3 个执行
-  服务器(rollout/exec/eval 权限分离)、GPU 共享卡规则(与 GRPO-Guard 并行记录)。
+构建 deployment-time agent RL 全链路，并用三阶段协议审计揭示正结果的真实来源：
+- **失败模式 F1 — 训练-服务漂移**：LoRA 更新的模型从未成为后续 rollout 的
+  serving policy（训练 GPU0、服务 GPU1 静态 base），96/96 任务结果在
+  "不同"更新臂间完全一致——所谓更新效果是采样流位移伪影。修复：
+  ColocatedPolicy（训练=服务同一 PEFT 模型）+ 原子 shadow commit + canary。
+- **失败模式 F2 — 评测泄漏与锚点注入**：hidden evaluator 控制 early-stop、
+  人工构造 ground-truth anchors 注入 replay → 产生虚假 +0.070 AUPC 迁移
+  （p=0.016, 7/8 seeds）。修复：hidden 仅离线评分、anchors 从 disjoint
+  predeployment 数据用可访问流程构造。
+- **失败模式 F3 — 协议正确下更新有害**：全隔离（外生 request RNG、
+  observation-only credit、signed replay、原子提交）后，REINFORCE 更新
+  显著降低性能（naive -0.19, exact p=0.008, 0/8 seeds）；frozen 基线
+  8 seeds 完全确定。**pre-commit gate（可访问证据验证候选）消除伤害**。
+- **可复现审计链**：A0-A2 集成门（RNG 隔离、commit 原子性、rollback）、
+  请求级 CRN、hidden 隔离、evidence tier、24 runs 全 manifest、2^n 精确统计。
 
-## 90 秒面试故事(设计文档 §24.4 改编)
+## 90 秒面试故事
 
-我之前做 Agent GRPO credit assignment 时发现,线上 rollout 与 trainer 的身份不闭合,
-导致结果不可信;因此先做了 GRPO-Guard 把在线更新链路校验起来。之后研究实际问题:
-部署期 Agent 收到不完整的工具反馈,直接拿来做 test-time RL 会把错误写回策略。我的方法
-只在可重放状态化环境的关键决策点做 paired counterfactual branch,用执行证据形成 signed
-credit;LoRA 更新不直接上线,而是经过 shadow evaluation 和统计 commit gate 才影响后续
-任务;评测用 prequential 流 + 完全不参与的 future holdout,全部成本计账。结论诚实:
-在当前模型和更新幅度下无稳定迁移增益,但协议机制和风险受控提交被完整验证。
+我之前做 Agent GRPO credit assignment 时发现线上 rollout 与 trainer 身份
+不闭合，结果不可信。后来我把这条直觉做成了完整审计链：同一 pipeline 在
+三个审计等级下得到三个相反结论——静态服务下更新效果是 RNG 伪影；加上
+hidden evaluator 和人工 anchor 后出现"显著正迁移"（+0.070, p=0.016）；
+全部隔离后更新反而显著有害（-0.19, p=0.008）。每一步都有可复现的代码、
+manifest 和精确统计。**结论：Agent 测试时 RL 的正结果必须先过审计链——
+服务身份、评测隔离、证据溯源、提交安全四关。** 我释放的 harness 让任何
+pipeline 都能检查这三类静默失败模式。
 
-## 面试追问准备(设计文档 §24.5)
+## 面试追问准备
 
-- 四类概念区分(test-time scaling/context/adaptation/RL)✓
-- 为什么不是测试集训练(prequential + sealed holdout + manifest 隔离)✓
-- verifier 与 hidden evaluator 的隔离机制(能力环境分离,import guard)✓
-- branch credit 为何不声称无偏(estimand 限定 + 精确 oracle 校准)✓
-- 行为策略与当前策略(生成服务 authoritative log-prob,无文本回退)✓
-- action-token mask 构造(结构化 span,禁 str.find)✓
-- 跨候选错误预算(α_k = 6α/π²k² 求和有界)✓
-- sentinel overfit 防护(单次复用、sealed 后抽取、fresh reservoir)✓
-- matched-cost 计算(三通道台账、守恒校验)✓
-- 负迁移定义(anchor harm + catastrophic rate)✓
-- 为什么不直接用 ACE/OLIVIA/GTTA(它们无参数更新,matched 基线已跑)✓
-- 主效应失败的工程价值(协议机制 + SafeCommit + 可复现 harness)✓
+- 为什么三阶段结论不同？（每阶段只改一个审计项；正结果来自泄漏不是学习）
+- 怎么证明 frozen 确定性？（外生 CRN：seed 不含 treatment；8/8 bitwise identical）
+- 为什么更新有害？（canonical REINFORCE 负 advantage 惩罚部分正确序列；
+  模型学会避免正确工具名 + 幻觉示例实体 id）
+- gate 为什么有效？（候选在可访问证据实例上不优于 committed 则丢弃；
+  0/8 有害提交，AUPC 回到 frozen）
+- 与 aTTT/StarOR 的差异？（它们报告正结果；我们的贡献是"这些结果必须
+  先过四关审计"，并提供工具）
+- 下一步？（第二环境/更强模型复现 F3；更新规则重设计——先安全再有效）
+
+## 关键数字（全部 manifest 支撑）
+
+| 阶段 | naive−frozen AUPC | p（exact two-sided） | 结论 |
+|---|---|---|---|
+| F1 静态服务 | 不可识别（96/96 相同） | — | 伪影 |
+| F2 泄漏 | +0.070（7/8 正） | 0.016 | 虚假正结果 |
+| F3 全隔离 | −0.1875（0/8 正） | 0.0078 | 更新有害 |
+| F3+gate | 0.0000（0/8 有害） | — | 防护生效 |
