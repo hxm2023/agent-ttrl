@@ -66,16 +66,25 @@ class ReplayBuffer:
             self.rows.append(row)
 
     def sample_update_batch(self, n: int = 64) -> list[EvidenceRow]:
-        """Recency-weighted sample; includes anchors at anchor_fraction."""
+        """Intent-balanced sample: equal budget per tool-intent bucket plus
+        anchors at anchor_fraction. Prevents one dominant intent from
+        hijacking the update (v2 catastrophic-forgetting fix)."""
         import random
         batch = []
         n_anchor = int(n * self.anchor_fraction)
         batch += random.sample(self.anchors, min(n_anchor, len(self.anchors)))
         pool = [r for r in self.rows if r not in self.anchors]
-        if pool:
-            weights = [r.weight for r in pool]
-            k = min(n - len(batch), len(pool))
-            batch += random.choices(pool, weights=weights, k=k)
+        by_intent = {}
+        for r in pool:
+            by_intent.setdefault(r.tool_intent, []).append(r)
+        remaining = n - len(batch)
+        intents = list(by_intent)
+        per_intent = max(1, remaining // max(1, len(intents)))
+        for intent in intents:
+            rows = by_intent[intent]
+            weights = [r.weight for r in rows]
+            k = min(per_intent, len(rows))
+            batch += random.choices(rows, weights=weights, k=k)
         return batch
 
     def stats(self) -> dict:

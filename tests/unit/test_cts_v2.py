@@ -54,8 +54,21 @@ def test_f3_recover_permission_gate():
 
 
 def test_templates_are_leave_one_template_out_ready():
-    assert set(TEMPLATES) == {"F1_refund", "F1_cancel", "F1_exchange", "F3_recover"}
+    assert set(TEMPLATES) == {"F1_refund", "F1_cancel", "F1_exchange", "F3_recover",
+                              "F1_refund_v", "F3_recover_v"}
     assert {t.family for t in TEMPLATES.values()} == {"F1", "F3"}
+
+
+def test_deceptive_variant_requires_evidence():
+    # goal names a fake user; acting on it fails, verifying first succeeds
+    rng = random.Random(7)
+    task = _tpl("F1_refund_v").instantiate(rng)
+    g = task.world._goal
+    real = next(iter(task.world.users))
+    assert g["user"] != real, "deceptive goal must differ from the real user"
+    assert not task.exec_call("refund_order", {"order_id": g["order"], "user_id": g["user"]}).ok
+    assert task.exec_call("refund_order", {"order_id": g["order"], "user_id": real}).ok
+    assert task.hidden_success
 
 
 def test_replay_buffer_dedup_and_capacity():

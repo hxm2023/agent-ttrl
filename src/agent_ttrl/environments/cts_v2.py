@@ -154,6 +154,17 @@ def _ship_order(w: WorldV2, order_id: str, address: str) -> ToolResult:
     return ToolResult(True)
 
 
+def _request_shipping_permission(w: WorldV2, user_id: str, order_id: str = "") -> ToolResult:
+    """F3 recovery path: the user confirms shipping for their own order."""
+    u = w.users.get(user_id)
+    if u is None:
+        return ToolResult(False, "user not found")
+    if order_id and w.orders.get(order_id) and w.orders[order_id].user_id != user_id:
+        return ToolResult(False, "user mismatch")
+    w.permissions.add("shipping")
+    return ToolResult(True, data={"permission": "shipping"})
+
+
 TOOLS = {
     "lookup_order": _lookup_order,
     "lookup_user": _lookup_user,
@@ -161,6 +172,7 @@ TOOLS = {
     "cancel_order": _cancel_order,
     "exchange_item": _exchange_item,
     "ship_order": _ship_order,
+    "request_shipping_permission": _request_shipping_permission,
 }
 
 
@@ -189,14 +201,18 @@ def _mk_item(rng, sku):
     return Item(sku=sku, price=rng.choice([50, 100, 200]), stock=rng.randint(2, 9))
 
 
-def _init_f1_refund(rng, w):
+def _init_f1_refund(rng, w, deceptive_user: str | None = None):
     sku = f"sku-{rng.randint(1, 99)}"
     user = f"user-{rng.randint(1, 99)}"
     oid = f"order-{rng.randint(1, 99)}"
     w.items[sku] = _mk_item(rng, sku)
     w.users[user] = User(user, f"addr-{rng.randint(1, 99)}")
     w.orders[oid] = Order(oid, user, sku, OrderStatus.PAID)
-    w._goal = {"order": oid, "user": user}
+    # deceptive variant: the goal names a WRONG user; the agent must
+    # lookup the order, discover the real user, and act on the real one
+    if deceptive_user is not None and deceptive_user == user:
+        deceptive_user = f"user-{rng.randint(1, 99)}"
+    w._goal = {"order": oid, "user": user if deceptive_user is None else deceptive_user}
 
 
 def _ok_f1_refund(w):
@@ -267,7 +283,31 @@ TEMPLATES = {
     "F3_recover": TaskTemplate("F3", "recover", "Ship order {order} to {user} (may need permission)",
                                ["lookup_order", "lookup_user", "ship_order"],
                                _ok_f3_recover, _init_f3_recover),
+    # deceptive-evidence variants: the goal names a wrong user (drawn from
+    # the SAME id range so it looks plausible); the agent must verify against
+    # the accessible order state before acting
+    "F1_refund_v": TaskTemplate(
+        "F1", "refund_v", "Refund order {order} for user {user}",
+        ["lookup_order", "lookup_user", "refund_order"],
+        _ok_f1_refund,
+        lambda rng, w: _init_f1_refund(rng, w, deceptive_user=f"user-{rng.randint(1, 99)}")),
+    "F3_recover_v": TaskTemplate(
+        "F3", "recover_v", "Ship order {order} to {user} (may need permission)",
+        ["lookup_order", "lookup_user", "request_shipping_permission", "ship_order"],
+        _ok_f3_recover,
+        lambda rng, w: _init_f3_recover(rng, w, deceptive_user=f"user-{rng.randint(1, 99)}")),
 }
+
+
+def _init_f3_recover(rng, w, deceptive_user: str | None = None):
+    sku = f"sku-{rng.randint(1, 99)}"
+    user = f"user-{rng.randint(1, 99)}"
+    oid = f"order-{rng.randint(1, 99)}"
+    w.items[sku] = _mk_item(rng, sku)
+    w.users[user] = User(user, f"addr-{rng.randint(1, 99)}")
+    w.orders[oid] = Order(oid, user, sku, OrderStatus.PAID)
+    w.permissions = set()
+    w._goal = {"order": oid, "user": user if deceptive_user is None else deceptive_user}
 
 
 @dataclass
@@ -282,14 +322,15 @@ class TaskV2:
 
     @property
     def tool_descriptions(self) -> str:
-        return "\n".join(f"- {name}({', '.join(f'{p}' for p in ['order_id', 'user_id'])}): {doc}"
+        return "\n".join(f"- {name}: {doc}"
                          for name, doc in [
-                             ("lookup_order", "get order status"),
-                             ("lookup_user", "get user balance"),
-                             ("refund_order", "refund a paid/delivered order"),
-                             ("cancel_order", "cancel a created/paid order"),
-                             ("exchange_item", "swap item on a delivered order"),
-                             ("ship_order", "ship a paid order (needs shipping permission)"),
+                             ("lookup_order(order_id)", "get order status"),
+                             ("lookup_user(user_id)", "get user balance"),
+                             ("refund_order(order_id, user_id)", "refund a paid/delivered order"),
+                             ("cancel_order(order_id)", "cancel a created/paid order"),
+                             ("exchange_item(order_id, old_item_id, new_item_id)", "swap item on a delivered order"),
+                             ("ship_order(order_id, address)", "ship a paid order (needs shipping permission)"),
+                             ("request_shipping_permission(user_id, order_id)", "user confirms shipping for their own order"),
                          ])
 
     def exec_call(self, name: str, kwargs: dict) -> ToolResult:
