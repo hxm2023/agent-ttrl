@@ -26,7 +26,8 @@ PROMPT = "List the tools you would call to refund order o1:"
 
 
 def _seed(task: str, turn: int, purpose: str, v: int = 0, branch_group: int = 0) -> RequestSeed:
-    return RequestSeed(PROTO, 0, task, turn, v, purpose, branch_group=branch_group)
+    return RequestSeed(PROTO, 0, task, turn, purpose, branch_group=branch_group,
+                       policy_version=v)
 
 
 def _policy():

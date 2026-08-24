@@ -18,8 +18,8 @@ import re
 import sys
 from pathlib import Path
 
-OUT_ROOT = Path("/root/autodl-tmp/agent-ttrl/artifacts/v2/cts")
-PROTO = hashlib.sha256(b"agent-ttrl-v2-cts1").hexdigest()
+OUT_ROOT = Path("/root/autodl-tmp/agent-ttrl/artifacts/v3/cts")
+PROTO = hashlib.sha256(b"agent-ttrl-v3-cts1").hexdigest()
 MAX_TURNS = 6
 N_ROLLOUTS = 8
 UPDATE_EVERY = 2          # tasks per update epoch
@@ -29,9 +29,11 @@ LR = 5e-5
 SYSTEM = """You are an order-processing assistant. Available tools:
 {tools}
 Task: {goal}
-Return ONLY tool calls, one per line, in this exact format:
-lookup_order(order_id="order-1")
-refund_order(order_id="order-1", user_id="user-1")
+Return ONLY tool calls, one per line, using the EXACT IDs from the task
+above — never invent or reuse example IDs. Format example (EXAMPLE ONLY,
+do not execute):
+lookup_order(order_id="order-EXAMPLE")
+refund_order(order_id="order-EXAMPLE", user_id="user-EXAMPLE")
 No explanations, no commentary. If a call fails, read the error,
 fix the arguments, and retry."""
 

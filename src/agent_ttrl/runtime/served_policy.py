@@ -128,7 +128,7 @@ class ColocatedPolicy:
         n = shift_mask.sum().clamp(min=1.0)
         loss = -float(advantage) * masked / n
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_grad_norm=1.0)
+        torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
         opt.step()
         self.model.zero_grad()
         torch.cuda.empty_cache()

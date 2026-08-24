@@ -1,0 +1,68 @@
+{
+  "audit_date": "2026-08-24",
+  "git_commit": "c6dddfecd20ebe33de7a4cc5886d80e218896002",
+  "review_independence": "same-context-local",
+  "verdict": "FAIL",
+  "evidence_class": "simulation_only",
+  "axes": {
+    "A_ground_truth_and_evaluator_provenance": {
+      "status": "FAIL",
+      "reasons": [
+        "hidden_success controls production early stopping",
+        "EGC reads private task.world.users to construct candidates",
+        "canonical anchors are constructed from hidden simulator state"
+      ]
+    },
+    "B_reward_normalization_and_selection": {
+      "status": "WARN_FAIL",
+      "reasons": [
+        "no direct max-normalization fraud found",
+        "successful-positive-only selection changes the method into filtered weighted SFT",
+        "negative EGC credit is not trained",
+        "oracle-assisted candidate construction invalidates sign diagnostic"
+      ]
+    },
+    "C_result_existence": {
+      "status": "FAIL",
+      "reasons": [
+        "paper mixes first logs with rerun manifests",
+        "only 3 of 8 EGC rerun manifests are released",
+        "A0-A2 Mistral artifacts are absent",
+        "claimed ablation artifacts are absent"
+      ]
+    },
+    "D_execution_path_closure": {
+      "status": "FAIL",
+      "reasons": [
+        "BranchExecutorV2 is not used by the formal stream",
+        "cost ledger Guard identity and statistical SafeCommit do not close the v2 result path",
+        "statistics and reproduction scripts target mismatched or legacy paths"
+      ]
+    },
+    "E_scope": {
+      "status": "FAIL_FOR_TOP_TIER",
+      "classification": "one synthetic environment, one model, template-specific transductive pilot, sealed probe null"
+    },
+    "F_statistics": {
+      "status": "FAIL",
+      "reasons": [
+        "first run p=0.015625 and 7/8 differs from rerun p=0.03125 and 6/8",
+        "both fail preregistered alpha=0.01",
+        "exact script is Monte Carlo",
+        "hierarchical script uses incorrect outer units and paths"
+      ]
+    }
+  },
+  "rerun_stability": {
+    "frozen": {"coverage": "8/8", "changed": "0/8"},
+    "naive": {"coverage": "8/8", "changed": "6/8"},
+    "egc": {"coverage": "3/8", "changed": "2/3"}
+  },
+  "template_attribution": {
+    "all_tasks_net_successes": 9,
+    "exchange_contribution": 12,
+    "non_exchange_net_successes": -3,
+    "sealed_template": "0/16 to 1/16"
+  },
+  "formal_result_authorized": false
+}

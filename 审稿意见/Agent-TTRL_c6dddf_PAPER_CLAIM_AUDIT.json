@@ -1,0 +1,49 @@
+{
+  "audit_date": "2026-08-24",
+  "repository": "https://github.com/hxm2023/agent-ttrl",
+  "git_commit": "c6dddfecd20ebe33de7a4cc5886d80e218896002",
+  "paper": {
+    "path": "paper/main.pdf",
+    "sha256": "4b0cc4f6bb3b35ec2ce7d2b33b66a4ee05eb06b86aed681e9ff6d789e30f3120",
+    "pages": 6
+  },
+  "review_independence": "same-context-local",
+  "acceptance_status": "provisional",
+  "verdict": "FAIL",
+  "primary_reason": "claim_evidence_version_mixing_and_implementation_contradictions",
+  "counts": {
+    "supported_or_numerically_supported": 5,
+    "partial": 2,
+    "hybrid_evidence": 2,
+    "contradicted": 8,
+    "unsupported_missing_or_invalid_provenance": 9,
+    "total": 26
+  },
+  "run_sets": {
+    "first_logs": {
+      "naive_minus_frozen": [0.0625, 0.125, 0.0625, 0.0625, 0.0625, 0.0625, 0.0, 0.125],
+      "mean": 0.0703125,
+      "positive_zero_negative": [7, 1, 0],
+      "exact_two_sided_signflip_p": 0.015625
+    },
+    "rerun_manifests": {
+      "naive_minus_frozen": [0.0625, 0.125, 0.0, 0.125, 0.0, 0.125, 0.0625, 0.0625],
+      "mean": 0.0703125,
+      "positive_zero_negative": [6, 2, 0],
+      "exact_two_sided_signflip_p": 0.03125
+    },
+    "egc_first_logs": {
+      "egc_minus_frozen_mean": 0.046875,
+      "egc_minus_frozen_exact_p": 0.109375,
+      "egc_minus_naive_mean": -0.0234375,
+      "egc_minus_naive_exact_p": 0.375
+    }
+  },
+  "critical_claim_ids": {
+    "hybrid": ["C03", "C04"],
+    "contradicted": ["C06", "C08", "C10", "C13", "C14", "C22", "C23", "C24"],
+    "unsupported_or_missing": ["C05", "C11", "C12", "C15", "C19", "C20", "C21", "C25", "C26"]
+  },
+  "claim_ceiling": "Synthetic CTS-v2 template-specific transductive replay pilot only; no validated EGC advantage, inductive future transfer, atomic commit, or official benchmark result.",
+  "independent_acceptance_required": true
+}
