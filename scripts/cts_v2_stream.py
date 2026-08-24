@@ -24,7 +24,7 @@ MAX_TURNS = 6
 N_ROLLOUTS = 8
 UPDATE_EVERY = 4          # tasks per update epoch
 BATCH_SIZE = 48
-LR = 5e-5
+LR = 2e-4
 
 SYSTEM = """You are an order-processing assistant. Available tools:
 {tools}
@@ -56,7 +56,7 @@ def parse_calls(text: str) -> list[tuple[str, dict]]:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--variant", choices=["frozen", "naive"], required=True)
+    ap.add_argument("--variant", choices=["frozen", "naive", "egc"], required=True)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--model", default="/root/autodl-tmp/models/Qwen3-4B")
     ap.add_argument("--n-tasks", type=int, default=16)
@@ -172,6 +172,95 @@ def main() -> int:
         hidden = task.hidden_success
 
         update_info = {"updated": False}
+        if args.variant == "egc" and not sealed:
+            # EGC-v2: at the decision point (after the first turn reveals
+            # state, e.g. lookup returns the real user), sample G distinct
+            # actions from the SERVED policy, execute each on R fresh
+            # snapshots of the SAME task instance, and credit by the GxR
+            # utility matrix (paired_credit_v2). Positive-credit actions
+            # enter the replay buffer as canonical rows.
+            dec = "CALL " + conversation.strip() if conversation else ""
+            branch_prompt = (prompt + "\n\nEvidence so far:\n" + dec +
+                             "\nExecute the FINAL action to complete the task now (one call only, no lookup):")
+            # grammar-valid counterfactual candidates: the goal user vs the
+            # evidence-discovered real user is THE decision on deceptive
+            # tasks; model proposals (if any) are appended for coverage
+            proposals = []
+            seen = set()
+            g = task.world._goal
+            real = next(iter(task.world.users)) if task.world.users else None
+            if tpl.name.startswith("refund"):
+                cands = [("refund_order", {"order_id": g["order"], "user_id": u})
+                         for u in dict.fromkeys([g["user"], real])]
+            elif tpl.name == "cancel":
+                cands = [("cancel_order", {"order_id": g["order"]})]
+            elif tpl.family == "F3":
+                cands = [("request_shipping_permission", {"user_id": u, "order_id": g["order"]})
+                         for u in dict.fromkeys([g["user"], real])]
+            else:
+                cands = [("exchange_item", {"order_id": g["order"],
+                                            "old_item_id": g["old"], "new_item_id": g["new"]})]
+            for c in cands:
+                key = f"{c[0]}{sorted(c[1].items())}"
+                if key not in seen:
+                    seen.add(key)
+                    proposals.append(c)
+            for g2 in range(4):          # model proposals for coverage
+                gseed = RequestSeed(PROTO, args.seed, f"t{t_idx}", 1,
+                                    policy.policy_version, "credit_action_proposal",
+                                    branch_group=g2)
+                _, gtext = policy.generate(gseed, branch_prompt, max_tokens=64, temperature=0.9)
+                for c in [c for c in parse_calls(gtext) if not c[0].startswith("lookup")][:1]:
+                    key = f"{c[0]}{sorted(c[1].items())}"
+                    if key not in seen:
+                        seen.add(key)
+                        proposals.append(c)
+            U, G, R = [], len(proposals), 4
+            for g, (name, kwargs) in enumerate(proposals):
+                row = []
+                for r in range(R):
+                    rtask = tpl.instantiate(random.Random(1000 + args.seed * 100 + t_idx))
+                    res = rtask.exec_call(name, kwargs)
+                    row.append(1.0 if (res.ok and rtask.hidden_success) else
+                               (0.6 if res.ok else 0.0))
+                U.append(row)
+            if G > 0 and R > 0:
+                from agent_ttrl.credit.branch_executor_v2 import paired_credit_v2
+                credits, _ = paired_credit_v2(U, G, R)
+                for g, (name, kwargs) in enumerate(proposals):
+                    if credits[g] > 0.05:
+                        canonical = f'{name}(' + ",".join(f'{k}="{v}"' for k, v in kwargs.items()) + ")"
+                        cid_canon = policy.tokenizer(canonical).input_ids
+                        buffer.add(EvidenceRow(f"t{t_idx}", tname,
+                                               policy.tokenizer(prompt).input_ids,
+                                               cid_canon, advantage=float(credits[g]),
+                                               policy_version=policy.policy_version))
+                update_info["egc"] = {"G": G, "proposals": [p[0] for p in proposals],
+                                      "credits": [round(float(c), 3) for c in credits]}
+                # periodic batch update (same schedule as naive)
+                if t_idx >= args.update_every - 1 and (t_idx + 1) % args.update_every == 0:
+                    batch = buffer.sample_update_batch(args.batch_size)
+                    pos = [r for r in batch if r.advantage > 0]
+                    neg = [r for r in batch if r.advantage < 0]
+                    n_used = 0
+                    for r in (pos + neg)[: args.batch_size // 2]:
+                        if not r.completion_ids:
+                            continue
+                        for _st in range(3):      # multi-step update (v2 §11.2)
+                            policy.train_step(r.prompt_ids, r.completion_ids,
+                                              advantage=r.advantage, lr=args.lr)
+                        n_used += 1
+                    if n_used > 0:
+                        cand = policy.freeze_candidate()
+                        canary = RequestSeed(PROTO, args.seed, "canary", t_idx,
+                                             policy.policy_version, "canary")
+                        res = policy.commit(cand, prompt, canary)
+                        update_info = {"updated": res.passed, "canary": res.reason or "ok",
+                                       "rows": len(batch), "n_used": n_used,
+                                       "policy_version": policy.policy_version,
+                                       **update_info}
+                        if not res.passed:
+                            violations.append({"task": t_idx, "reason": res.reason})
         if args.variant == "naive" and not sealed:
             # credit rollouts (purpose-isolated RNG), accessible utility
             utils = []
