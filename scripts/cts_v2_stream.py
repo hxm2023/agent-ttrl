@@ -95,14 +95,14 @@ def main() -> int:
         t = tpl.instantiate(random.Random(999))
         g = t.world._goal
         real_user = next(iter(t.world.users))   # deceptive goals name a fake user
-        deceptive = tpl.name.endswith("_v")
+        deceptive = tpl.name.endswith("_v") or tpl.name.endswith("_delivered")
         if tpl.family == "F3":
             # verification skill: lookup reveals the REAL user; permission
             # and ship act on the real user, not the (possibly fake) goal user
             demo_calls = [f'lookup_order(order_id="{g["order"]}")',
                           f'request_shipping_permission(user_id="{real_user}", order_id="{g["order"]}")',
                           f'ship_order(order_id="{g["order"]}", address="addr-1")']
-        elif tpl.name in ("refund", "refund_v"):
+        elif tpl.name.startswith("refund"):
             demo_calls = [f'lookup_order(order_id="{g["order"]}")',
                           f'refund_order(order_id="{g["order"]}", user_id="{real_user}")']
         elif tpl.name == "cancel":

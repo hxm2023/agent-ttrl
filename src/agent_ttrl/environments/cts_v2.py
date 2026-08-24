@@ -270,33 +270,6 @@ def _ok_f3_recover(w):
     return o.status == OrderStatus.SHIPPED
 
 
-TEMPLATES = {
-    "F1_refund": TaskTemplate("F1", "refund", "Refund order {order} for user {user}",
-                              ["lookup_order", "lookup_user", "refund_order"],
-                              _ok_f1_refund, _init_f1_refund),
-    "F1_cancel": TaskTemplate("F1", "cancel", "Cancel order {order}",
-                              ["lookup_order", "cancel_order"],
-                              _ok_f1_cancel, _init_f1_cancel),
-    "F1_exchange": TaskTemplate("F1", "exchange", "Exchange item {old} for {new} on order {order}",
-                                ["lookup_order", "exchange_item"],
-                                _ok_f1_exchange, _init_f1_exchange),
-    "F3_recover": TaskTemplate("F3", "recover", "Ship order {order} to {user} (may need permission)",
-                               ["lookup_order", "lookup_user", "ship_order"],
-                               _ok_f3_recover, _init_f3_recover),
-    # deceptive-evidence variants: the goal names a wrong user (drawn from
-    # the SAME id range so it looks plausible); the agent must verify against
-    # the accessible order state before acting
-    "F1_refund_v": TaskTemplate(
-        "F1", "refund_v", "Refund order {order} for user {user}",
-        ["lookup_order", "lookup_user", "refund_order"],
-        _ok_f1_refund,
-        lambda rng, w: _init_f1_refund(rng, w, deceptive_user=f"user-{rng.randint(1, 99)}")),
-    "F3_recover_v": TaskTemplate(
-        "F3", "recover_v", "Ship order {order} to {user} (may need permission)",
-        ["lookup_order", "lookup_user", "request_shipping_permission", "ship_order"],
-        _ok_f3_recover,
-        lambda rng, w: _init_f3_recover(rng, w, deceptive_user=f"user-{rng.randint(1, 99)}")),
-}
 
 
 def _init_f3_recover(rng, w, deceptive_user: str | None = None):
@@ -308,6 +281,26 @@ def _init_f3_recover(rng, w, deceptive_user: str | None = None):
     w.orders[oid] = Order(oid, user, sku, OrderStatus.PAID)
     w.permissions = set()
     w._goal = {"order": oid, "user": user if deceptive_user is None else deceptive_user}
+
+
+def _init_f1_refund_delivered(rng, w):
+    """Same refund workflow, harder condition: order is DELIVERED and the
+    goal's user differs from the order's user (must verify + refund)."""
+    sku = f"sku-{rng.randint(1, 99)}"
+    user = f"user-{rng.randint(1, 99)}"
+    oid = f"order-{rng.randint(1, 99)}"
+    w.items[sku] = _mk_item(rng, sku)
+    w.users[user] = User(user, f"addr-{rng.randint(1, 99)}")
+    w.orders[oid] = Order(oid, user, sku, OrderStatus.DELIVERED)
+    decoy = f"user-{rng.randint(1, 99)}"
+    while decoy == user:
+        decoy = f"user-{rng.randint(1, 99)}"
+    w._goal = {"order": oid, "user": decoy}
+
+
+def _ok_f1_refund_delivered(w):
+    o = list(w.orders.values())[0]
+    return o.status == OrderStatus.REFUNDED
 
 
 @dataclass
@@ -345,3 +338,40 @@ class TaskV2:
     @property
     def hidden_success(self) -> bool:
         return bool(self.template.success(self.world))
+
+
+TEMPLATES = {
+    "F1_refund": TaskTemplate("F1", "refund", "Refund order {order} for user {user}",
+                              ["lookup_order", "lookup_user", "refund_order"],
+                              _ok_f1_refund, _init_f1_refund),
+    "F1_cancel": TaskTemplate("F1", "cancel", "Cancel order {order}",
+                              ["lookup_order", "cancel_order"],
+                              _ok_f1_cancel, _init_f1_cancel),
+    "F1_exchange": TaskTemplate("F1", "exchange", "Exchange item {old} for {new} on order {order}",
+                                ["lookup_order", "exchange_item"],
+                                _ok_f1_exchange, _init_f1_exchange),
+    "F3_recover": TaskTemplate("F3", "recover", "Ship order {order} to {user} (may need permission)",
+                               ["lookup_order", "lookup_user", "ship_order"],
+                               _ok_f3_recover, _init_f3_recover),
+    # deceptive-evidence variants: the goal names a wrong user (drawn from
+    # the SAME id range so it looks plausible); the agent must verify against
+    # the accessible order state before acting
+    "F1_refund_v": TaskTemplate(
+        "F1", "refund_v", "Refund order {order} for user {user}",
+        ["lookup_order", "lookup_user", "refund_order"],
+        _ok_f1_refund,
+        lambda rng, w: _init_f1_refund(rng, w, deceptive_user=f"user-{rng.randint(1, 99)}")),
+    "F3_recover_v": TaskTemplate(
+        "F3", "recover_v", "Ship order {order} to {user} (may need permission)",
+        ["lookup_order", "lookup_user", "request_shipping_permission", "ship_order"],
+        _ok_f3_recover,
+        lambda rng, w: _init_f3_recover(rng, w, deceptive_user=f"user-{rng.randint(1, 99)}")),
+    # within-family variants: SAME latent workflow, harder conditions — this
+    # is what makes leave-one-template-out transfer measurable (the held-out
+    # template shares the refund/recovery skill with the adaptation set)
+    "F1_refund_delivered": TaskTemplate(
+        "F1", "refund_delivered", "Refund order {order} for user {user}",
+        ["lookup_order", "lookup_user", "refund_order"],
+        _ok_f1_refund_delivered, _init_f1_refund_delivered),
+}
+

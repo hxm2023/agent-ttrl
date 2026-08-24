@@ -55,8 +55,11 @@ def test_f3_recover_permission_gate():
 
 def test_templates_are_leave_one_template_out_ready():
     assert set(TEMPLATES) == {"F1_refund", "F1_cancel", "F1_exchange", "F3_recover",
-                              "F1_refund_v", "F3_recover_v"}
+                              "F1_refund_v", "F3_recover_v", "F1_refund_delivered"}
     assert {t.family for t in TEMPLATES.values()} == {"F1", "F3"}
+    # within-family variants share the workflow: refund_delivered is the same
+    # refund skill with harder conditions (the transfer target)
+    assert TEMPLATES["F1_refund_delivered"].family == "F1"
 
 
 def test_deceptive_variant_requires_evidence():
