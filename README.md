@@ -1,3 +1,9 @@
+> **STATUS (2026-08-24): CURRENT MAIN RESULTS INVALIDATED BY SERVED-POLICY AUDIT** —
+> v1 M3/M5/M6 runs never synchronized the LoRA-updated model to the serving
+> policy (static served policy + RNG schedule confound). See
+> [AUDIT_INVALIDATION.md](AUDIT_INVALIDATION.md) for reason codes; v2
+> (policy-consistent EGC-TTRL) is under construction in `src/agent_ttrl/runtime/`.
+
 # Agent-TTRL
 
 Evidence-gated counterfactual test-time RL for stateful tool-using agents under
