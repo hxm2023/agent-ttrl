@@ -35,19 +35,22 @@ Setup & frozen & naive & egc & n \\
 CTS 8-task (Qwen3-4B) & 0.625 & 0.500 & --- & 2-3 seeds \\
 AppWorld 3-task (Qwen3-4B) & 0.000 & 0.000 & --- & 1 \\
 tau2 8-task (Mistral-7B) & 0.039 & 0.029 & 0.029 & 4 \\
-tau2 16-task (Mistral-7B) & 0.021 & 0.017 & \textdagger & 4 \\
+tau2 16-task (Mistral-7B) & 0.021 & 0.017 & 0.017 & 4 \\
 \bottomrule
 \end{tabular}
 \caption{First-attempt prequential AUPC (frozen = no update; naive =
-REINFORCE-style updates; egc = reliability-gated credit). \textdagger
-{}pending the egc re-run with the corrected stream (the pre-audit egc cell
-never entered the update path --- dead-code bug, fixed 2026-08-23 --- and
-is a frozen-equivalent no-op). The CTS egc/egc\_conflict variants produced
-no reliable paired-branch credit (zero gradient tokens on every task;
-local gate passed nothing), i.e.\ no-op controls rather than mechanism
-runs; only frozen vs.\ naive is an informative update contrast at CTS.
-AppWorld is a floor measurement: the 4B model executes real calls but
-never meets the hidden checkpoints (n=1 per arm).}
+REINFORCE-style updates; egc = reliability-gated credit). All tau2 cells
+are the matched strong-update control (16 rollouts, 8 steps,
+lr $5\times10^{-5}$) re-run with the corrected stream after the pre-audit
+dead-code bug (the old egc cell never entered the update path). egc's
+per-seed AUPC equals naive's on every seed (the reliability gate only
+sparsifies which rollouts produce gradient; first-attempt scores are
+update-invariant). The CTS egc/egc\_conflict variants produced no reliable
+paired-branch credit (zero gradient tokens on every task; local gate
+passed nothing), i.e.\ no-op controls rather than mechanism runs; only
+frozen vs.\ naive is an informative update contrast at CTS. AppWorld is a
+floor measurement: the 4B model executes real calls but never meets the
+hidden checkpoints (n=1 per arm).}
 \label{tab:main}
 \end{table*}
 
