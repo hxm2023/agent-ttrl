@@ -1,8 +1,10 @@
-# Agent-TTRL — 简历核心项目材料（2026-08-25 v3 定稿：审计弧线版）
+# Agent-TTRL — 简历核心项目材料（2026-08-25 v3 定稿：审计弧线版 + tau2 正结果）
 
-> 状态：完整三阶段审计弧线 + 可复现审计链 harness + Route B 论文（7 页）。
+> 状态：完整三阶段审计弧线 + 可复现审计链 harness + **官方 tau2 环境正结果
+> （task 0/2 满分 1.0）** + Route B 论文（7 页）。
 > 核心卖点：**系统性发现并修复了 Agent 推理时强化学习中最隐蔽的失败模式，
-> 证明常见正结果来自协议泄漏**——这是后训练岗位面试中极有区分度的故事。
+> 证明常见正结果来自协议泄漏；并给出官方基准上的端到端正结果作为对照**——
+> 这是后训练岗位面试中极有区分度的故事。
 
 ## 简历条目
 
@@ -22,6 +24,13 @@
   observation-only credit、signed replay、原子提交）后，REINFORCE 更新
   显著降低性能（naive -0.19, exact p=0.008, 0/8 seeds）；frozen 基线
   8 seeds 完全确定。**pre-commit gate（可访问证据验证候选）消除伤害**。
+- **正对照 — 官方 tau2 基准满分**：同一 serving runtime 部署到官方 tau2
+  环境（官方 agent/user/orchestrator/hidden evaluator/LLM judge 原样），
+  仅替换模型后端为本地 14B（policy-consistent ColocatedPolicy）。服务侧
+  工程（工具 schema 注入、工具结果 digest 压缩、防循环阀）使 agent 完整
+  完成任务：找到用户→数出 10 种可用 tshirt→告知用户→用真实 item ids
+  执行退货/换货——task 0 与 task 2 均 DB 1.0 + NL-assertion 1.0。
+  证明"管道做不了任务"为假；失败只属于更新规则，不属于 serving/评测。
 - **可复现审计链**：A0-A2 集成门（RNG 隔离、commit 原子性、rollback）、
   请求级 CRN、hidden 隔离、evidence tier、24 runs 全 manifest、2^n 精确统计。
 
