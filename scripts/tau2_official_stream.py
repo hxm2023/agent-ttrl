@@ -66,14 +66,29 @@ def trajectory_calls(trajectory) -> list[tuple[dict, str]]:
 
 
 def accessible_success(trajectory) -> dict:
-    """Rule-based success from accessible evidence (tool results only)."""
+    """Rule-based success from accessible evidence (tool results only).
+    Requires properly typed args: list-valued args must be real lists and
+    every id-like value must appear in the tool results."""
     calls = trajectory_calls(trajectory)
     results_text = " ".join(r for _, r in calls)
     for tc, _ in calls:
         if tc.name not in MUTATION_TOOLS:
             continue
-        vals = [str(v) for v in tc.arguments.values()]
-        id_vals = [v for v in vals if ID_RE.fullmatch(v.strip("#")) or ID_RE.fullmatch(v)]
+        ok = True
+        id_vals = []
+        for v in tc.arguments.values():
+            if isinstance(v, list):
+                if not v:
+                    ok = False
+                    break
+                id_vals.extend(str(x) for x in v)
+            elif isinstance(v, str):
+                id_vals.append(v)
+            else:
+                ok = False
+                break
+        if not ok:
+            continue
         real = [v for v in id_vals if v in results_text]
         if id_vals and len(real) == len(id_vals):
             return {"success": True, "call": tc.name, "args": tc.arguments}

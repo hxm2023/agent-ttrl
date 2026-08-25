@@ -32,11 +32,19 @@ AGENT_INSTRUCTION = (
     "invent an email address, name, or ID.\n"
     "- If the user gave name + zip code, use find_user_id_by_name_zip. "
     "Only use find_user_id_by_email if the user actually stated an email.\n"
-    "- Call get_order_details(order_id=...) BEFORE any exchange/return/"
-    "cancel/modify tool, to learn the real item ids.\n"
-    "- To count how many options exist for a product type (e.g. tshirts), "
-    "call list_all_product_types() and count the matching entries; do NOT "
-    "pass words like \"tshirt\" as an id.\n"
+    "- To count how many options exist for a product type: call "
+    "list_all_product_types() to get the product id, then call "
+    "get_product_details(product_id=...) and count only the variants marked "
+    "(available) — ignore unavailable ones. After counting, ALWAYS tell the "
+    "user the exact number in a message (e.g. \"There are 10 t-shirt "
+    "options available\").\n"
+    "- If the user did NOT give an order number, call "
+    "get_user_details(user_id=...) to list the user's orders, then use the "
+    "real order id from that result.\n"
+    "- Look up order details before any exchange/return/cancel/modify. When "
+    "returning or exchanging, include ALL the items the user asked about — "
+    "never omit any. Use the exact payment_method_id shown in the "
+    "get_user_details result.\n"
     "- Never invent ids: every id must come from a tool result or the user's "
     "message. get_product_details/get_item_details take NUMERIC ids found in "
     "earlier tool results.\n"
@@ -307,8 +315,18 @@ def _parse_kwargs(args: str) -> dict:
         except Exception:
             pass
     kwargs = {}
-    for am in re.finditer(r"([a-zA-Z_][a-zA-Z0-9_]*)=\"?([^,\")]*)\"?", args):
-        kwargs[am.group(1)] = am.group(2).strip('"')
+    for am in re.finditer(r"([a-zA-Z_][a-zA-Z0-9_]*)=(\[[^\]]*\]|\"[^\"]*\"|[^,)]*)",
+                          args):
+        raw = am.group(2).strip()
+        if raw.startswith("["):
+            try:
+                kwargs[am.group(1)] = json.loads(raw)
+            except Exception:
+                kwargs[am.group(1)] = raw
+        elif raw.startswith('"'):
+            kwargs[am.group(1)] = raw.strip('"')
+        else:
+            kwargs[am.group(1)] = raw.strip('"')
     return kwargs
 
 
