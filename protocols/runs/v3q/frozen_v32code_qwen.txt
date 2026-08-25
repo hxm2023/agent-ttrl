@@ -1,0 +1,20 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   0%|          | 1/339 [00:00<00:51,  6.51it/s]Loading weights:   1%|          | 2/339 [00:00<00:56,  6.00it/s]Loading weights:   5%|▍         | 16/339 [00:00<00:07, 41.55it/s]Loading weights:  12%|█▏        | 40/339 [00:00<00:03, 95.78it/s]Loading weights:  16%|█▌        | 54/339 [00:00<00:02, 102.07it/s]Loading weights:  22%|██▏       | 76/339 [00:00<00:02, 129.38it/s]Loading weights:  27%|██▋       | 91/339 [00:00<00:01, 126.18it/s]Loading weights:  33%|███▎      | 112/339 [00:01<00:01, 146.10it/s]Loading weights:  38%|███▊      | 128/339 [00:01<00:01, 141.69it/s]Loading weights:  42%|████▏     | 143/339 [00:01<00:01, 132.99it/s]Loading weights:  48%|████▊     | 162/339 [00:01<00:01, 145.85it/s]Loading weights:  54%|█████▍    | 184/339 [00:01<00:00, 160.97it/s]Loading weights:  59%|█████▉    | 201/339 [00:01<00:00, 153.89it/s]Loading weights:  65%|██████▍   | 220/339 [00:01<00:00, 160.88it/s]Loading weights:  70%|██████▉   | 237/339 [00:01<00:00, 153.16it/s]Loading weights:  76%|███████▌  | 256/339 [00:02<00:00, 159.50it/s]Loading weights:  81%|████████  | 273/339 [00:02<00:00, 153.30it/s]Loading weights:  86%|████████▌ | 292/339 [00:02<00:00, 157.41it/s]Loading weights:  91%|█████████ | 308/339 [00:02<00:00, 146.10it/s]Loading weights:  97%|█████████▋| 328/339 [00:02<00:00, 157.38it/s]Loading weights: 100%|██████████| 339/339 [00:02<00:00, 134.06it/s]
+[v2] held-out template: F1_refund_v; adapt: ['F1_refund', 'F1_refund_delivered', 'F1_cancel', 'F1_exchange', 'F3_recover', 'F3_recover_v']
+[v2] t0 F1_refund: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] t1 F1_refund_delivered: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] t2 F1_cancel: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] t3 F1_exchange: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] t4 F3_recover: y_pre=0.0 hidden=False v0 {'updated': False}
+[v2] t5 F3_recover_v: y_pre=0.0 hidden=False v0 {'updated': False}
+[v2] t6 F1_refund: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] t7 F1_refund_delivered: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] t8 F1_cancel: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] t9 F1_exchange: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] t10 F3_recover: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] t11 F3_recover_v: y_pre=0.0 hidden=False v0 {'updated': False}
+[v2] t12 F1_refund: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] t13 F1_refund_delivered: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] t14 F1_refund_v: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] t15 F1_refund_v: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] AUPC=0.8125 heldout=1.0000 violations=0

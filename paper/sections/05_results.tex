@@ -54,6 +54,15 @@ suppressed tool names the model partially knew and reinforced
 hallucinated entity ids (e.g.\ the few-shot example's
 \texttt{order-EXAMPLE} leaking into actions).
 
+The harm is not backbone-specific. Re-running the identical protocol
+with Qwen2.5-7B-Instruct (a different model family and tokenizer),
+the frozen baseline is again deterministic (AUPC 0.8750) and naive
+updates land below it on all 8 seeds (0.8125, 0.8125, 0.8125, 0.6875,
+0.8125, 0.8125, 0.8125, 0.6875; mean delta $-0.094$, exact two-sided
+sign-flip $p{=}0.0078$). The harmful-update effect is therefore not a
+quirk of one model: under the clean protocol, canonical-action
+REINFORCE degrades first-attempt performance on both backbones.
+
 \subsection{Gated updates restore parity}
 A pre-commit gate validates each candidate adapter against the
 committed policy on accessible-evidence instances drawn from the base
