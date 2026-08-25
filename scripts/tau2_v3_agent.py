@@ -158,7 +158,7 @@ class ColocatedTau2Agent(HalfDuplexAgent):
                 msgs.append({"role": "assistant", "content": content})
             elif isinstance(m, ToolMessage):
                 name = pending.pop(m.id, "?")
-                body = m.content or ""
+                body = _digest_tool_result(name, m.content or "") if name != "?" else (m.content or "")
                 body = f"Error: {body}" if m.error else body
                 msgs.append({"role": "user", "content": f"[TOOL {name}]\n{body}"})
             elif isinstance(m, MultiToolMessage):
@@ -222,6 +222,65 @@ class ColocatedTau2Agent(HalfDuplexAgent):
         return msg, state
 
 
+def _opts_str(options) -> str:
+    if not isinstance(options, dict):
+        return ""
+    return ", ".join(f"{k}={v}" for k, v in options.items())
+
+
+def _digest_tool_result(name: str, content: str) -> str:
+    """Compact digest of large tool results (same serving-side compression
+    as tau2_local_server.py)."""
+    import json
+    try:
+        d = json.loads(content)
+    except Exception:
+        return content
+    try:
+        if name == "get_order_details" and isinstance(d, dict):
+            lines = [f"order {d.get('order_id')} | status: {d.get('status')} | "
+                     f"user: {d.get('user_id')}"]
+            for it in d.get("items", []) or []:
+                if not isinstance(it, dict):
+                    continue
+                opts = _opts_str(it.get("options"))
+                lines.append(f"  item {it.get('item_id')}: {it.get('name')} "
+                             f"(${it.get('price')}){(' ' + opts) if opts else ''}")
+            return "\n".join(lines)
+        if name == "get_user_details" and isinstance(d, dict):
+            nm = d.get("name") or {}
+            lines = [f"user {d.get('user_id')} | "
+                     f"{nm.get('first_name') if isinstance(nm, dict) else ''} "
+                     f"{nm.get('last_name') if isinstance(nm, dict) else ''} "
+                     f"| email: {d.get('email')}"]
+            pm = d.get("payment_methods") or {}
+            if isinstance(pm, dict) and pm:
+                lines.append(f"  payment methods: {', '.join(pm.keys())}")
+            lines.append(f"  orders: {', '.join(d.get('orders') or [])}")
+            return "\n".join(lines)
+        if name in ("get_product_details", "get_item_details") and isinstance(d, dict):
+            variants = d.get("variants")
+            if isinstance(variants, dict):
+                lines = [f"product {d.get('name')} ({d.get('product_id')}) | "
+                         f"{len(variants)} variants:"]
+                for iid, v in variants.items():
+                    if not isinstance(v, dict):
+                        continue
+                    avail = "available" if v.get("available") else "unavailable"
+                    lines.append(f"  item {iid}: {_opts_str(v.get('options'))} "
+                                 f"(${v.get('price')}, {avail})")
+                return "\n".join(lines)
+            if isinstance(d.get("options"), dict):
+                return (f"item {d.get('item_id')} of product "
+                        f"{d.get('product_name') or d.get('name')}: "
+                        f"{_opts_str(d.get('options'))} "
+                        f"(${d.get('price')}, "
+                        f"{'available' if d.get('available') else 'unavailable'})")
+    except Exception:
+        pass
+    return content
+
+
 def _args_str(arguments: dict) -> str:
     return ", ".join(f"{k}={v!r}" for k, v in arguments.items())
 
@@ -237,7 +296,16 @@ def _merge_roles(msgs: list[dict]) -> list[dict]:
 
 
 def _parse_kwargs(args: str) -> dict:
+    import json
     import re
+    s = args.strip()
+    if s.startswith("{") and s.endswith("}"):
+        try:
+            d = json.loads(s)
+            if isinstance(d, dict):
+                return d
+        except Exception:
+            pass
     kwargs = {}
     for am in re.finditer(r"([a-zA-Z_][a-zA-Z0-9_]*)=\"?([^,\")]*)\"?", args):
         kwargs[am.group(1)] = am.group(2).strip('"')
