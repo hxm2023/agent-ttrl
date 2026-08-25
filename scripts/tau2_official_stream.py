@@ -95,14 +95,18 @@ def accessible_success(trajectory) -> dict:
     return {"success": False, "call": None, "args": None}
 
 
+MAX_SEQ = 768  # training sequences are truncated to fit 14B activations
+
+
 def render_prompt_ids(policy, messages: list[dict]) -> list[int]:
     prompt = policy.tokenizer.apply_chat_template(
         messages, tokenize=False, add_generation_prompt=True)
-    return policy.tokenizer(prompt, return_tensors="pt").input_ids[0].tolist()
+    ids = policy.tokenizer(prompt, return_tensors="pt").input_ids[0].tolist()
+    return ids[-MAX_SEQ:]
 
 
 def completion_ids(policy, text: str) -> list[int]:
-    return policy.tokenizer(text, return_tensors="pt").input_ids[0].tolist()
+    return policy.tokenizer(text, return_tensors="pt").input_ids[0].tolist()[:128]
 
 
 # ---------------------------------------------------------------- stream
@@ -174,6 +178,8 @@ def run_stream(args) -> int:
         with open(out_dir / f"task_{task_idx}.json", "w") as f:
             json.dump(entry, f, indent=2)
         log(f"task {task_idx} done: reward={reward} accessible_success={acc['success']}")
+        import torch
+        torch.cuda.empty_cache()
 
     summary = {"arm": args.arm, "seed": args.seed, "tasks": per_task,
                "n_success": sum(1 for p in per_task if p["success"]),
@@ -260,7 +266,7 @@ def _pair_update(policy, pos_rows, neg_rows, args, validate_tasks) -> None:
     gate_rate = policy.gate_validate(
         lambda state, i: _gate_success(policy, state, i, args), n_per_intent=2)
     log(f"gate improvement rate: {gate_rate:.2f}")
-    if gate_rate >= 0.5:
+    if gate_rate >= args.gate_threshold:
         rs = RequestSeed("tau2-stream", args.seed, "canary", 0, "canary",
                          policy_version=policy.policy_version)
         cr = policy.commit_candidate("find_user_id_by_name_zip(\"Yusuf\", \"Rossi\", \"19122\")",
@@ -313,6 +319,9 @@ def main() -> int:
     ap.add_argument("--device", default="cuda:1")
     ap.add_argument("--lr", type=float, default=5e-5)
     ap.add_argument("--max-steps", type=int, default=40)
+    ap.add_argument("--gate-threshold", type=float, default=0.5,
+                    help="commit if gate improvement rate >= threshold; "
+                         "0.0 = always commit (gate-sensitivity arm)")
     args = ap.parse_args()
     return run_stream(args)
 
