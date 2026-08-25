@@ -56,20 +56,25 @@ hallucinated entity ids (e.g.\ the few-shot example's
 
 The harm is not backbone-specific. Re-running the identical protocol
 with Qwen2.5-7B-Instruct (a different model family and tokenizer),
-the frozen baseline is again deterministic (AUPC 0.8750) and naive
-updates land below it on all 8 seeds (six runs at 0.8125, two at
-0.6875; mean delta $-0.094$, exact two-sided sign-flip $p{=}0.0078$).
-The harmful-update effect is therefore not a quirk of one model: under
-the clean protocol, canonical-action REINFORCE degrades first-attempt
-performance on both backbones. The per-template breakdown (Fig.~%
-\ref{fig:mechanism}) localizes the mechanism: on both backbones the
-degradation concentrates on the templates the frozen policy had
-\emph{solved} (Mistral: $-0.31$ to $-0.375$ on F1-cancel/exchange/
-refund and F3-recover; Qwen: $-0.20$ to $-0.30$ on F1-cancel and
-F1-refund-v), while never-solved templates stay flat. The update
-suppresses the action pattern it trained on with mixed credit ---
-partially-correct rollouts earn negative advantages and are pushed
-down --- rather than inventing new failures elsewhere.
+the frozen baseline is again deterministic (AUPC 0.8750) and both
+update arms land below it on all 8 seeds (naive: six runs at 0.8125,
+two at 0.6875, mean delta $-0.094$; egc: mean delta $-0.102$; exact
+two-sided sign-flip $p{=}0.0078$ for each). The harmful-update effect
+is therefore not a quirk of one model: under the clean protocol,
+canonical-action REINFORCE and the egc variant both degrade
+first-attempt performance on both backbones. The per-template
+breakdown (Fig.~\ref{fig:mechanism}) localizes the mechanism: on both
+backbones the degradation concentrates on the templates the frozen
+policy had \emph{solved} (Mistral: $-0.31$ to $-0.375$ on
+F1-cancel/exchange/refund and F3-recover; Qwen: $-0.20$ to $-0.30$ on
+F1-cancel and F1-refund-v), while never-solved templates stay flat.
+The update suppresses the action pattern it trained on with mixed
+credit --- partially-correct rollouts earn negative advantages and are
+pushed down --- rather than inventing new failures elsewhere. The
+non-transfer is not confined to trained templates: on Qwen the sealed
+held-out template (never trained on) drops from 1.0 (frozen) to 0.70
+(naive) and 0.81 (egc), so the updates also degrade the policy on
+never-seen task variants.
 
 \subsection{Gated updates restore parity}
 A pre-commit gate validates each candidate adapter against the
