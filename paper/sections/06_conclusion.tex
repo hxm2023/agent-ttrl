@@ -10,15 +10,15 @@ seeds). A pre-commit gate that validates candidate adapters on
 accessible evidence restored parity with the frozen baseline and
 eliminated harmful commits.
 
-Three implications follow. First, 	extbf{positive results in agent
+Three implications follow. First, \textbf{positive results in agent
 test-time RL should be treated as unverified until served-policy
 identity, evaluator isolation, evidence provenance, and commit safety
 are audited} --- our three failure modes are simple, silent, and
 decisive, and the audit chain that catches them is cheap to run.
-Second, 	extbf{the honest baseline may be stronger than the update}:
+Second, \textbf{the honest baseline may be stronger than the update}:
 at this scale and with this update rule, the fully deterministic
 frozen policy is the correct default, and ``no harm'' (gated updates)
-is a positive engineering outcome. Third, 	extbf{the release of
+is a positive engineering outcome. Third, \textbf{the release of
 audit-grade harnesses matters}: any pipeline can now be checked for
 these exact failure modes with the provided runtime, gates, and
 integration tests.

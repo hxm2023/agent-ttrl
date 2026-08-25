@@ -107,6 +107,16 @@ class ColocatedPolicy:
         gen = out[0][ids.shape[1]:].tolist()
         return gen, self.tokenizer.decode(gen, skip_special_tokens=True)
 
+    def generate_chat(self, seed: RequestSeed, messages: list[dict],
+                      max_tokens: int = 128,
+                      temperature: float = 0.7) -> tuple[list[int], str]:
+        """Chat-template generation (messages: [{"role","content"}, ...]).
+        Same deterministic per-request RNG contract as generate()."""
+        prompt = self.tokenizer.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True)
+        return self.generate(seed, prompt, max_tokens=max_tokens,
+                             temperature=temperature)
+
     # ---------------------------------------------------------------- training
     def _swap_to(self, state: dict) -> None:
         with torch.no_grad():

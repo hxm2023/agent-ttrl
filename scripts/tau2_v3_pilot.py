@@ -38,15 +38,28 @@ def main() -> int:
     agent = ColocatedTau2Agent(tools=tools, domain_policy=env.policy,
                                policy=policy, stream_seed=args.seed,
                                task_idx=args.task_idx)
-    # dummy user: no external LLM needed (official evaluator still scores)
-    user_cls = registry.get_user_constructor("dummy_user")
-    user = user_cls(instructions=task.user_scenario, tools=env.get_user_tools())
+    # colocated user simulator (transformers, no external LLM)
+    from scripts.tau2_v3_user import ColocatedUserSimulator
+    ins = task.user_scenario.instructions
+    known = ins.known_info.replace("You are ", "I am ", 1)
+    reason = (ins.reason_for_call.replace("You received", "I received")
+              .replace(" you ", " I ").replace("you wish", "I'd like", 1))
+    scenario = f"{known} {reason}"
+    user = ColocatedUserSimulator(instructions=None, tools=None,
+                                  policy=policy, stream_seed=args.seed,
+                                  task_idx=args.task_idx, scenario_str=scenario)
     orch = Orchestrator(domain="retail", agent=agent, user=user,
                         environment=env, task=task, max_steps=30)
     result = run_simulation(orch)
     r = result.reward_info
     print("reward:", r.reward, "| score:", getattr(r, "score", None),
           "| success:", getattr(r, "success", None), flush=True)
+    for m in result.messages[-10:]:
+        who = type(m).__name__
+        content = str(getattr(m, "content", ""))[:100]
+        tcs = getattr(m, "tool_calls", None)
+        tcs_s = f" TOOLS={[ (tc.name, str(tc.arguments)[:60]) for tc in tcs ]}" if tcs else ""
+        print(f"  {who}: {content}{tcs_s}", flush=True)
     return 0
 
 
