@@ -38,6 +38,18 @@
 
 \input{sections/05_results}
 \input{sections/07_tau2}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/fig8_tau2_trajectory.png}
+  \caption{A successful task-2 trajectory on the official tau2 retail
+  environment (local Qwen2.5-14B): the agent finds the user, counts the
+  10 \emph{available} t-shirt variants, communicates the count, locates
+  the items, and executes the three-item return with real ids. The
+  hidden evaluator scores DB $1.0$ and NL-assertion $1.0$.}
+  \label{fig:tau2}
+\end{figure}
+
 \input{sections/06_conclusion}
 \bibliographystyle{acl_natbib}
 \bibliography{references}
