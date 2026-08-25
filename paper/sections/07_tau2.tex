@@ -84,30 +84,36 @@ prequential stream (retail base tasks 0--9) through the official
 orchestrator, with accessible-evidence credit only (a task is a success
 iff the trajectory contains a mutation call whose id-valued arguments
 all appear in the tool results of the same conversation) and the hidden
-official evaluator's reward recorded for reporting only. Two arms,
+official evaluator's reward recorded for reporting only. Three arms,
 common random numbers across arms:
 
 \begin{center}
-\begin{tabular}{lcc}
+\begin{tabular}{lccc}
 \toprule
-arm & accessible success (seed 0 / seed 1) & commits \\
+arm & accessible success & commits & gate \\
 \midrule
-frozen & 1/10 (task 2) / 1/10 (task 5) & --- \\
-pair   & 1/10 (task 2) & 0/6 (all gate-rejected) \\
+frozen          & 1/10, 1/10, 1/10 (seeds 0--2) & --- & --- \\
+pair (gated)    & 1/10 (seed 0)                 & 0/6 & all rejected \\
+pair (loose)    & 1/10 (seed 0)                 & 2/6 & canary-passed \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-The pair arm trained a shadow candidate after every task that yielded
-positive and negative rows (six updates over the stream) and submitted
-it to the pre-commit gate; every candidate scored a $0.00$ improvement
-rate on the validation prompt and was discarded. The served policy never
-changed, so the pair arm's trajectory is bit-identical to frozen's on
-seed 0 (including the same task-2 success). The gate's rejection rate is
-the tau2 replication of the v3.2 finding: on this environment the
-candidate's gain does not generalize from the validation instances to
-the production distribution, so the protective gate is a safe no-op and
-agent test-time RL still shows no transfer under the clean protocol.
-Combined with the F3 result on the in-house stream, the audit arc's
-conclusion now holds across two environments, one of them externally
-scored with an official hidden evaluator.
+The gated pair arm trained a shadow candidate after every task that
+yielded positive and negative rows (six updates over the stream) and
+submitted it to the pre-commit gate; every candidate scored a $0.00$
+improvement rate on the validation prompt and was discarded. The served
+policy never changed, so the gated arm's trajectory is bit-identical to
+frozen's on seed 0 (including the same task-2 success). The loose arm
+committed its first two candidates (a third was rejected by the canary
+when the update's effect fell below the numeric tolerance); the served
+policy changed twice, yet the stream's success rate did not improve ---
+the only additional ``success'' under the updated policy is an exchange
+of an item for itself, which the official evaluator scores $0$. The
+gate's rejection rate is the tau2 replication of the v3.2 finding: on
+this environment the candidate's gain does not generalize from the
+validation instances to the production distribution, so the protective
+gate is a safe no-op and agent test-time RL still shows no transfer
+under the clean protocol. Combined with the F3 result on the in-house
+stream, the audit arc's conclusion now holds across two environments,
+one of them externally scored with an official hidden evaluator.
