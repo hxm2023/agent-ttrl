@@ -1,40 +1,29 @@
-% Abstract — Route B (v3 audit arc, 2026-08-25)
+% Abstract — Route B (v3 audit arc, 2026-08-26)
 \begin{abstract}
 Deployment-period parameter updates for tool-using agents (agent
 test-time RL) are attractive, and recent systems report gains. We show
 that the most common reported gains are artifacts of three silent
 failure modes, demonstrated by re-running one pipeline under
 increasingly strict protocol audits: (F1) \emph{served-policy drift} ---
-the LoRA-updated model never becomes the policy that generates
-subsequent first attempts, so per-task ``update effects'' are
-sampling-stream displacement; (F2) \emph{evaluator leakage and anchor
+the updated model never becomes the serving policy, so per-task
+``update effects'' are sampling-stream displacement (96/96 identical
+outcomes across arms); (F2) \emph{evaluator leakage and anchor
 injection} --- the hidden evaluator controls episode termination and
-hand-constructed ground-truth anchors seed the replay buffer, producing
-a phantom $+0.070$ AUPC transfer ($p{=}0.016$) that vanishes when both
-are removed; (F3) \emph{protocol-correct updates are harmful} --- under
-full isolation (exogenous request RNG, observation-only credit, signed
-replay, atomic shadow commits), the same REINFORCE-style updates
-significantly \emph{degrade} first-attempt AUPC (naive $-0.19$,
-$p{=}0.008$; 0/8 seeds positive) on a 16-task latent-skill stream with
-Mistral-7B, while the frozen baseline is fully deterministic across 8
-seeds (common-random-numbers verified). The harm replicates exactly on
-a second backbone (Qwen2.5-7B: naive and egc both 8/8 seeds below a
-deterministic frozen baseline, $p{=}0.008$), degrades the sealed
-never-trained holdout template as well, and no alternative update rule
-(verified-success-only, DPO-style pair loss, looser gates) transfers.
-A pre-commit gate that validates candidate adapters against the
-committed policy on accessible-evidence instances eliminates the harm
-(AUPC restored to frozen parity, 0/8 harmful commits). As a positive
-control, the same
-serving runtime, deployed unmodified against the official \texttt{tau2}
-benchmark (official agent, user simulator, orchestrator, hidden
-evaluator, and LLM judge), completes both evaluated retail tasks
-end-to-end with full reward ($1.0$ DB and $1.0$ NL-assertion) in 5/10
-seeded runs using only a local 14B model --- isolating the failure to
-the update rule rather than the pipeline. We release the audit chain as
-a reproducible harness: policy-consistent
-runtime, request-scoped RNG, hidden-evaluator isolation,
-accessible-evidence utilities, and integration gates (A0--A2) --- so
-that any agent test-time RL pipeline can be checked for the exact
-failure modes that our three-stage audit shows are decisive.
+hand-constructed anchors seed the replay buffer, producing a phantom
+$+0.070$ AUPC transfer ($p{=}0.016$) that vanishes when both are
+removed; (F3) \emph{protocol-correct updates are harmful} --- under
+full isolation, REINFORCE-style updates significantly degrade
+first-attempt AUPC (Mistral-7B: naive $-0.19$, $p{=}0.008$, 0/8 seeds
+positive; frozen deterministic across seeds). The harm replicates on a
+second backbone (Qwen2.5-7B: both update arms 8/8 seeds below frozen,
+$p{=}0.008$), degrades the sealed never-trained holdout, and no
+alternative update rule transfers. A pre-commit gate validating
+candidate adapters on accessible evidence eliminates the harm (0/8
+harmful commits). As a positive control, the same serving runtime
+against the official \texttt{tau2} benchmark completes both evaluated
+retail tasks with full reward in 5/10 seeded runs using only a local
+14B model. We release the audit chain as a reproducible harness ---
+policy-consistent runtime, request-scoped RNG, hidden-evaluator
+isolation, accessible-evidence utilities, integration gates --- so any
+agent test-time RL pipeline can be checked for these failure modes.
 \end{abstract}
