@@ -39,15 +39,18 @@ end-to-end with full reward in 5/10 seeded runs (2/5 on the exchange
 task, 3/5 on the count-and-return task):
 
 \begin{center}
+\small
 \begin{tabular}{lccccc}
 \toprule
 task & seed 0 & seed 1 & seed 2 & seed 3 & seed 4 \\
 \midrule
-0 (exchange 2 items)       & 1.0 & 0.0 & 0.0 & 1.0 & 0.0 \\
-2 (count + return 3 items) & 1.0 & 1.0 & 0.0 & 0.0 & 1.0 \\
+0 & 1.0 & 0.0 & 0.0 & 1.0 & 0.0 \\
+2 & 1.0 & 1.0 & 0.0 & 0.0 & 1.0 \\
 \bottomrule
 \end{tabular}
 \end{center}
+\noindent (task 0: exchange two items; task 2: count t-shirt options and
+return three items)
 
 Each reward is the product of the task's reward-basis components (DB
 state change and the LLM-judged NL assertion), so $1.0$ means the
@@ -91,13 +94,14 @@ official evaluator's reward recorded for reporting only. Three arms,
 common random numbers across arms:
 
 \begin{center}
+\small
 \begin{tabular}{lccc}
 \toprule
 arm & accessible success & commits & gate \\
 \midrule
-frozen          & 1/10, 1/10, 1/10 (seeds 0--2) & --- & --- \\
-pair (gated)    & 1/10 (seed 0)                 & 0/6 & all rejected \\
-pair (loose)    & 1/10 (seed 0)                 & 2/6 & canary-passed \\
+frozen       & 1/10 (3 seeds) & --- & --- \\
+pair (gated) & 1/10 & 0/6 & rejected \\
+pair (loose) & 1/10 & 2/6 & canary ok \\
 \bottomrule
 \end{tabular}
 \end{center}

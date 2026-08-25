@@ -28,9 +28,13 @@ and compares the returned status to the template's accessible target.
 \subsection{Request-scoped common random numbers}
 Every generation request derives its seed from exogenous identity
 only:
-$\mathrm{seed}=\mathrm{H}(\mathrm{protocol},\mathrm{stream\_seed},
-\mathrm{task},\mathrm{turn},\mathrm{purpose},\mathrm{branch},
-\mathrm{action},\mathrm{continuation})$.
+\[
+  \begin{aligned}
+    \mathrm{seed} &= \mathrm{H}(\mathrm{protocol},\ \mathrm{stream\_seed},\ \mathrm{task},\\
+    &\quad\ \mathrm{turn},\ \mathrm{purpose},\ \mathrm{branch},\ \mathrm{action},\\
+    &\quad\ \mathrm{continuation})\,.
+  \end{aligned}
+\]
 Policy version and treatment are recorded in manifests but never in
 seeds, so frozen and update arms draw identical production sequences
 under the same seed (verified: frozen 8/8 seeds bitwise identical).
