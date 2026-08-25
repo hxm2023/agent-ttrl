@@ -23,7 +23,10 @@
 - **失败模式 F3 — 协议正确下更新有害**：全隔离（外生 request RNG、
   observation-only credit、signed replay、原子提交）后，REINFORCE 更新
   显著降低性能（naive -0.19, exact p=0.008, 0/8 seeds）；frozen 基线
-  8 seeds 完全确定。**pre-commit gate（可访问证据验证候选）消除伤害**。
+  8 seeds 完全确定。**跨 backbone 复现**：同一协议在 Qwen2.5-7B 上
+  naive/egc 均 8/8 seeds 低于 frozen（p=0.0078），sealed 未训练模板
+  也退化（1.0→0.70/0.81）；pair-loss、宽松 gate 全部不迁移。
+  **pre-commit gate（可访问证据验证候选）消除伤害**。
 - **正对照 — 官方 tau2 基准满分**：同一 serving runtime 部署到官方 tau2
   环境（官方 agent/user/orchestrator/hidden evaluator/LLM judge 原样），
   仅替换模型后端为本地 14B（policy-consistent ColocatedPolicy）。服务侧
