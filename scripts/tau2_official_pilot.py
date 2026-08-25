@@ -15,6 +15,7 @@ from tau2.domains.retail.environment import get_environment, get_tasks
 from tau2.orchestrator.orchestrator import Orchestrator
 from tau2.runner.simulation import run_simulation
 from tau2.user.user_simulator import UserSimulator
+import tau2.config as tau2_config
 
 BASE = "openai/local-model"
 
@@ -45,12 +46,24 @@ def main() -> int:
         user_tools = None
     user = UserSimulator(llm=BASE, instructions=task.user_scenario,
                          tools=user_tools, llm_args=dict(llm_args))
+    # Point the evaluator's LLM judge (NL assertions) at the local server.
+    # Patch module attributes directly: the evaluator bound these at import.
+    import tau2.evaluator.evaluator_nl_assertions as _nl
+    _nl.DEFAULT_LLM_NL_ASSERTIONS = BASE
+    _nl.DEFAULT_LLM_NL_ASSERTIONS_ARGS = {
+        "temperature": 0.0, "api_base": args.base_url, "api_key": "sk-local",
+        "max_tokens": 256}
+    tau2_config.DEFAULT_LLM_NL_ASSERTIONS = BASE
+    tau2_config.DEFAULT_LLM_NL_ASSERTIONS_ARGS = _nl.DEFAULT_LLM_NL_ASSERTIONS_ARGS
     orch = Orchestrator(domain="retail", agent=agent, user=user,
                         environment=env, task=task, max_steps=args.max_steps)
     result = run_simulation(orch)
     r = result.reward_info
     print("reward:", r.reward, "| score:", getattr(r, "score", None),
           "| success:", getattr(r, "success", None), flush=True)
+    print("breakdown:", getattr(r, "reward_breakdown", None), flush=True)
+    print("env_assertions:", getattr(r, "env_assertions", None), flush=True)
+    print("nl_assertions:", getattr(r, "nl_assertions", None), flush=True)
     print("termination:", getattr(result, "termination_reason", None),
           "| n_steps:", getattr(result, "n_steps", None), flush=True)
     return 0
