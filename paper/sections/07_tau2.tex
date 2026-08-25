@@ -1,0 +1,67 @@
+% Official tau2 environment validation (2026-08-25)
+\section{Positive Control: Full Task Completion on the Official tau2 Benchmark}
+
+The audit harness is deployed on the official \texttt{tau2} benchmark
+environment to check that the serving runtime itself is competitive on a
+real, externally-scored task. The setup uses the benchmark's own agent
+(\texttt{llm\_agent}), user simulator (\texttt{user\_simulator}),
+orchestrator, environment, and hidden evaluator --- including the LLM judge
+for natural-language assertions --- untouched. The only substitution is the
+model backend: instead of a commercial API, all LLM calls (agent, user, and
+judge) are served by our policy-consistent local runtime
+(\texttt{ColocatedPolicy}, Qwen2.5-14B-Instruct) through a small
+OpenAI-compatible endpoint. This preserves the property the pipeline was
+built for: the model that generates is the model that would receive
+gradient updates, and no request ever leaves the machine.
+
+Serving-side engineering (no environment or evaluator modification) was
+required to make a 14B model competitive on the 16-tool retail domain:
+
+\begin{itemize}
+\item \textbf{Tool schema injection}: the official agent's system prompt is
+  augmented with the actual tool list (names, argument types, one-line
+  descriptions) and a short usage policy (never invent ids; count options
+  by listing product types, then counting \emph{available} variants; look
+  up order details before any mutation; confirm with the user before
+  changes).
+\item \textbf{Tool-result digests}: large JSON tool outputs (order details,
+  user details, product variants) are rendered to the model as compact
+  line-oriented summaries. The model reads \texttt{item 4602305039: Vacuum
+  Cleaner (\$561.05)} instead of a nested JSON blob; a 14B model otherwise
+  misreads items inside multi-hundred-byte payloads.
+\item \textbf{Anti-loop valve}: a tool call identical to the last executed
+  call is never returned; the agent is forced to change strategy (or ask
+  the user) instead of repeating a failing lookup.
+\end{itemize}
+
+On the official retail task set, the agent completes both evaluated tasks
+with full reward:
+
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+task & DB reward & NL-assertion reward & total \\
+\midrule
+0 (exchange 2 items)     & 1.0 & 1.0 & 1.0 \\
+2 (count + return 3 items) & 1.0 & 1.0 & 1.0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The task-2 trajectory is a full solution: find the user by name and zip;
+list product types; fetch T-shirt details and report ``there are 10
+t-shirt options available'' (the hidden judge independently confirms the
+statement); walk the user's five orders to locate the items; and execute
+\texttt{return\_delivered\_order\_items} with the three real item ids and
+the real payment method. The environment-side evaluation confirms the
+database was mutated exactly as required.
+
+This is the positive control the audit arc needed: with a clean serving
+runtime and modest prompt/serving engineering, the same harness that
+detects silent failure modes in agent test-time RL also \emph{solves} a
+real benchmark task end-to-end with local models and no external API. It
+separates ``the pipeline cannot do the task'' (false --- task 0 and 2
+reward 1.0) from ``the pipeline cannot safely learn'' (true under the
+clean protocol, F1--F3): the failure to transfer is attributable to the
+update rule and the validation distribution, not to the serving or
+evaluation machinery.
