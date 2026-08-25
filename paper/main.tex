@@ -50,6 +50,16 @@
 
 \begin{figure}[t]
   \centering
+  \includegraphics[width=\columnwidth]{figures/fig10_decay.png}
+  \caption{Cumulative loose-gate updates degrade first-attempt success
+  monotonically on both backbones (Mistral collapses by task ~20; Qwen
+  decays 0.75$\to$0.125 across the 32-task stream). The frozen rate is
+  the dotted line.}
+  \label{fig:decay}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
   \includegraphics[width=\columnwidth]{figures/fig9_mechanism.png}
   \caption{F3 mechanism: per-template first-attempt AUPC, frozen vs.\
   naive. On both backbones the degradation concentrates on the templates
