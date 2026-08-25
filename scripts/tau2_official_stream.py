@@ -74,6 +74,10 @@ def accessible_success(trajectory) -> dict:
     for tc, _ in calls:
         if tc.name not in MUTATION_TOOLS:
             continue
+        # no-op exchanges (item for itself) are not successes
+        if tc.name == "exchange_delivered_order_items" and \
+                tc.arguments.get("item_ids") == tc.arguments.get("new_item_ids"):
+            continue
         ok = True
         id_vals = []
         for v in tc.arguments.values():
