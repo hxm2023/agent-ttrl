@@ -84,6 +84,8 @@ def main() -> int:
     ap.add_argument("--n-rollouts", type=int, default=N_ROLLOUTS)
     ap.add_argument("--update-every", type=int, default=UPDATE_EVERY)
     ap.add_argument("--batch-size", type=int, default=BATCH_SIZE)
+    ap.add_argument("--gate-threshold", type=float, default=0.25,
+                    help="commit if gate improvement rate >= threshold; 0.0 = always commit")
     ap.add_argument("--device", default="cuda:0")
     args = ap.parse_args()
 
@@ -318,7 +320,7 @@ def main() -> int:
                                                      args.seed, t_idx),
                             n_per_intent=4)
                         update_info["gate"] = round(gate_rate, 2)
-                        if gate_rate >= 0.25:
+                        if gate_rate >= args.gate_threshold:
                             res = policy.commit_candidate(prompt, canary)
                             update_info = {"updated": res.passed, "canary": res.reason or "ok",
                                            "rows": len(batch), "n_used": n_used,

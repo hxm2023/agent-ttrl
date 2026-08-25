@@ -16,6 +16,16 @@
 \input{sections/03_problem}
 \input{sections/04_method}
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/fig1_protocol.png}
+  \caption{The audit-grade pipeline: accessible evidence ($E_{\mathrm{hard}}$,
+  green) drives rollouts, signed replay, the shadow candidate, and the
+  pre-commit gate; the official hidden evaluator ($R_{\mathrm{hidden}}$,
+  red) scores episodes offline and never enters the update loop.}
+  \label{fig:protocol}
+\end{figure}
+
 \begin{figure*}[t]
   \centering
   \includegraphics[width=0.98\textwidth]{figures/fig2_audit_arc.png}
@@ -37,6 +47,18 @@
 \end{figure}
 
 \input{sections/05_results}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/fig9_mechanism.png}
+  \caption{F3 mechanism: per-template first-attempt AUPC, frozen vs.\
+  naive. On both backbones the degradation concentrates on the templates
+  the frozen policy solved, while never-solved templates stay flat (and
+  on Qwen the hardest variant even improves $+0.2$). The update
+  suppresses the action patterns it trained on with mixed credit.}
+  \label{fig:mechanism}
+\end{figure}
+
 \input{sections/07_tau2}
 
 \begin{figure}[t]

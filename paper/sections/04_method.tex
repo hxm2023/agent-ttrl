@@ -4,7 +4,11 @@
 We describe the harness used at every stage; each stage differs only by
 which checks are enabled, and all stages share the same environment
 (CTS-v2 latent-skill families), model (Mistral-7B-Instruct-v0.3), and
-prequential protocol.
+prequential protocol. Figure~\ref{fig:protocol} shows the data flow and
+the evidence tiers: everything that enters the update loop (rollouts,
+credit, replay, gate) is built from accessible evidence $E_{\mathrm{hard}}$
+(tool results and conversation), while the hidden evaluator $R_{\mathrm{hidden}}$
+scores episodes offline and is reporting-only.
 
 \subsection{Environment and protocol}
 CTS-v2 defines 7 task templates across two latent families (F1:
