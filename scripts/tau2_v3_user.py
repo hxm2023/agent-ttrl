@@ -3,6 +3,8 @@ with our ColocatedPolicy (transformers, no external LLM). Official
 environment/evaluator/orchestrator are used as-is."""
 from __future__ import annotations
 
+import re
+
 from agent_ttrl.runtime.request_seed import RequestSeed
 from tau2.data_model.message import AssistantMessage, SystemMessage, UserMessage
 from tau2.user.user_simulator_base import HalfDuplexUser
@@ -76,6 +78,8 @@ class ColocatedUserSimulator(HalfDuplexUser):
         self.turn += 1
         cid, text = self.policy.generate_chat(
             seed, messages, max_tokens=96, temperature=0.5)
+        text = re.sub(r"<think>.*?</think>", "", text, flags=re.S)
+        text = re.sub(r"^<think>[^\n]*", "", text, flags=re.S)
         text = text.strip() or "ok."
         if text.lower().startswith(("[agent]", "[user]", "(tool")):
             text = "I'm sorry, what did you say?"

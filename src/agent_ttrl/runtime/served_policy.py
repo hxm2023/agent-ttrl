@@ -89,9 +89,12 @@ class ColocatedPolicy:
 
     # ---------------------------------------------------------------- generation
     def generate(self, seed: RequestSeed, prompt: str, max_tokens: int = 128,
-                 temperature: float = 0.7) -> tuple[list[int], str]:
+                 temperature: float = 0.7,
+                 keep_special_tokens: bool = False) -> tuple[list[int], str]:
         """Deterministic per-request generation (torch RNG state restored after).
-        temperature <= 0 => greedy (do_sample=False), used by canaries."""
+        temperature <= 0 => greedy (do_sample=False), used by canaries.
+        keep_special_tokens=True keeps markers like <|tool_call|> in the
+        decoded text (needed for Qwen native function calling)."""
         ids = self.tokenizer(prompt, return_tensors="pt").input_ids.to(self.device)
         rng_state = torch.random.get_rng_state()
         torch.manual_seed(seed.seed())
@@ -105,17 +108,26 @@ class ColocatedPolicy:
         finally:
             torch.random.set_rng_state(rng_state)
         gen = out[0][ids.shape[1]:].tolist()
-        return gen, self.tokenizer.decode(gen, skip_special_tokens=True)
+        return gen, self.tokenizer.decode(gen, skip_special_tokens=not keep_special_tokens)
 
     def generate_chat(self, seed: RequestSeed, messages: list[dict],
-                      max_tokens: int = 128,
-                      temperature: float = 0.7) -> tuple[list[int], str]:
+                      max_tokens: int = 128, temperature: float = 0.7,
+                      tools: list = None,
+                      keep_special_tokens: bool = False,
+                      template_kwargs: dict = None) -> tuple[list[int], str]:
         """Chat-template generation (messages: [{"role","content"}, ...]).
-        Same deterministic per-request RNG contract as generate()."""
+        tools (optional) enables the model's native function-calling template.
+        template_kwargs (optional) forwarded to apply_chat_template (e.g.
+        enable_thinking=False for Qwen3). Same deterministic per-request RNG
+        contract as generate()."""
+        kwargs = dict(template_kwargs or {})
+        if tools:
+            kwargs["tools"] = tools
         prompt = self.tokenizer.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True)
+            messages, tokenize=False, add_generation_prompt=True, **kwargs)
         return self.generate(seed, prompt, max_tokens=max_tokens,
-                             temperature=temperature)
+                             temperature=temperature,
+                             keep_special_tokens=keep_special_tokens)
 
     # ---------------------------------------------------------------- training
     def _swap_to(self, state: dict) -> None:

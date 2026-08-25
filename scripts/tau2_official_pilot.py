@@ -33,6 +33,8 @@ def main() -> int:
     ins = task.user_scenario.instructions
     print(f"task {task.id}: {ins.reason_for_call[:90]}", flush=True)
 
+    # FULLY OFFICIAL pipeline: LLMAgent + UserSimulator, both via litellm
+    # against the local OpenAI-compatible server (ColocatedPolicy backend).
     llm_args = {"api_base": args.base_url, "api_key": "sk-local",
                 "temperature": 0.3, "seed": args.seed, "max_tokens": 256}
     agent = create_llm_agent(env.get_tools(), env.policy, llm=BASE,
