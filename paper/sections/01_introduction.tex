@@ -50,6 +50,10 @@ different conclusions:
   same REINFORCE-style updates significantly \emph{harm} performance:
   naive $-0.19$ AUPC ($p{=}0.008$, 0/8 seeds positive), egc $-0.23$
   ($p{=}0.008$) on a 16-task latent-skill stream with Mistral-7B.
+  The harm replicates exactly on a second backbone (Qwen2.5-7B:
+  naive and egc both 8/8 seeds below a deterministic frozen baseline,
+  $p{=}0.008$), and no alternative update rule (verified-success-only,
+  DPO-style pair loss, looser gates) transfers either.
 \end{enumerate}
 
 The takeaway is not that agent test-time RL cannot work --- it is that
@@ -60,4 +64,10 @@ reproducible harness, together with a defense that works: a pre-commit
 gate validating candidate adapters on accessible-evidence instances
 restores AUPC to frozen parity (harmful-commit rate 0/8), and a
 frozen baseline that is fully deterministic across seeds under
-common-random-numbers pairing.
+common-random-numbers pairing. As a positive control, the same serving
+runtime deployed against the official \texttt{tau2} benchmark --- with
+the benchmark's own agent, user simulator, orchestrator, hidden
+evaluator, and LLM judge --- completes both evaluated retail tasks
+end-to-end with full reward in 5/10 seeded runs using only a local 14B
+model, separating ``the pipeline cannot do the task'' (false) from
+``the pipeline cannot safely learn'' (true).

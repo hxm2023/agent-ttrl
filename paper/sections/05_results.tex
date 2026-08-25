@@ -74,7 +74,12 @@ pushed down --- rather than inventing new failures elsewhere. The
 non-transfer is not confined to trained templates: on Qwen the sealed
 held-out template (never trained on) drops from 1.0 (frozen) to 0.70
 (naive) and 0.81 (egc), so the updates also degrade the policy on
-never-seen task variants.
+never-seen task variants. The gate remains protective on the second
+backbone: dropping the pre-commit threshold to $0$ (always commit)
+moves naive from $0.781$ to $0.766$ (4/4 seeds below frozen), and the
+v3.2 pair-loss rule --- which commits readily on Qwen --- lands at
+$0.703$ (4/4 seeds below frozen): no update rule tested transfers
+under the clean protocol on either backbone.
 
 \subsection{Gated updates restore parity}
 A pre-commit gate validates each candidate adapter against the

@@ -30,11 +30,11 @@ The primary endpoint is the normalized prequential area:
 \end{equation}
 i.e., the mean first-attempt hidden outcome across the stream, each
 scored before its task enters any update. Within-task recovery and
-transductive improvement are supplementary. (A sealed future holdout,
-never touched by updates, selectors, or gates, is supported by the
-protocol but was not separately reported here: the prequential metric
-already scores every first attempt before any update, and no
-post-hoc selection was performed on the runs.)
+transductive improvement are supplementary. A sealed future holdout
+template --- never touched by updates, selectors, or gates --- is
+additionally scored per stream and reported in the results as the
+held-out-template AUPC, measuring whether updates generalize to
+never-trained task variants.
 
 \subsection{Budgets and identity}
 All methods run under identical three-channel hard caps

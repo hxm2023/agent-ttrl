@@ -17,10 +17,15 @@ replay, atomic shadow commits), the same REINFORCE-style updates
 significantly \emph{degrade} first-attempt AUPC (naive $-0.19$,
 $p{=}0.008$; 0/8 seeds positive) on a 16-task latent-skill stream with
 Mistral-7B, while the frozen baseline is fully deterministic across 8
-seeds (common-random-numbers verified). A pre-commit gate that
-validates candidate adapters against the committed policy on
-accessible-evidence instances eliminates the harm (AUPC restored to
-frozen parity, 0/8 harmful commits). As a positive control, the same
+seeds (common-random-numbers verified). The harm replicates exactly on
+a second backbone (Qwen2.5-7B: naive and egc both 8/8 seeds below a
+deterministic frozen baseline, $p{=}0.008$), degrades the sealed
+never-trained holdout template as well, and no alternative update rule
+(verified-success-only, DPO-style pair loss, looser gates) transfers.
+A pre-commit gate that validates candidate adapters against the
+committed policy on accessible-evidence instances eliminates the harm
+(AUPC restored to frozen parity, 0/8 harmful commits). As a positive
+control, the same
 serving runtime, deployed unmodified against the official \texttt{tau2}
 benchmark (official agent, user simulator, orchestrator, hidden
 evaluator, and LLM judge), completes both evaluated retail tasks

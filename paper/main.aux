@@ -23,20 +23,20 @@
 \citation{cvtrl2026}
 \citation{causalflow2026}
 \citation{shapley2026}
-\citation{pace2026}
-\citation{vag2026}
-\citation{monitoring2025}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Test-time RL on unlabeled reasoning.}{2}{section*.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Deployment-time adaptation without parameter updates.}{2}{section*.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Deployment-period parameter updates for agents.}{2}{section*.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Counterfactual and sibling-branch credit.}{2}{section*.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Commit gates and risk control.}{2}{section*.5}\protected@file@percent }
+\citation{pace2026}
+\citation{vag2026}
+\citation{monitoring2025}
 \citation{sage2026}
 \citation{seaeval2026}
 \citation{evotest2026}
 \citation{appworld2024}
 \citation{tau2bench2025}
+\@writefile{toc}{\contentsline {paragraph}{Commit gates and risk control.}{3}{section*.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Continual self-improvement.}{3}{section*.6}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Prequential evaluation.}{3}{section*.7}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {3}Problem and Protocol}{3}{section.3}\protected@file@percent }
@@ -46,33 +46,36 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Budgets and identity}{3}{subsection.3.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Environments}{3}{subsection.3.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {4}The Audit Chain}{3}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Environment and protocol}{3}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Environment and protocol}{4}{subsection.4.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Hidden-evaluator isolation}{4}{subsection.4.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Request-scoped common random numbers}{4}{subsection.4.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Cross-task replay with evidence provenance}{4}{subsection.4.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Atomic shadow commits and the pre-commit gate}{4}{subsection.4.5}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces The audit-grade pipeline: accessible evidence ($E_{\mathrm  {hard}}$, green) drives rollouts, signed replay, the shadow candidate, and the pre-commit gate; the official hidden evaluator ($R_{\mathrm  {hidden}}$, red) scores episodes offline and never enters the update loop.}}{4}{figure.caption.8}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
 \newlabel{fig:protocol}{{1}{4}{The audit-grade pipeline: accessible evidence ($E_{\mathrm {hard}}$, green) drives rollouts, signed replay, the shadow candidate, and the pre-commit gate; the official hidden evaluator ($R_{\mathrm {hidden}}$, red) scores episodes offline and never enters the update loop}{figure.caption.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Atomic shadow commits and the pre-commit gate}{4}{subsection.4.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Statistics}{4}{subsection.4.6}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {5}Results}{4}{section.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.1}F1: static serving produces pure-RNG artifacts}{4}{subsection.5.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}F2: evaluator leakage and anchor injection produce phantom transfer}{4}{subsection.5.2}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The three-stage audit arc: each protocol fix changes the conclusion. F1 (static serving): update arms indistinguishable from frozen (96/96 identical outcomes). F2 (leakage): phantom transfer $+0.070$ ($p{=}0.016$). F3 (full isolation): updates significantly harmful ($-0.19$, $p{=}0.008$); the pre-commit gate restores parity.}}{5}{figure.caption.9}\protected@file@percent }
 \newlabel{fig:audit}{{2}{5}{The three-stage audit arc: each protocol fix changes the conclusion. F1 (static serving): update arms indistinguishable from frozen (96/96 identical outcomes). F2 (leakage): phantom transfer $+0.070$ ($p{=}0.016$). F3 (full isolation): updates significantly harmful ($-0.19$, $p{=}0.008$); the pre-commit gate restores parity}{figure.caption.9}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Per-seed AUPC under full protocol isolation (v3): frozen is deterministic across seeds; naive and egc are below frozen on all 8 seeds (exact two-sided $p{=}0.008$).}}{5}{figure.caption.10}\protected@file@percent }
 \newlabel{fig:v3}{{3}{5}{Per-seed AUPC under full protocol isolation (v3): frozen is deterministic across seeds; naive and egc are below frozen on all 8 seeds (exact two-sided $p{=}0.008$)}{figure.caption.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}F2: evaluator leakage and anchor injection produce phantom transfer}{5}{subsection.5.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.3}F3: protocol-correct updates are significantly harmful}{5}{subsection.5.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Gated updates restore parity}{6}{subsection.5.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Update-rule alternatives do not recover transfer}{6}{subsection.5.5}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces F3 mechanism: per-template first-attempt AUPC, frozen vs.\ naive. On both backbones the degradation concentrates on the templates the frozen policy solved, while never-solved templates stay flat (and on Qwen the hardest variant even improves $+0.2$). The update suppresses the action patterns it trained on with mixed credit.}}{6}{figure.caption.11}\protected@file@percent }
-\newlabel{fig:mechanism}{{4}{6}{F3 mechanism: per-template first-attempt AUPC, frozen vs.\^^Mnaive. On both backbones the degradation concentrates on the templates the frozen policy solved, while never-solved templates stay flat (and on Qwen the hardest variant even improves $+0.2$). The update suppresses the action patterns it trained on with mixed credit}{figure.caption.11}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.6}Summary}{6}{subsection.5.6}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {6}Positive Control: Full Task Completion on the Official tau2 Benchmark}{6}{section.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces F3 mechanism: per-template first-attempt AUPC, frozen vs.\ naive. On both backbones the degradation concentrates on the templates the frozen policy solved, while never-solved templates stay flat (and on Qwen the hardest variant even improves $+0.2$). The update suppresses the action patterns it trained on with mixed credit.}}{7}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:mechanism}{{4}{7}{F3 mechanism: per-template first-attempt AUPC, frozen vs.\^^Mnaive. On both backbones the degradation concentrates on the templates the frozen policy solved, while never-solved templates stay flat (and on Qwen the hardest variant even improves $+0.2$). The update suppresses the action patterns it trained on with mixed credit}{figure.caption.11}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.1}The audit arc replicates on the official environment}{7}{subsection.6.1}\protected@file@percent }
 \bibstyle{acl_natbib}
 \bibdata{references}
 \bibcite{causalflow2026}{{1}{2026}{{Bonagiri et~al.}}{{Bonagiri, Borkar, Anderias, Rafatirad, and Homayoun}}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion and Implications}{8}{section.7}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces A successful task-2 trajectory on the official tau2 retail environment (local Qwen2.5-14B): the agent finds the user, counts the 10 \emph  {available} t-shirt variants, communicates the count, locates the items, and executes the three-item return with real ids. The hidden evaluator scores DB $1.0$ and NL-assertion $1.0$.}}{8}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:tau2}{{5}{8}{A successful task-2 trajectory on the official tau2 retail environment (local Qwen2.5-14B): the agent finds the user, counts the 10 \emph {available} t-shirt variants, communicates the count, locates the items, and executes the three-item return with real ids. The hidden evaluator scores DB $1.0$ and NL-assertion $1.0$}{figure.caption.12}{}}
 \bibcite{memopilot2026}{{2}{2026}{{Cai et~al.}}{{}}}
 \bibcite{gtta2026}{{3}{2026}{{Chen et~al.}}{{Chen, Liu, Zhang et~al.}}}
 \bibcite{dare2026}{{4}{2026}{{Du et~al.}}{{Du, Huang, and Li}}}
@@ -82,9 +85,6 @@
 \bibcite{shapley2026}{{8}{2026{b}}{{Li et~al.}}{{Li, Lee, and Bareinboim}}}
 \bibcite{t3rl2026}{{9}{2026}{{Liao et~al.}}{{Liao, R{\"o}hrich, Wang, Zhang, Samadzadeh, Tresp, and Yeung-Levy}}}
 \bibcite{jitrl2026}{{10}{2026}{{Liu et~al.}}{{}}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces A successful task-2 trajectory on the official tau2 retail environment (local Qwen2.5-14B): the agent finds the user, counts the 10 \emph  {available} t-shirt variants, communicates the count, locates the items, and executes the three-item return with real ids. The hidden evaluator scores DB $1.0$ and NL-assertion $1.0$.}}{8}{figure.caption.12}\protected@file@percent }
-\newlabel{fig:tau2}{{5}{8}{A successful task-2 trajectory on the official tau2 retail environment (local Qwen2.5-14B): the agent finds the user, counts the 10 \emph {available} t-shirt variants, communicates the count, locates the items, and executes the three-item return with real ids. The hidden evaluator scores DB $1.0$ and NL-assertion $1.0$}{figure.caption.12}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion and Implications}{8}{section.7}\protected@file@percent }
 \bibcite{pace2026}{{11}{2026}{{Mukherjee et~al.}}{{}}}
 \bibcite{tau2bench2025}{{12}{2025}{{Research}}{{}}}
 \bibcite{monitoring2025}{{13}{2025}{{Schirmer et~al.}}{{Schirmer, Jazbec, Naesseth, and Nalisnick}}}

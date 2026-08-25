@@ -8,7 +8,13 @@ $+0.070$ transfer; full protocol isolation revealed that the same
 updates are significantly \emph{harmful} ($-0.19$, $p{=}0.008$, 0/8
 seeds). A pre-commit gate that validates candidate adapters on
 accessible evidence restored parity with the frozen baseline and
-eliminated harmful commits.
+eliminated harmful commits. Both the harm and the gate's protection
+replicate on a second backbone (Qwen2.5-7B: naive and egc $8/8$ seeds
+below a deterministic frozen baseline, $p{=}0.008$), and the
+conclusion survives on the official \texttt{tau2} benchmark, where
+gated updates never commit and the un-gated update loop changes
+nothing measurable --- while the same serving runtime completes both
+evaluated retail tasks with full reward in 5/10 seeded runs.
 
 Three implications follow. First, \textbf{positive results in agent
 test-time RL should be treated as unverified until served-policy
@@ -16,16 +22,16 @@ identity, evaluator isolation, evidence provenance, and commit safety
 are audited} --- our three failure modes are simple, silent, and
 decisive, and the audit chain that catches them is cheap to run.
 Second, \textbf{the honest baseline may be stronger than the update}:
-at this scale and with this update rule, the fully deterministic
+at this scale and with these update rules, the fully deterministic
 frozen policy is the correct default, and ``no harm'' (gated updates)
 is a positive engineering outcome. Third, \textbf{the release of
 audit-grade harnesses matters}: any pipeline can now be checked for
 these exact failure modes with the provided runtime, gates, and
 integration tests.
 
-Limitations: the audit covers one environment/model/update-rule
-combination; the harmful-update finding and the gate's protective
-effect should be replicated across environments (official tau2,
-AppWorld) and backbones, and the update rule itself (not just its
-safety) needs redesign before agent test-time RL can claim transfer
-at this scale.
+Limitations: the harmful-update finding is established on two backbones
+and one in-house environment, and the no-transfer conclusion replicates
+on the official tau2 environment; the update rule itself (not just its
+safety) needs redesign before agent test-time RL can claim transfer at
+this scale, and further environments (e.g.\ AppWorld) remain to be
+checked.
