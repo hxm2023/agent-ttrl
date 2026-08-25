@@ -76,3 +76,38 @@ reward 1.0) from ``the pipeline cannot safely learn'' (true under the
 clean protocol, F1--F3): the failure to transfer is attributable to the
 update rule and the validation distribution, not to the serving or
 evaluation machinery.
+
+\subsection{The audit arc replicates on the official environment}
+The same stream machinery that produced the F3 finding on the in-house
+CTS stream was run on the official tau2 environment: a 10-task
+prequential stream (retail base tasks 0--9) through the official
+orchestrator, with accessible-evidence credit only (a task is a success
+iff the trajectory contains a mutation call whose id-valued arguments
+all appear in the tool results of the same conversation) and the hidden
+official evaluator's reward recorded for reporting only. Two arms,
+common random numbers across arms:
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+arm & accessible success (seed 0 / seed 1) & commits \\
+\midrule
+frozen & 1/10 (task 2) / 1/10 (task 5) & --- \\
+pair   & 1/10 (task 2) & 0/6 (all gate-rejected) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The pair arm trained a shadow candidate after every task that yielded
+positive and negative rows (six updates over the stream) and submitted
+it to the pre-commit gate; every candidate scored a $0.00$ improvement
+rate on the validation prompt and was discarded. The served policy never
+changed, so the pair arm's trajectory is bit-identical to frozen's on
+seed 0 (including the same task-2 success). The gate's rejection rate is
+the tau2 replication of the v3.2 finding: on this environment the
+candidate's gain does not generalize from the validation instances to
+the production distribution, so the protective gate is a safe no-op and
+agent test-time RL still shows no transfer under the clean protocol.
+Combined with the F3 result on the in-house stream, the audit arc's
+conclusion now holds across two environments, one of them externally
+scored with an official hidden evaluator.
