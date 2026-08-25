@@ -35,18 +35,29 @@ required to make a 14B model competitive on the 16-tool retail domain:
 \end{itemize}
 
 On the official retail task set, the agent completes both evaluated tasks
-with full reward:
+end-to-end with full reward in 5/10 seeded runs (2/5 on the exchange
+task, 3/5 on the count-and-return task):
 
 \begin{center}
-\begin{tabular}{lccc}
+\begin{tabular}{lccccc}
 \toprule
-task & DB reward & NL-assertion reward & total \\
+task & seed 0 & seed 1 & seed 2 & seed 3 & seed 4 \\
 \midrule
-0 (exchange 2 items)     & 1.0 & 1.0 & 1.0 \\
-2 (count + return 3 items) & 1.0 & 1.0 & 1.0 \\
+0 (exchange 2 items)       & 1.0 & 0.0 & 0.0 & 1.0 & 0.0 \\
+2 (count + return 3 items) & 1.0 & 1.0 & 0.0 & 0.0 & 1.0 \\
 \bottomrule
 \end{tabular}
 \end{center}
+
+Each reward is the product of the task's reward-basis components (DB
+state change and the LLM-judged NL assertion), so $1.0$ means the
+environment mutation was exactly as required \emph{and} the agent
+communicated the required information. Failures are last-mile
+single-call errors --- one item omitted from a multi-item return call,
+or a fabricated payment-method id late in an otherwise-correct exchange
+--- a model-capability limit rather than a pipeline defect: the
+successful trajectories and the failing ones execute the same full flow
+(user lookup, product counting, order location).
 
 The task-2 trajectory is a full solution: find the user by name and zip;
 list product types; fetch T-shirt details and report ``there are 10

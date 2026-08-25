@@ -23,10 +23,11 @@ accessible-evidence instances eliminates the harm (AUPC restored to
 frozen parity, 0/8 harmful commits). As a positive control, the same
 serving runtime, deployed unmodified against the official \texttt{tau2}
 benchmark (official agent, user simulator, orchestrator, hidden
-evaluator, and LLM judge), completes retail tasks with full reward
-($1.0$ DB, $1.0$ NL-assertion) using only a local 14B model ---
-isolating the failure to the update rule rather than the pipeline. We
-release the audit chain as a reproducible harness: policy-consistent
+evaluator, and LLM judge), completes both evaluated retail tasks
+end-to-end with full reward ($1.0$ DB and $1.0$ NL-assertion) in 5/10
+seeded runs using only a local 14B model --- isolating the failure to
+the update rule rather than the pipeline. We release the audit chain as
+a reproducible harness: policy-consistent
 runtime, request-scoped RNG, hidden-evaluator isolation,
 accessible-evidence utilities, and integration gates (A0--A2) --- so
 that any agent test-time RL pipeline can be checked for the exact

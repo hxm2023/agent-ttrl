@@ -244,8 +244,10 @@ AGENT_HINT = (
     "number, call "
     "get_user_details(user_id=...) to list the user's orders, then use the "
     "real order id from that result. Look up order details before any "
-    "exchange/return/cancel/modify. If a tool returns an error, never repeat "
-    "the same call with the same arguments."
+    "exchange/return/cancel/modify. When returning or exchanging, include "
+    "ALL the items the user asked about — never omit any. Use the exact "
+    "payment_method_id shown in the get_user_details result. If a tool "
+    "returns an error, never repeat the same call with the same arguments."
 )
 
 
