@@ -1,0 +1,2 @@
+scripts/deploy_m3b.sh: line 13: 198103 Killed                  setsid nohup nice -n 10 $PY -u $REPO/scripts/m3_stream_pilot.py --variant $variant --seed $seed --port $PORT --group-port $GPORT --trainer-gpu 1 --server-gpu 0 > $OUT/${tag}.log 2>&1
+scripts/deploy_m3b.sh: line 13: 201961 Killed                  setsid nohup nice -n 10 $PY -u $REPO/scripts/m3_stream_pilot.py --variant $variant --seed $seed --port $PORT --group-port $GPORT --trainer-gpu 1 --server-gpu 0 > $OUT/${tag}.log 2>&1

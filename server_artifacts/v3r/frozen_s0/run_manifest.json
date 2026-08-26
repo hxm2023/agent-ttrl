@@ -1,0 +1,320 @@
+{
+  "run_id": "v2-cts-frozen-s0",
+  "variant": "frozen",
+  "seed": 0,
+  "model": "/root/autodl-tmp/models/Mistral-7B-Instruct-v0.3",
+  "protocol": "8a1b8530e6c1c53198410f87f5904cc4da35030e31fe20d7f2f1325e6c8ff66a",
+  "aupc_prequential": 0.0,
+  "aupc_episode_end": 0.0,
+  "aupc_heldout_template": 0.0,
+  "held_out_template": "F1_refund_v",
+  "tasks": [
+    {
+      "task": 0,
+      "template": "F1_refund",
+      "y_pre": 0.0,
+      "y_end": 0.0,
+      "hidden": false,
+      "turns": 1,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 0,
+      "updated": false
+    },
+    {
+      "task": 1,
+      "template": "F1_refund_delivered",
+      "y_pre": 0.0,
+      "y_end": 0.0,
+      "hidden": false,
+      "turns": 1,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 0,
+      "updated": false
+    },
+    {
+      "task": 2,
+      "template": "F1_cancel",
+      "y_pre": 0.0,
+      "y_end": 0.0,
+      "hidden": false,
+      "turns": 1,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 0,
+      "updated": false
+    },
+    {
+      "task": 3,
+      "template": "F1_exchange",
+      "y_pre": 0.0,
+      "y_end": 0.0,
+      "hidden": false,
+      "turns": 1,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 0,
+      "updated": false
+    },
+    {
+      "task": 4,
+      "template": "F3_recover",
+      "y_pre": 0.0,
+      "y_end": 0.0,
+      "hidden": false,
+      "turns": 1,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 0,
+      "updated": false
+    },
+    {
+      "task": 5,
+      "template": "F3_recover_v",
+      "y_pre": 0.0,
+      "y_end": 0.0,
+      "hidden": false,
+      "turns": 1,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 0,
+      "updated": false
+    },
+    {
+      "task": 6,
+      "template": "F1_refund",
+      "y_pre": 0.0,
+      "y_end": 0.0,
+      "hidden": false,
+      "turns": 1,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 0,
+      "updated": false
+    },
+    {
+      "task": 7,
+      "template": "F1_refund_delivered",
+      "y_pre": 0.0,
+      "y_end": 0.0,
+      "hidden": false,
+      "turns": 1,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 0,
+      "updated": false
+    },
+    {
+      "task": 8,
+      "template": "F1_cancel",
+      "y_pre": 0.0,
+      "y_end": 0.0,
+      "hidden": false,
+      "turns": 1,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 0,
+      "updated": false
+    },
+    {
+      "task": 9,
+      "template": "F1_exchange",
+      "y_pre": 0.0,
+      "y_end": 0.0,
+      "hidden": false,
+      "turns": 1,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 0,
+      "updated": false
+    },
+    {
+      "task": 10,
+      "template": "F3_recover",
+      "y_pre": 0.0,
+      "y_end": 0.0,
+      "hidden": false,
+      "turns": 1,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 0,
+      "updated": false
+    },
+    {
+      "task": 11,
+      "template": "F3_recover_v",
+      "y_pre": 0.0,
+      "y_end": 0.0,
+      "hidden": false,
+      "turns": 1,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 0,
+      "updated": false
+    },
+    {
+      "task": 12,
+      "template": "F1_refund",
+      "y_pre": 0.0,
+      "y_end": 0.0,
+      "hidden": false,
+      "turns": 1,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 0,
+      "updated": false
+    },
+    {
+      "task": 13,
+      "template": "F1_refund_delivered",
+      "y_pre": 0.0,
+      "y_end": 0.0,
+      "hidden": false,
+      "turns": 1,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 0,
+      "updated": false
+    },
+    {
+      "task": 14,
+      "template": "F1_refund_v",
+      "y_pre": 0.0,
+      "y_end": 0.0,
+      "hidden": false,
+      "turns": 3,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "\n\nrefund_order(order_id=\"order-33\", user_id=\"user-66\")",
+          "n_calls": 1
+        },
+        {
+          "turn": 0,
+          "call": "refund_order({'order_id': 'order-33', 'user_id': 'user-66'})",
+          "obs": "ERR user mismatch"
+        },
+        {
+          "turn": 1,
+          "raw": ": user-66 does not have order-33\nCALL lookup_order({'order_id': 'order-33'})\nOBS ERR order not found: order-33",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 0,
+      "updated": false
+    },
+    {
+      "task": 15,
+      "template": "F1_refund_v",
+      "y_pre": 0.0,
+      "y_end": 0.0,
+      "hidden": false,
+      "turns": 3,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "\n\nrefund_order(order_id=\"order-63\", user_id=\"user-14\")",
+          "n_calls": 1
+        },
+        {
+          "turn": 0,
+          "call": "refund_order({'order_id': 'order-63', 'user_id': 'user-14'})",
+          "obs": "ERR user mismatch"
+        },
+        {
+          "turn": 1,
+          "raw": "\nCALL lookup_user({'user_id': 'user-14'})\nCALL refund_order({'order_id': 'order-63', 'user_id': 'user-14'})",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 0,
+      "updated": false
+    }
+  ],
+  "buffer_stats": {
+    "rows": 6,
+    "anchors": 6,
+    "intents": {
+      "F1_refund": 1,
+      "F1_refund_delivered": 1,
+      "F1_cancel": 1,
+      "F1_exchange": 1,
+      "F3_recover": 1,
+      "F3_recover_v": 1
+    }
+  },
+  "violations": [],
+  "lr": 5e-05,
+  "n_rollouts": 8
+}

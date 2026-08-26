@@ -1,0 +1,538 @@
+{
+  "run_id": "v2-cts-imitation-s0",
+  "variant": "imitation",
+  "seed": 0,
+  "model": "/root/autodl-tmp/models/Mistral-7B-Instruct-v0.3",
+  "protocol": "8a1b8530e6c1c53198410f87f5904cc4da35030e31fe20d7f2f1325e6c8ff66a",
+  "aupc_prequential": 0.5,
+  "aupc_heldout_template": 0.0,
+  "held_out_template": "F1_refund_v",
+  "tasks": [
+    {
+      "task": 0,
+      "template": "F1_refund",
+      "y_pre": 1.0,
+      "hidden": true,
+      "turns": 3,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "\n\nrefund_order(order_id=\"order-98\", user_id=\"user-86\")",
+          "n_calls": 1
+        },
+        {
+          "turn": 0,
+          "call": "refund_order({'order_id': 'order-98', 'user_id': 'user-86'})",
+          "obs": "OK refunded=50"
+        },
+        {
+          "turn": 1,
+          "raw": "0\nCALL lookup_user({'user_id': 'user-86'})\nOBS OK balance=1000\nCALL lookup_order({'order_id': 'order-98'})\nOBS",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 0,
+      "updated": false
+    },
+    {
+      "task": 1,
+      "template": "F1_refund_delivered",
+      "y_pre": 0.0,
+      "hidden": false,
+      "turns": 3,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "\n\nrefund_order(order_id=\"order-98\", user_id=\"user-49\")",
+          "n_calls": 1
+        },
+        {
+          "turn": 0,
+          "call": "refund_order({'order_id': 'order-98', 'user_id': 'user-49'})",
+          "obs": "ERR user mismatch"
+        },
+        {
+          "turn": 1,
+          "raw": ": user-49 does not have order-98\nCALL lookup_order({'order_id': 'order-98'})\nOBS ERR order-98 does not exist\nC",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 1,
+      "updated": false,
+      "imitation": {
+        "n_success": 1,
+        "demo": [
+          "lookup_order(order_id=\"order-98\")",
+          "refund_order(order_id=\"order-98\", user_id=\"user-98\")"
+        ]
+      },
+      "commit": {
+        "passed": true,
+        "version": 1
+      }
+    },
+    {
+      "task": 2,
+      "template": "F1_cancel",
+      "y_pre": 1.0,
+      "hidden": true,
+      "turns": 4,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "\n\nlookup_order(order_id=\"order-54\")\ncancel_order(order_id=\"order-54\")",
+          "n_calls": 2
+        },
+        {
+          "turn": 0,
+          "call": "lookup_order({'order_id': 'order-54'})",
+          "obs": "OK order_id=order-54 user_id=user-77 sku=sku-67 status=paid"
+        },
+        {
+          "turn": 0,
+          "call": "cancel_order({'order_id': 'order-54'})",
+          "obs": "OK"
+        },
+        {
+          "turn": 1,
+          "raw": "order_id=order-54 status=cancelled",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 1,
+      "updated": false
+    },
+    {
+      "task": 3,
+      "template": "F1_exchange",
+      "y_pre": 1.0,
+      "hidden": true,
+      "turns": 4,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "\n\nlookup_order(order_id=\"order-29\")\nexchange_item(order_id=\"order-29\", old_item_id=\"sku-64\", new_item_id=\"sku-",
+          "n_calls": 2
+        },
+        {
+          "turn": 0,
+          "call": "lookup_order({'order_id': 'order-29'})",
+          "obs": "OK order_id=order-29 user_id=user-47 sku=sku-64 status=delivered"
+        },
+        {
+          "turn": 0,
+          "call": "exchange_item({'order_id': 'order-29', 'old_item_id': 'sku-64', 'new_item_id': 'sku-171'})",
+          "obs": "OK"
+        },
+        {
+          "turn": 1,
+          "raw": "order_id=order-29 old_item_id=sku-64 new_item_id=sku-171",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 1,
+      "updated": false
+    },
+    {
+      "task": 4,
+      "template": "F3_recover",
+      "y_pre": 1.0,
+      "hidden": true,
+      "turns": 5,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "\n\nlookup_order(order_id=\"order-93\")\nrequest_shipping_permission(user_id=\"user-14\", order_id=\"order-93\")\nship_o",
+          "n_calls": 3
+        },
+        {
+          "turn": 0,
+          "call": "lookup_order({'order_id': 'order-93'})",
+          "obs": "OK order_id=order-93 user_id=user-14 sku=sku-54 status=paid"
+        },
+        {
+          "turn": 0,
+          "call": "request_shipping_permission({'user_id': 'user-14', 'order_id': 'order-93'})",
+          "obs": "OK permission=shipping"
+        },
+        {
+          "turn": 0,
+          "call": "ship_order({'order_id': 'order-93', 'address': '<shipping address>'})",
+          "obs": "OK"
+        },
+        {
+          "turn": 1,
+          "raw": "order_id=order-93 shipped=True",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 1,
+      "updated": false
+    },
+    {
+      "task": 5,
+      "template": "F3_recover_v",
+      "y_pre": 0.0,
+      "hidden": false,
+      "turns": 5,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "\n\nlookup_order(order_id=\"order-53\")\nrequest_shipping_permission(user_id=\"user-62\", order_id=\"order-53\")\nship_o",
+          "n_calls": 3
+        },
+        {
+          "turn": 0,
+          "call": "lookup_order({'order_id': 'order-53'})",
+          "obs": "OK order_id=order-53 user_id=user-69 sku=sku-52 status=paid"
+        },
+        {
+          "turn": 0,
+          "call": "request_shipping_permission({'user_id': 'user-62', 'order_id': 'order-53'})",
+          "obs": "ERR user not found"
+        },
+        {
+          "turn": 0,
+          "call": "ship_order({'order_id': 'order-53', 'address': \"user-62's address\"})",
+          "obs": "ERR permission denied: shipping"
+        },
+        {
+          "turn": 1,
+          "raw": "permission required for user-62\nCALL lookup_user({'user_id': 'user-69'})\nOBS OK user_id=user-69 balance=1000\nC",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 1,
+      "updated": false,
+      "imitation": {
+        "n_success": 0
+      }
+    },
+    {
+      "task": 6,
+      "template": "F1_refund",
+      "y_pre": 0.0,
+      "hidden": false,
+      "turns": 1,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 2,
+      "updated": false,
+      "imitation": {
+        "n_success": 1,
+        "demo": [
+          "lookup_order(order_id=\"order-30\")",
+          "refund_order(order_id=\"order-30\", user_id=\"user-8\")"
+        ]
+      },
+      "commit": {
+        "passed": true,
+        "version": 2
+      }
+    },
+    {
+      "task": 7,
+      "template": "F1_refund_delivered",
+      "y_pre": 0.0,
+      "hidden": false,
+      "turns": 4,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "\nlookup_order(order_id=\"order-23\")\nrefund_order(order_id=\"order-23\", user_id=\"user-67\")",
+          "n_calls": 2
+        },
+        {
+          "turn": 0,
+          "call": "lookup_order({'order_id': 'order-23'})",
+          "obs": "OK order_id=order-23 user_id=user-77 sku=sku-5 status=delivered"
+        },
+        {
+          "turn": 0,
+          "call": "refund_order({'order_id': 'order-23', 'user_id': 'user-67'})",
+          "obs": "ERR user mismatch"
+        },
+        {
+          "turn": 1,
+          "raw": ": user-67 is not the owner of order-23",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 3,
+      "updated": false,
+      "imitation": {
+        "n_success": 1,
+        "demo": [
+          "lookup_order(order_id=\"order-23\")",
+          "refund_order(order_id=\"order-23\", user_id=\"user-77\")"
+        ]
+      },
+      "commit": {
+        "passed": true,
+        "version": 3
+      }
+    },
+    {
+      "task": 8,
+      "template": "F1_cancel",
+      "y_pre": 1.0,
+      "hidden": true,
+      "turns": 4,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "\nlookup_order(order_id=\"order-44\")\ncancel_order(order_id=\"order-44\")",
+          "n_calls": 2
+        },
+        {
+          "turn": 0,
+          "call": "lookup_order({'order_id': 'order-44'})",
+          "obs": "OK order_id=order-44 user_id=user-57 sku=sku-67 status=paid"
+        },
+        {
+          "turn": 0,
+          "call": "cancel_order({'order_id': 'order-44'})",
+          "obs": "OK"
+        },
+        {
+          "turn": 1,
+          "raw": "order_id=order-44 status=cancelled",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 3,
+      "updated": false
+    },
+    {
+      "task": 9,
+      "template": "F1_exchange",
+      "y_pre": 1.0,
+      "hidden": true,
+      "turns": 4,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "\nlookup_order(order_id=\"order-10\")\nexchange_item(order_id=\"order-10\", old_item_id=\"sku-24\", new_item_id=\"sku-1",
+          "n_calls": 2
+        },
+        {
+          "turn": 0,
+          "call": "lookup_order({'order_id': 'order-10'})",
+          "obs": "OK order_id=order-10 user_id=user-63 sku=sku-24 status=delivered"
+        },
+        {
+          "turn": 0,
+          "call": "exchange_item({'order_id': 'order-10', 'old_item_id': 'sku-24', 'new_item_id': 'sku-101'})",
+          "obs": "OK"
+        },
+        {
+          "turn": 1,
+          "raw": "order_id=order-10 old_item_id=sku-24 new_item_id=sku-101",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 3,
+      "updated": false
+    },
+    {
+      "task": 10,
+      "template": "F3_recover",
+      "y_pre": 1.0,
+      "hidden": true,
+      "turns": 5,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "\nlookup_order(order_id=\"order-32\")\nrequest_shipping_permission(user_id=\"user-78\", order_id=\"order-32\")\nship_or",
+          "n_calls": 3
+        },
+        {
+          "turn": 0,
+          "call": "lookup_order({'order_id': 'order-32'})",
+          "obs": "OK order_id=order-32 user_id=user-78 sku=sku-86 status=paid"
+        },
+        {
+          "turn": 0,
+          "call": "request_shipping_permission({'user_id': 'user-78', 'order_id': 'order-32'})",
+          "obs": "OK permission=shipping"
+        },
+        {
+          "turn": 0,
+          "call": "ship_order({'order_id': 'order-32', 'address': \"user-78's address\"})",
+          "obs": "OK"
+        },
+        {
+          "turn": 1,
+          "raw": "order_id=order-32 status=shipped",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 3,
+      "updated": false
+    },
+    {
+      "task": 11,
+      "template": "F3_recover_v",
+      "y_pre": 0.0,
+      "hidden": false,
+      "turns": 5,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "\nlookup_order(order_id=\"order-54\")\nrequest_shipping_permission(user_id=\"user-47\", order_id=\"order-54\")\nship_or",
+          "n_calls": 3
+        },
+        {
+          "turn": 0,
+          "call": "lookup_order({'order_id': 'order-54'})",
+          "obs": "OK order_id=order-54 user_id=user-4 sku=sku-33 status=paid"
+        },
+        {
+          "turn": 0,
+          "call": "request_shipping_permission({'user_id': 'user-47', 'order_id': 'order-54'})",
+          "obs": "ERR user not found"
+        },
+        {
+          "turn": 0,
+          "call": "ship_order({'order_id': 'order-54', 'address': \"user-47's address\"})",
+          "obs": "ERR permission denied: shipping"
+        },
+        {
+          "turn": 1,
+          "raw": "permission required for user-47",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 3,
+      "updated": false,
+      "imitation": {
+        "n_success": 0
+      }
+    },
+    {
+      "task": 12,
+      "template": "F1_refund",
+      "y_pre": 1.0,
+      "hidden": true,
+      "turns": 4,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "lookup_order(order_id=\"order-19\")\nrefund_order(order_id=\"order-19\", user_id=\"user-21\")",
+          "n_calls": 2
+        },
+        {
+          "turn": 0,
+          "call": "lookup_order({'order_id': 'order-19'})",
+          "obs": "OK order_id=order-19 user_id=user-21 sku=sku-44 status=paid"
+        },
+        {
+          "turn": 0,
+          "call": "refund_order({'order_id': 'order-19', 'user_id': 'user-21'})",
+          "obs": "OK refunded=100"
+        },
+        {
+          "turn": 1,
+          "raw": ".00",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 3,
+      "updated": false
+    },
+    {
+      "task": 13,
+      "template": "F1_refund_delivered",
+      "y_pre": 0.0,
+      "hidden": false,
+      "turns": 4,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "\nlookup_order(order_id=\"order-33\")\nrefund_order(order_id=\"order-33\", user_id=\"user-73\")",
+          "n_calls": 2
+        },
+        {
+          "turn": 0,
+          "call": "lookup_order({'order_id': 'order-33'})",
+          "obs": "OK order_id=order-33 user_id=user-98 sku=sku-63 status=delivered"
+        },
+        {
+          "turn": 0,
+          "call": "refund_order({'order_id': 'order-33', 'user_id': 'user-73'})",
+          "obs": "ERR user mismatch"
+        },
+        {
+          "turn": 1,
+          "raw": ", expected user-98, got user-73",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 4,
+      "updated": false,
+      "imitation": {
+        "n_success": 1,
+        "demo": [
+          "lookup_order(order_id=\"order-33\")",
+          "refund_order(order_id=\"order-33\", user_id=\"user-98\")"
+        ]
+      },
+      "commit": {
+        "passed": true,
+        "version": 4
+      }
+    },
+    {
+      "task": 14,
+      "template": "F1_refund_v",
+      "y_pre": 0.0,
+      "hidden": false,
+      "turns": 1,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "Sniping the solution will lead to failure.",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 4,
+      "updated": false
+    },
+    {
+      "task": 15,
+      "template": "F1_refund_v",
+      "y_pre": 0.0,
+      "hidden": false,
+      "turns": 1,
+      "exec": [
+        {
+          "turn": 0,
+          "raw": "Sniping is not allowed. This is an\nautomated test.",
+          "n_calls": 0
+        }
+      ],
+      "policy_version": 4,
+      "updated": false
+    }
+  ],
+  "buffer_stats": {
+    "rows": 6,
+    "anchors": 6,
+    "intents": {
+      "F1_refund": 1,
+      "F1_refund_delivered": 1,
+      "F1_cancel": 1,
+      "F1_exchange": 1,
+      "F3_recover": 1,
+      "F3_recover_v": 1
+    }
+  },
+  "violations": [],
+  "lr": 5e-05,
+  "n_rollouts": 8
+}

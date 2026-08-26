@@ -1,0 +1,10 @@
+ctl3 start 2026-08-23T12:10:27Z
+start ctl3_naive_s0 2026-08-23T12:10:27Z
+done  ctl3_naive_s0 rc=0 2026-08-23T12:35:37Z
+start ctl3_naive_s1 2026-08-23T12:35:37Z
+done  ctl3_naive_s1 rc=0 2026-08-23T13:00:59Z
+start ctl3_naive_s2 2026-08-23T13:00:59Z
+done  ctl3_naive_s2 rc=0 2026-08-23T13:27:01Z
+start ctl3_naive_s3 2026-08-23T13:27:01Z
+done  ctl3_naive_s3 rc=0 2026-08-23T13:53:36Z
+ctl3 done 2026-08-23T13:53:36Z

@@ -1,0 +1,167 @@
+{
+  "run_id": "m6-frozen-stream",
+  "variant": "frozen",
+  "aupc_prequential": 0.0,
+  "tasks": [
+    {
+      "task": 0,
+      "task_id": "0",
+      "y_pre": 0.0,
+      "eval": {
+        "calls": 4,
+        "matched": 0,
+        "ok": true,
+        "pass_pct": 0.0,
+        "success": false,
+        "total": 5
+      },
+      "turns": [
+        {
+          "turn": 3,
+          "call": "return_delivered_order_items()",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {}, \"name\": \"return_delivered_order_items\"}, \"error\": \"RetailTools.return_delivered_order_items() missing 3 required positional arguments: 'order_id', 'item_ids', and 'payment_method_id'\", \"o"
+        },
+        {
+          "turn": 4,
+          "call": "return_delivered_order_items(o_id=..., i_id=..., r_id=...)",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {\"i_id\": \"...\", \"o_id\": \"...\", \"r_id\": \"...\"}, \"name\": \"return_delivered_order_items\"}, \"error\": \"RetailTools.return_delivered_order_items() got an unexpected keyword argument 'o_id'\", \"ok\": "
+        },
+        {
+          "turn": 5,
+          "call": "return_delivered_order_items(o_id=..., i_id=..., r_id=...)",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {\"i_id\": \"...\", \"o_id\": \"...\", \"r_id\": \"...\"}, \"name\": \"return_delivered_order_items\"}, \"error\": \"RetailTools.return_delivered_order_items() got an unexpected keyword argument 'o_id'\", \"ok\": "
+        },
+        {
+          "turn": 5,
+          "call": "return_delivered_order_items(o_id=12345, i_id=67890, r_id=54321)",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {\"i_id\": \"67890\", \"o_id\": \"12345\", \"r_id\": \"54321\"}, \"name\": \"return_delivered_order_items\"}, \"error\": \"RetailTools.return_delivered_order_items() got an unexpected keyword argument 'o_id'\", "
+        }
+      ]
+    },
+    {
+      "task": 1,
+      "task_id": "1",
+      "y_pre": 0.0,
+      "eval": {
+        "calls": 0,
+        "matched": 0,
+        "ok": true,
+        "pass_pct": 0.0,
+        "success": false,
+        "total": 5
+      },
+      "turns": []
+    },
+    {
+      "task": 2,
+      "task_id": "2",
+      "y_pre": 0.0,
+      "eval": {
+        "calls": 11,
+        "matched": 0,
+        "ok": true,
+        "pass_pct": 0.0,
+        "success": false,
+        "total": 11
+      },
+      "turns": [
+        {
+          "turn": 0,
+          "call": "return_delivered_order_items(order_id=\"#123456\", item_details=\"blue sweater\")",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {\"item_details\": \"blue sweater\", \"order_id\": \"#123456\"}, \"name\": \"return_delivered_order_items\"}, \"error\": \"RetailTools.return_delivered_order_items() got an unexpected keyword argument 'item"
+        },
+        {
+          "turn": 2,
+          "call": "exchange_delivered_order_items(order_id=\"#123456\", item_details=\"blue sweater\", new_item_details=\"red sweater\")",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {\"item_details\": \"blue sweater\", \"new_item_details\": \"red sweater\", \"order_id\": \"#123456\"}, \"name\": \"exchange_delivered_order_items\"}, \"error\": \"RetailTools.exchange_delivered_order_items() g"
+        },
+        {
+          "turn": 3,
+          "call": "cancel_pending_order(order_id=\"#123456\")",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {\"order_id\": \"#123456\"}, \"name\": \"cancel_pending_order\"}, \"error\": \"RetailTools.cancel_pending_order() missing 1 required positional argument: 'reason'\", \"ok\": false}]}"
+        },
+        {
+          "turn": 3,
+          "call": "modify_pending_order_address(order_id=\"#123456\", new_address=\"123 Main St\", explanation=\"Changing address to 123 Main St\")",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {\"explanation\": \"Changing address to 123 Main St\", \"new_address\": \"123 Main St\", \"order_id\": \"#123456\"}, \"name\": \"modify_pending_order_address\"}, \"error\": \"RetailTools.modify_pending_order_ad"
+        },
+        {
+          "turn": 3,
+          "call": "modify_pending_order_items(order_id=\"#123456\", item_details=\"blue sweater\", new_item_details=\"red sweater\", explanation=\"Exchanging blue sweater for red sweater\")",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {\"explanation\": \"Exchanging blue sweater for red sweater\", \"item_details\": \"blue sweater\", \"new_item_details\": \"red sweater\", \"order_id\": \"#123456\"}, \"name\": \"modify_pending_order_items\"}, \"e"
+        },
+        {
+          "turn": 4,
+          "call": "modify_pending_order_items()",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {}, \"name\": \"modify_pending_order_items\"}, \"error\": \"RetailTools.modify_pending_order_items() missing 4 required positional arguments: 'order_id', 'item_ids', 'new_item_ids', and 'payment_met"
+        },
+        {
+          "turn": 4,
+          "call": "exchange_delivered_order_items(order_id=\"#123456\", item_details=\"blue sweater\", new_item_details=\"red sweater\")",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {\"item_details\": \"blue sweater\", \"new_item_details\": \"red sweater\", \"order_id\": \"#123456\"}, \"name\": \"exchange_delivered_order_items\"}, \"error\": \"RetailTools.exchange_delivered_order_items() g"
+        },
+        {
+          "turn": 5,
+          "call": "exchange_delivered_order_items()",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {}, \"name\": \"exchange_delivered_order_items\"}, \"error\": \"RetailTools.exchange_delivered_order_items() missing 4 required positional arguments: 'order_id', 'item_ids', 'new_item_ids', and 'pay"
+        },
+        {
+          "turn": 5,
+          "call": "exchange_delivered_order_items(order_id=\"#123456\", item_details=\"blue sweater\", new_item_details=\"red sweater\")",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {\"item_details\": \"blue sweater\", \"new_item_details\": \"red sweater\", \"order_id\": \"#123456\"}, \"name\": \"exchange_delivered_order_items\"}, \"error\": \"RetailTools.exchange_delivered_order_items() g"
+        },
+        {
+          "turn": 5,
+          "call": "return_delivered_order_items(order_id, item_details)",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {}, \"name\": \"return_delivered_order_items\"}, \"error\": \"RetailTools.return_delivered_order_items() missing 3 required positional arguments: 'order_id', 'item_ids', and 'payment_method_id'\", \"o"
+        },
+        {
+          "turn": 5,
+          "call": "exchange_delivered_order_items(order_id, item_details, new_item_details)",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {}, \"name\": \"exchange_delivered_order_items\"}, \"error\": \"RetailTools.exchange_delivered_order_items() missing 4 required positional arguments: 'order_id', 'item_ids', 'new_item_ids', and 'pay"
+        }
+      ]
+    },
+    {
+      "task": 3,
+      "task_id": "3",
+      "y_pre": 0.0,
+      "eval": {
+        "calls": 5,
+        "matched": 0,
+        "ok": true,
+        "pass_pct": 0.0,
+        "success": false,
+        "total": 12
+      },
+      "turns": [
+        {
+          "turn": 0,
+          "call": "return_delivered_order_items(order_id=\"user_order_123\", item_ids=[\"item_456\", \"item_789\"])",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {\"item_ids\": \"[\\\"item_456\", \"order_id\": \"user_order_123\"}, \"name\": \"return_delivered_order_items\"}, \"error\": \"RetailTools.return_delivered_order_items() missing 1 required positional argument"
+        },
+        {
+          "turn": 1,
+          "call": "return_delivered_order_items(order_id=\"user_order_123\", item_ids=[\"item_789\"])",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {\"item_ids\": \"[\\\"item_789\\\"]\", \"order_id\": \"user_order_123\"}, \"name\": \"return_delivered_order_items\"}, \"error\": \"RetailTools.return_delivered_order_items() missing 1 required positional argum"
+        },
+        {
+          "turn": 2,
+          "call": "return_delivered_order_items(order_id=\"user_order_123\", item_ids=[\"item_789\"])",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {\"item_ids\": \"[\\\"item_789\\\"]\", \"order_id\": \"user_order_123\"}, \"name\": \"return_delivered_order_items\"}, \"error\": \"RetailTools.return_delivered_order_items() missing 1 required positional argum"
+        },
+        {
+          "turn": 3,
+          "call": "return_delivered_order_items(order_id=\"user_order_123\", item_ids=[\"item_456\"])",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {\"item_ids\": \"[\\\"item_456\\\"]\", \"order_id\": \"user_order_123\"}, \"name\": \"return_delivered_order_items\"}, \"error\": \"RetailTools.return_delivered_order_items() missing 1 required positional argum"
+        },
+        {
+          "turn": 4,
+          "call": "item(s)",
+          "obs": "{\"n_ok\": 0, \"ok\": true, \"outputs\": [{\"call\": {\"arguments\": {}, \"name\": \"item\"}, \"error\": \"Tool 'item' not found.\", \"ok\": false}]}"
+        }
+      ]
+    }
+  ],
+  "parallel_with": "GRPO-Guard-idle"
+}

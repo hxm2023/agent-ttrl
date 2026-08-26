@@ -1,0 +1,25 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/291 [00:00<?, ?it/s]Loading weights:   1%|▏         | 4/291 [00:00<00:09, 30.80it/s]Loading weights:   8%|▊         | 22/291 [00:00<00:02, 103.29it/s]Loading weights:  11%|█▏        | 33/291 [00:00<00:02, 98.37it/s] Loading weights:  17%|█▋        | 49/291 [00:00<00:02, 113.77it/s]Loading weights:  21%|██        | 61/291 [00:00<00:02, 112.85it/s]Loading weights:  26%|██▌       | 76/291 [00:00<00:01, 124.39it/s]Loading weights:  31%|███       | 89/291 [00:00<00:01, 119.58it/s]Loading weights:  36%|███▌      | 104/291 [00:00<00:01, 128.34it/s]Loading weights:  41%|████      | 118/291 [00:01<00:01, 128.35it/s]Loading weights:  45%|████▌     | 131/291 [00:01<00:01, 128.67it/s]Loading weights:  49%|████▉     | 144/291 [00:01<00:01, 128.11it/s]Loading weights:  54%|█████▍    | 158/291 [00:01<00:01, 124.96it/s]Loading weights:  60%|██████    | 175/291 [00:01<00:00, 135.86it/s]Loading weights:  65%|██████▍   | 189/291 [00:01<00:00, 135.92it/s]Loading weights:  70%|███████   | 204/291 [00:01<00:00, 131.52it/s]Loading weights:  76%|███████▌  | 221/291 [00:01<00:00, 137.41it/s]Loading weights:  82%|████████▏ | 238/291 [00:01<00:00, 140.33it/s]Loading weights:  87%|████████▋ | 253/291 [00:02<00:00, 136.81it/s]Loading weights:  92%|█████████▏| 267/291 [00:02<00:00, 126.62it/s]Loading weights:  96%|█████████▌| 280/291 [00:02<00:00, 124.87it/s]Loading weights: 100%|██████████| 291/291 [00:02<00:00, 126.74it/s]
+[v2] held-out template: F1_refund_v; adapt: ['F1_refund', 'F1_refund_delivered', 'F1_cancel', 'F1_exchange', 'F3_recover', 'F3_recover_v']
+[v2] t0 F1_refund: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] imitation t1: demo construction failed
+[v2] t1 F1_refund_delivered: y_pre=0.0 hidden=False v0 {'updated': False, 'imitation': {'n_success': 0}}
+[v2] t2 F1_cancel: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] t3 F1_exchange: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] t4 F3_recover: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] imitation t5: demo construction failed
+[v2] t5 F3_recover_v: y_pre=0.0 hidden=False v0 {'updated': False, 'imitation': {'n_success': 0}}
+[v2] t6 F1_refund: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] imitation t7: demo construction failed
+[v2] t7 F1_refund_delivered: y_pre=0.0 hidden=False v0 {'updated': False, 'imitation': {'n_success': 0}}
+[v2] t8 F1_cancel: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] t9 F1_exchange: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] t10 F3_recover: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] imitation t11: demo construction failed
+[v2] t11 F3_recover_v: y_pre=0.0 hidden=False v0 {'updated': False, 'imitation': {'n_success': 0}}
+[v2] t12 F1_refund: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] imitation t13: demo construction failed
+[v2] t13 F1_refund_delivered: y_pre=0.0 hidden=False v0 {'updated': False, 'imitation': {'n_success': 0}}
+[v2] t14 F1_refund_v: y_pre=0.0 hidden=False v0 {'updated': False}
+[v2] t15 F1_refund_v: y_pre=0.0 hidden=False v0 {'updated': False}
+[v2] AUPC=0.5625 heldout=0.0000 violations=0

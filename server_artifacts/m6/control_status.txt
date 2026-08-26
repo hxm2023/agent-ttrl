@@ -1,0 +1,18 @@
+control start 2026-08-23T11:24:56Z
+start ctl_frozen_s0 2026-08-23T11:24:56Z
+done  ctl_frozen_s0 rc=0 2026-08-23T11:31:17Z
+start ctl_frozen_s1 2026-08-23T11:31:17Z
+done  ctl_frozen_s1 rc=0 2026-08-23T11:37:35Z
+start ctl_frozen_s2 2026-08-23T11:37:35Z
+done  ctl_frozen_s2 rc=0 2026-08-23T11:43:54Z
+start ctl_frozen_s3 2026-08-23T11:43:54Z
+done  ctl_frozen_s3 rc=0 2026-08-23T11:50:15Z
+start ctl_naive_s0 2026-08-23T11:50:15Z
+done  ctl_naive_s0 rc=1 2026-08-23T11:52:35Z
+start ctl_naive_s1 2026-08-23T11:52:35Z
+done  ctl_naive_s1 rc=1 2026-08-23T11:54:57Z
+start ctl_naive_s2 2026-08-23T11:54:57Z
+done  ctl_naive_s2 rc=1 2026-08-23T11:57:22Z
+start ctl_naive_s3 2026-08-23T11:57:22Z
+done  ctl_naive_s3 rc=1 2026-08-23T12:00:12Z
+control done 2026-08-23T12:00:12Z

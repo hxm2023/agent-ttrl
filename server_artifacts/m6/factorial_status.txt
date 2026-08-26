@@ -1,0 +1,20 @@
+factorial start 2026-08-23T09:20:03Z
+start frozen_m7_s0 2026-08-23T09:20:03Z
+done  frozen_m7_s0 rc=0 2026-08-23T09:23:59Z
+start frozen_m7_s1 2026-08-23T09:23:59Z
+done  frozen_m7_s1 rc=0 2026-08-23T09:27:57Z
+start frozen_m7_s2 2026-08-23T09:27:57Z
+done  frozen_m7_s2 rc=0 2026-08-23T09:31:58Z
+start naive_m7_s0 2026-08-23T09:31:58Z
+done  naive_m7_s0 rc=0 2026-08-23T09:37:25Z
+start naive_m7_s1 2026-08-23T09:37:25Z
+done  naive_m7_s1 rc=0 2026-08-23T09:42:49Z
+start naive_m7_s2 2026-08-23T09:42:49Z
+done  naive_m7_s2 rc=0 2026-08-23T09:48:22Z
+start egc_m7_s0 2026-08-23T09:48:22Z
+done  egc_m7_s0 rc=0 2026-08-23T09:52:10Z
+start egc_m7_s1 2026-08-23T09:52:10Z
+done  egc_m7_s1 rc=0 2026-08-23T09:56:02Z
+start egc_m7_s2 2026-08-23T09:56:02Z
+done  egc_m7_s2 rc=0 2026-08-23T09:59:56Z
+factorial done 2026-08-23T09:59:56Z

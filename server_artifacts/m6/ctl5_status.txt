@@ -1,0 +1,39 @@
+ctl5 start 2026-08-23T13:54:19Z
+start ctl5_egc_s0 2026-08-23T13:54:19Z
+done  ctl5_egc_s0 rc=137 2026-08-23T14:19:30Z
+start ctl5_egc_s1 2026-08-23T14:19:30Z
+NOTE: ctl5_egc_s0 crashed at task 6 (vLLM server killed by orphan-cleanup pkill 14:03Z); manually restarted 14:20Z running in parallel with s1
+done  ctl5_egc_s1 rc=1 2026-08-23T14:25:52Z
+start ctl5_egc_s2 2026-08-23T14:25:52Z
+done  ctl5_egc_s2 rc=137 2026-08-23T14:27:52Z
+start ctl5_egc_s3 2026-08-23T14:27:52Z
+ctl5b start 2026-08-23T14:28:26Z
+start ctl5_egc_s0 (ctl5b) 2026-08-23T14:28:26Z
+done  ctl5_egc_s0 (ctl5b) rc=137 2026-08-23T14:42:53Z
+start ctl5_egc_s1 (ctl5b) 2026-08-23T14:42:53Z
+ctl5b start 2026-08-23T14:43:34Z
+start ctl5_egc_s0 (ctl5b) 2026-08-23T14:43:34Z
+done  ctl5_egc_s0 (ctl5b) rc=1 2026-08-23T14:49:57Z
+start ctl5_egc_s1 (ctl5b) 2026-08-23T14:49:57Z
+ctl5b start 2026-08-23T14:55:58Z
+start ctl5_egc_s0 (ctl5b) 2026-08-23T14:55:58Z
+done  ctl5_egc_s1 (ctl5b) rc=1 2026-08-23T14:56:23Z
+start ctl5_egc_s2 (ctl5b) 2026-08-23T14:56:23Z
+ctl5b start 2026-08-23T15:13:30Z
+start ctl5_egc_s0 (ctl5b) 2026-08-23T15:13:30Z
+done  ctl5_egc_s0 (ctl5b) rc=0 2026-08-23T15:35:13Z
+start ctl5_egc_s1 (ctl5b) 2026-08-23T15:35:13Z
+done  ctl5_egc_s1 (ctl5b) rc=0 2026-08-23T15:56:31Z
+start ctl5_egc_s2 (ctl5b) 2026-08-23T15:56:31Z
+ctl5c start 2026-08-23T18:06:08Z
+start ctl5_egc_s2 (ctl5c) 2026-08-23T18:06:08Z
+done  ctl5_egc_s2 (ctl5c) rc=137 2026-08-23T18:23:54Z
+start ctl5_egc_s3 (ctl5c) 2026-08-23T18:23:54Z
+done  ctl5_egc_s3 (ctl5c) rc=137 2026-08-23T18:40:44Z
+ctl5c done 2026-08-23T18:40:44Z
+ctl5c start 2026-08-23T19:06:39Z
+start ctl5_egc_s2 (ctl5c) 2026-08-23T19:06:39Z
+done  ctl5_egc_s2 (ctl5c) rc=0 2026-08-23T19:27:54Z
+start ctl5_egc_s3 (ctl5c) 2026-08-23T19:27:54Z
+done  ctl5_egc_s3 (ctl5c) rc=0 2026-08-23T19:49:31Z
+ctl5c done 2026-08-23T19:49:31Z

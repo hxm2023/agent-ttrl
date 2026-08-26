@@ -1,0 +1,32 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   0%|          | 1/339 [00:00<00:55,  6.14it/s]Loading weights:   1%|          | 2/339 [00:00<00:57,  5.83it/s]Loading weights:   5%|▍         | 16/339 [00:00<00:06, 49.91it/s]Loading weights:   9%|▉         | 30/339 [00:00<00:04, 74.52it/s]Loading weights:  15%|█▌        | 52/339 [00:00<00:02, 114.43it/s]Loading weights:  19%|█▉        | 65/339 [00:00<00:02, 111.57it/s]Loading weights:  26%|██▌       | 88/339 [00:00<00:01, 142.81it/s]Loading weights:  31%|███       | 104/339 [00:01<00:01, 140.44it/s]Loading weights:  35%|███▌      | 119/339 [00:01<00:01, 142.56it/s]Loading weights:  40%|████      | 137/339 [00:01<00:01, 149.51it/s]Loading weights:  47%|████▋     | 160/339 [00:01<00:01, 165.69it/s]Loading weights:  52%|█████▏    | 177/339 [00:01<00:00, 163.75it/s]Loading weights:  58%|█████▊    | 196/339 [00:01<00:00, 170.67it/s]Loading weights:  63%|██████▎   | 214/339 [00:01<00:00, 160.66it/s]Loading weights:  68%|██████▊   | 232/339 [00:01<00:00, 164.80it/s]Loading weights:  73%|███████▎  | 249/339 [00:01<00:00, 153.28it/s]Loading weights:  79%|███████▉  | 268/339 [00:02<00:00, 159.75it/s]Loading weights:  84%|████████▍ | 285/339 [00:02<00:00, 153.11it/s]Loading weights:  90%|████████▉ | 304/339 [00:02<00:00, 161.27it/s]Loading weights:  95%|█████████▍| 321/339 [00:02<00:00, 155.16it/s]Loading weights: 100%|██████████| 339/339 [00:02<00:00, 138.47it/s]
+[v2] held-out template: F1_refund_v; adapt: ['F1_refund', 'F1_refund_delivered', 'F1_cancel', 'F1_exchange', 'F3_recover', 'F3_recover_v']
+[v2] imitation t0: 8 successes, commit=True v1
+[v2] t0 F1_refund: y_pre=1.0 hidden=True v1 {'updated': False, 'commit': {'passed': True, 'version': 1}, 'imitation': {'n_rollouts': 8, 'n_success': 8}}
+[v2] imitation t1: 5 successes, commit=True v2
+[v2] t1 F1_refund_delivered: y_pre=1.0 hidden=True v2 {'updated': False, 'commit': {'passed': True, 'version': 2}, 'imitation': {'n_rollouts': 8, 'n_success': 5}}
+[v2] imitation t2: 8 successes, commit=True v3
+[v2] t2 F1_cancel: y_pre=1.0 hidden=True v3 {'updated': False, 'commit': {'passed': True, 'version': 3}, 'imitation': {'n_rollouts': 8, 'n_success': 8}}
+[v2] imitation t3: 8 successes, commit=True v4
+[v2] t3 F1_exchange: y_pre=0.0 hidden=False v4 {'updated': False, 'commit': {'passed': True, 'version': 4}, 'imitation': {'n_rollouts': 8, 'n_success': 8}}
+[v2] imitation t4: 8 successes, commit=True v5
+[v2] t4 F3_recover: y_pre=1.0 hidden=True v5 {'updated': False, 'commit': {'passed': True, 'version': 5}, 'imitation': {'n_rollouts': 8, 'n_success': 8}}
+[v2] imitation t5: 2 successes, commit=True v6
+[v2] t5 F3_recover_v: y_pre=0.0 hidden=False v6 {'updated': False, 'commit': {'passed': True, 'version': 6}, 'imitation': {'n_rollouts': 8, 'n_success': 2}}
+[v2] imitation t6: 8 successes, commit=True v7
+[v2] t6 F1_refund: y_pre=1.0 hidden=True v7 {'updated': False, 'commit': {'passed': True, 'version': 7}, 'imitation': {'n_rollouts': 8, 'n_success': 8}}
+[v2] imitation t7: 1 successes, commit=True v8
+[v2] t7 F1_refund_delivered: y_pre=1.0 hidden=True v8 {'updated': False, 'commit': {'passed': True, 'version': 8}, 'imitation': {'n_rollouts': 8, 'n_success': 1}}
+[v2] imitation t8: 8 successes, commit=True v9
+[v2] t8 F1_cancel: y_pre=1.0 hidden=True v9 {'updated': False, 'commit': {'passed': True, 'version': 9}, 'imitation': {'n_rollouts': 8, 'n_success': 8}}
+[v2] imitation t9: 8 successes, commit=True v10
+[v2] t9 F1_exchange: y_pre=0.0 hidden=False v10 {'updated': False, 'commit': {'passed': True, 'version': 10}, 'imitation': {'n_rollouts': 8, 'n_success': 8}}
+[v2] imitation t10: 8 successes, commit=True v11
+[v2] t10 F3_recover: y_pre=1.0 hidden=True v11 {'updated': False, 'commit': {'passed': True, 'version': 11}, 'imitation': {'n_rollouts': 8, 'n_success': 8}}
+[v2] t11 F3_recover_v: y_pre=0.0 hidden=False v11 {'updated': False, 'imitation': {'n_rollouts': 8, 'n_success': 0}}
+[v2] imitation t12: 8 successes, commit=True v12
+[v2] t12 F1_refund: y_pre=1.0 hidden=True v12 {'updated': False, 'commit': {'passed': True, 'version': 12}, 'imitation': {'n_rollouts': 8, 'n_success': 8}}
+[v2] t13 F1_refund_delivered: y_pre=0.0 hidden=False v12 {'updated': False, 'imitation': {'n_rollouts': 8, 'n_success': 0}}
+[v2] t14 F1_refund_v: y_pre=0.0 hidden=False v12 {'updated': False}
+[v2] t15 F1_refund_v: y_pre=0.0 hidden=False v12 {'updated': False}
+[v2] AUPC=0.5625 heldout=0.0000 violations=0

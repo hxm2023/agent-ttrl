@@ -1,0 +1,1 @@
+scripts/deploy_v2_cts_matrix.sh: line 11: 674601 Killed                  setsid nohup nice -n 10 env PYTHONPATH=src $PY -u $REPO/scripts/cts_v2_stream.py --variant $variant --seed $seed --n-tasks 8 --model $MODEL --device cuda:1 > $OUT/${tag}.log 2>&1

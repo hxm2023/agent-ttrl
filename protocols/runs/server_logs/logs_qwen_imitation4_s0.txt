@@ -1,0 +1,44 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   0%|          | 1/339 [00:00<05:08,  1.10it/s]Loading weights:   1%|          | 2/339 [00:01<05:12,  1.08it/s]Loading weights:   1%|          | 4/339 [00:01<02:07,  2.62it/s]Loading weights:   1%|▏         | 5/339 [00:02<01:40,  3.34it/s]Loading weights:   2%|▏         | 6/339 [00:02<01:21,  4.10it/s]Loading weights:   5%|▍         | 16/339 [00:02<00:19, 16.54it/s]Loading weights:   6%|▌         | 19/339 [00:02<00:20, 15.25it/s]Loading weights:   8%|▊         | 28/339 [00:02<00:12, 24.47it/s]Loading weights:   9%|▉         | 32/339 [00:03<00:14, 21.63it/s]Loading weights:  12%|█▏        | 40/339 [00:03<00:10, 28.04it/s]Loading weights:  13%|█▎        | 44/339 [00:03<00:12, 23.36it/s]Loading weights:  15%|█▌        | 52/339 [00:03<00:09, 30.23it/s]Loading weights:  17%|█▋        | 56/339 [00:03<00:11, 25.29it/s]Loading weights:  19%|█▉        | 64/339 [00:04<00:08, 31.37it/s]Loading weights:  20%|██        | 68/339 [00:04<00:10, 26.22it/s]Loading weights:  22%|██▏       | 76/339 [00:04<00:09, 26.97it/s]Loading weights:  23%|██▎       | 79/339 [00:04<00:09, 26.43it/s]Loading weights:  25%|██▌       | 86/339 [00:04<00:08, 30.52it/s]Loading weights:  27%|██▋       | 90/339 [00:05<00:09, 26.08it/s]Loading weights:  28%|██▊       | 96/339 [00:05<00:09, 24.31it/s]Loading weights:  30%|███       | 102/339 [00:05<00:08, 29.33it/s]Loading weights:  32%|███▏      | 109/339 [00:05<00:07, 31.60it/s]Loading weights:  34%|███▎      | 114/339 [00:06<00:11, 20.45it/s]Loading weights:  37%|███▋      | 126/339 [00:06<00:06, 32.68it/s]Loading weights:  40%|███▉      | 134/339 [00:06<00:05, 35.44it/s]Loading weights:  41%|████      | 139/339 [00:06<00:06, 30.66it/s]Loading weights:  42%|████▏     | 144/339 [00:06<00:06, 30.58it/s]Loading weights:  44%|████▍     | 149/339 [00:06<00:05, 33.39it/s]Loading weights:  45%|████▌     | 153/339 [00:07<00:05, 32.44it/s]Loading weights:  46%|████▋     | 157/339 [00:07<00:06, 29.35it/s]Loading weights:  48%|████▊     | 162/339 [00:07<00:06, 26.55it/s]Loading weights:  51%|█████     | 172/339 [00:07<00:04, 35.91it/s]Loading weights:  52%|█████▏    | 176/339 [00:07<00:05, 29.03it/s]Loading weights:  54%|█████▍    | 184/339 [00:08<00:04, 34.32it/s]Loading weights:  55%|█████▌    | 188/339 [00:08<00:05, 27.81it/s]Loading weights:  58%|█████▊    | 196/339 [00:08<00:04, 33.44it/s]Loading weights:  59%|█████▉    | 200/339 [00:08<00:05, 27.06it/s]Loading weights:  61%|██████▏   | 208/339 [00:08<00:04, 32.44it/s]Loading weights:  63%|██████▎   | 212/339 [00:09<00:04, 27.02it/s]Loading weights:  64%|██████▍   | 218/339 [00:09<00:04, 29.21it/s]Loading weights:  65%|██████▌   | 222/339 [00:09<00:04, 25.89it/s]Loading weights:  68%|██████▊   | 232/339 [00:09<00:03, 34.50it/s]Loading weights:  70%|██████▉   | 236/339 [00:09<00:03, 28.58it/s]Loading weights:  72%|███████▏  | 244/339 [00:10<00:02, 33.97it/s]Loading weights:  73%|███████▎  | 248/339 [00:10<00:03, 28.27it/s]Loading weights:  75%|███████▍  | 254/339 [00:10<00:02, 30.24it/s]Loading weights:  76%|███████▌  | 258/339 [00:10<00:03, 26.51it/s]Loading weights:  78%|███████▊  | 266/339 [00:10<00:02, 31.64it/s]Loading weights:  80%|███████▉  | 270/339 [00:11<00:02, 26.93it/s]Loading weights:  83%|████████▎ | 280/339 [00:11<00:01, 35.40it/s]Loading weights:  84%|████████▍ | 284/339 [00:11<00:01, 28.31it/s]Loading weights:  86%|████████▌ | 292/339 [00:11<00:01, 33.56it/s]Loading weights:  87%|████████▋ | 296/339 [00:11<00:01, 27.30it/s]Loading weights:  90%|████████▉ | 304/339 [00:12<00:01, 32.66it/s]Loading weights:  91%|█████████ | 308/339 [00:12<00:01, 27.25it/s]Loading weights:  93%|█████████▎| 316/339 [00:12<00:00, 33.13it/s]Loading weights:  94%|█████████▍| 320/339 [00:12<00:00, 27.44it/s]Loading weights:  96%|█████████▌| 326/339 [00:12<00:00, 29.60it/s]Loading weights:  97%|█████████▋| 330/339 [00:13<00:00, 26.02it/s]Loading weights: 100%|██████████| 339/339 [00:13<00:00, 25.74it/s]
+[v2] held-out template: F1_refund_v; adapt: ['F1_refund', 'F1_refund_delivered', 'F1_cancel', 'F1_exchange', 'F3_recover', 'F3_recover_v']
+[v2] imitation t0: 8 successes, gate=0.00
+[v2] imitation commit t0: passed=True v1
+[v2] t0 F1_refund: y_pre=1.0 hidden=True v1 {'updated': False, 'commit': {'passed': True, 'version': 1}, 'imitation': {'n_rollouts': 8, 'n_success': 8}}
+[v2] imitation t1: 6 successes, gate=0.00
+[v2] imitation commit t1: passed=True v2
+[v2] t1 F1_refund_delivered: y_pre=1.0 hidden=True v2 {'updated': False, 'commit': {'passed': True, 'version': 2}, 'imitation': {'n_rollouts': 8, 'n_success': 6}}
+[v2] imitation t2: 8 successes, gate=0.00
+[v2] imitation commit t2: passed=True v3
+[v2] t2 F1_cancel: y_pre=1.0 hidden=True v3 {'updated': False, 'commit': {'passed': True, 'version': 3}, 'imitation': {'n_rollouts': 8, 'n_success': 8}}
+[v2] imitation t3: 8 successes, gate=0.00
+[v2] imitation commit t3: passed=True v4
+[v2] t3 F1_exchange: y_pre=0.0 hidden=False v4 {'updated': False, 'commit': {'passed': True, 'version': 4}, 'imitation': {'n_rollouts': 8, 'n_success': 8}}
+[v2] imitation t4: 4 successes, gate=0.00
+[v2] imitation commit t4: passed=True v5
+[v2] t4 F3_recover: y_pre=1.0 hidden=True v5 {'updated': False, 'commit': {'passed': True, 'version': 5}, 'imitation': {'n_rollouts': 8, 'n_success': 4}}
+[v2] t5 F3_recover_v: y_pre=0.0 hidden=False v5 {'updated': False, 'imitation': {'n_rollouts': 8, 'n_success': 0}}
+[v2] imitation t6: 8 successes, gate=0.00
+[v2] imitation commit t6: passed=True v6
+[v2] t6 F1_refund: y_pre=1.0 hidden=True v6 {'updated': False, 'commit': {'passed': True, 'version': 6}, 'imitation': {'n_rollouts': 8, 'n_success': 8}}
+[v2] imitation t7: 8 successes, gate=0.00
+[v2] imitation commit t7: passed=True v7
+[v2] t7 F1_refund_delivered: y_pre=1.0 hidden=True v7 {'updated': False, 'commit': {'passed': True, 'version': 7}, 'imitation': {'n_rollouts': 8, 'n_success': 8}}
+[v2] imitation t8: 8 successes, gate=0.00
+[v2] imitation commit t8: passed=True v8
+[v2] t8 F1_cancel: y_pre=1.0 hidden=True v8 {'updated': False, 'commit': {'passed': True, 'version': 8}, 'imitation': {'n_rollouts': 8, 'n_success': 8}}
+[v2] imitation t9: 8 successes, gate=0.00
+[v2] imitation commit t9: passed=True v9
+[v2] t9 F1_exchange: y_pre=0.0 hidden=False v9 {'updated': False, 'commit': {'passed': True, 'version': 9}, 'imitation': {'n_rollouts': 8, 'n_success': 8}}
+[v2] imitation t10: 8 successes, gate=0.00
+[v2] imitation commit t10: passed=True v10
+[v2] t10 F3_recover: y_pre=1.0 hidden=True v10 {'updated': False, 'commit': {'passed': True, 'version': 10}, 'imitation': {'n_rollouts': 8, 'n_success': 8}}
+[v2] t11 F3_recover_v: y_pre=0.0 hidden=False v10 {'updated': False, 'imitation': {'n_rollouts': 8, 'n_success': 0}}
+[v2] imitation t12: 8 successes, gate=0.00
+[v2] imitation commit t12: passed=True v11
+[v2] t12 F1_refund: y_pre=1.0 hidden=True v11 {'updated': False, 'commit': {'passed': True, 'version': 11}, 'imitation': {'n_rollouts': 8, 'n_success': 8}}
+[v2] imitation t13: 1 successes, gate=0.00
+[v2] imitation commit t13: passed=True v12
+[v2] t13 F1_refund_delivered: y_pre=0.0 hidden=False v12 {'updated': False, 'commit': {'passed': True, 'version': 12}, 'imitation': {'n_rollouts': 8, 'n_success': 1}}
+[v2] t14 F1_refund_v: y_pre=1.0 hidden=True v12 {'updated': False}
+[v2] t15 F1_refund_v: y_pre=0.0 hidden=False v12 {'updated': False}
+[v2] AUPC=0.6250 heldout=0.5000 violations=0

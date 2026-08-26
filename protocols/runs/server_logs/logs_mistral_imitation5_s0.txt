@@ -1,0 +1,26 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/291 [00:00<?, ?it/s]Loading weights:   2%|▏         | 5/291 [00:00<00:06, 42.25it/s]Loading weights:   8%|▊         | 23/291 [00:00<00:02, 107.47it/s]Loading weights:  13%|█▎        | 39/291 [00:00<00:02, 107.95it/s]Loading weights:  20%|█▉        | 58/291 [00:00<00:01, 132.13it/s]Loading weights:  25%|██▍       | 72/291 [00:00<00:01, 125.05it/s]Loading weights:  30%|██▉       | 86/291 [00:00<00:01, 123.23it/s]Loading weights:  34%|███▍      | 99/291 [00:00<00:01, 122.50it/s]Loading weights:  38%|███▊      | 112/291 [00:00<00:01, 122.33it/s]Loading weights:  43%|████▎     | 125/291 [00:01<00:01, 111.55it/s]Loading weights:  48%|████▊     | 141/291 [00:01<00:01, 118.38it/s]Loading weights:  54%|█████▍    | 157/291 [00:01<00:01, 125.54it/s]Loading weights:  58%|█████▊    | 170/291 [00:01<00:01, 103.27it/s]Loading weights:  66%|██████▋   | 193/291 [00:01<00:00, 129.81it/s]Loading weights:  71%|███████   | 207/291 [00:01<00:00, 125.46it/s]Loading weights:  76%|███████▌  | 221/291 [00:01<00:00, 121.69it/s]Loading weights:  80%|████████  | 234/291 [00:01<00:00, 120.50it/s]Loading weights:  85%|████████▌ | 248/291 [00:02<00:00, 121.82it/s]Loading weights:  90%|████████▉ | 261/291 [00:02<00:00, 123.79it/s]Loading weights:  94%|█████████▍| 274/291 [00:02<00:00, 123.41it/s]Loading weights:  99%|█████████▊| 287/291 [00:02<00:00, 118.76it/s]Loading weights: 100%|██████████| 291/291 [00:02<00:00, 119.94it/s]
+[v2] held-out template: F1_refund_v; adapt: ['F1_refund', 'F1_refund_delivered', 'F1_cancel', 'F1_exchange', 'F3_recover', 'F3_recover_v']
+[v2] t0 F1_refund: y_pre=1.0 hidden=True v0 {'updated': False}
+[v2] imitation t1: demo=2 calls commit=True v1
+[v2] t1 F1_refund_delivered: y_pre=0.0 hidden=False v1 {'updated': False, 'imitation': {'n_success': 1, 'demo': ['lookup_order(order_id="order-98")', 'refund_order(order_id="order-98", user_id="user-98")']}, 'commit': {'passed': True, 'version': 1}}
+[v2] t2 F1_cancel: y_pre=1.0 hidden=True v1 {'updated': False}
+[v2] t3 F1_exchange: y_pre=1.0 hidden=True v1 {'updated': False}
+[v2] t4 F3_recover: y_pre=1.0 hidden=True v1 {'updated': False}
+[v2] imitation t5: demo construction failed
+[v2] t5 F3_recover_v: y_pre=0.0 hidden=False v1 {'updated': False, 'imitation': {'n_success': 0}}
+[v2] imitation t6: demo=2 calls commit=True v2
+[v2] t6 F1_refund: y_pre=0.0 hidden=False v2 {'updated': False, 'imitation': {'n_success': 1, 'demo': ['lookup_order(order_id="order-30")', 'refund_order(order_id="order-30", user_id="user-8")']}, 'commit': {'passed': True, 'version': 2}}
+[v2] imitation t7: demo=2 calls commit=True v3
+[v2] t7 F1_refund_delivered: y_pre=0.0 hidden=False v3 {'updated': False, 'imitation': {'n_success': 1, 'demo': ['lookup_order(order_id="order-23")', 'refund_order(order_id="order-23", user_id="user-77")']}, 'commit': {'passed': True, 'version': 3}}
+[v2] t8 F1_cancel: y_pre=1.0 hidden=True v3 {'updated': False}
+[v2] t9 F1_exchange: y_pre=1.0 hidden=True v3 {'updated': False}
+[v2] t10 F3_recover: y_pre=1.0 hidden=True v3 {'updated': False}
+[v2] imitation t11: demo construction failed
+[v2] t11 F3_recover_v: y_pre=0.0 hidden=False v3 {'updated': False, 'imitation': {'n_success': 0}}
+[v2] t12 F1_refund: y_pre=1.0 hidden=True v3 {'updated': False}
+[v2] imitation t13: demo=2 calls commit=True v4
+[v2] t13 F1_refund_delivered: y_pre=0.0 hidden=False v4 {'updated': False, 'imitation': {'n_success': 1, 'demo': ['lookup_order(order_id="order-33")', 'refund_order(order_id="order-33", user_id="user-98")']}, 'commit': {'passed': True, 'version': 4}}
+[v2] t14 F1_refund_v: y_pre=0.0 hidden=False v4 {'updated': False}
+[v2] t15 F1_refund_v: y_pre=0.0 hidden=False v4 {'updated': False}
+[v2] AUPC=0.5000 heldout=0.0000 violations=0

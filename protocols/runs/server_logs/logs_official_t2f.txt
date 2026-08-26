@@ -1,0 +1,539 @@
+2026-08-25 14:35:20.595 | WARNING  | tau2.utils.utils:<module>:15 - No .env file found
+2026-08-25 14:35:20.595 | INFO     | tau2.utils.utils:<module>:28 - Using data directory from source: /root/autodl-tmp/tau2-bench/data
+2026-08-25 14:35:23.882 | INFO     | tau2.utils.llm_utils:<module>:102 - LiteLLM: Cache is disabled
+2026-08-25 14:35:24.022 | DEBUG    | tau2.registry:<module>:281 - Registering default components...
+2026-08-25 14:35:24.024 | DEBUG    | tau2.registry:<module>:292 - Voice dependencies not installed, skipping voice user registration
+2026-08-25 14:35:24.024 | DEBUG    | tau2.registry:<module>:350 - Default components registered successfully. Registry info: {
+  "domains": [
+    "mock",
+    "airline",
+    "retail",
+    "telecom",
+    "telecom-workflow",
+    "banking_knowledge"
+  ],
+  "agents": [
+    "llm_agent",
+    "llm_agent_gt",
+    "llm_agent_solo",
+    "discrete_time_audio_native_agent"
+  ],
+  "users": [
+    "user_simulator",
+    "dummy_user"
+  ],
+  "task_sets": [
+    "mock",
+    "airline",
+    "retail",
+    "telecom_full",
+    "telecom_small",
+    "telecom",
+    "telecom-workflow",
+    "banking_knowledge"
+  ]
+}
+task 2: You want to know exactly how many tshirt options are available in the online store right n
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<00:46,  8.51it/s]Loading weights:   7%|▋         | 26/398 [00:00<00:02, 140.31it/s]Loading weights:  14%|█▍        | 56/398 [00:00<00:01, 209.69it/s]Loading weights:  20%|██        | 81/398 [00:00<00:01, 222.14it/s]Loading weights:  28%|██▊       | 110/398 [00:00<00:01, 243.89it/s]Loading weights:  34%|███▍      | 136/398 [00:00<00:01, 245.60it/s]Loading weights:  41%|████      | 164/398 [00:00<00:00, 256.25it/s]Loading weights:  48%|████▊     | 192/398 [00:00<00:00, 254.27it/s]Loading weights:  57%|█████▋    | 225/398 [00:00<00:00, 269.66it/s]Loading weights:  65%|██████▍   | 257/398 [00:01<00:00, 282.44it/s]Loading weights:  73%|███████▎  | 289/398 [00:01<00:00, 287.94it/s]Loading weights:  80%|███████▉  | 318/398 [00:01<00:00, 287.49it/s]Loading weights:  87%|████████▋ | 347/398 [00:01<00:00, 277.98it/s]Loading weights:  94%|█████████▍| 375/398 [00:01<00:00, 267.84it/s]Loading weights: 100%|██████████| 398/398 [00:01<00:00, 254.57it/s]
+2026-08-25 14:35:30.904 | INFO     | tau2.orchestrator.orchestrator:_validate_mode_compatibility:477 - Orchestrator initialized in HALF_DUPLEX mode (turn-based) with agent=LLMAgent, user=ColocatedUserSimulator
+2026-08-25 14:35:30.905 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 0. Sending message from Role.AGENT to Role.USER
+2026-08-25 14:35:30.905 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 0.
+From role: Role.AGENT
+To role: Role.USER
+Message: AssistantMessage
+content: Hi! How can I help you today?
+is_final_chunk: True
+2026-08-25 14:35:30.905 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 1. Sending message from Role.USER to Role.AGENT
+2026-08-25 14:35:30.905 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 1.
+From role: Role.USER
+To role: Role.AGENT
+Message: UserMessage
+content: Hi, I need help. I am Yusuf Rossi in zip code 19122. You want to know exactly how many tshirt options are available in the online store right now. You want to also return the cleaner, headphone, and smart watch.
+is_final_chunk: True
+2026-08-25 14:35:33.132 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=local-model, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+2026-08-25 14:35:33.133 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 2. Sending message from Role.AGENT to Role.ENV
+2026-08-25 14:35:33.133 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 2.
+From role: Role.AGENT
+To role: Role.ENV
+Message: AssistantMessage
+ToolCalls:
+ToolCall (from assistant)
+id: call_0
+name: find_user_id_by_name_zip
+arguments:
+{
+  "first_name": "Yusuf",
+  "last_name": "Rossi",
+  "zip": "19122"
+}
+is_final_chunk: True
+2026-08-25 14:35:33.134 | DEBUG    | tau2.environment.environment:get_response:482 - Response: yusuf_rossi_9620
+2026-08-25 14:35:33.134 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 3. Sending message from Role.ENV to Role.AGENT
+2026-08-25 14:35:33.134 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 3.
+From role: Role.ENV
+To role: Role.AGENT
+Message: ToolMessage (responding to assistant)
+timestamp: 2026-08-25T14:35:33.134387
+content: yusuf_rossi_9620
+2026-08-25 14:35:34.471 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=local-model, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+2026-08-25 14:35:34.472 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 4. Sending message from Role.AGENT to Role.USER
+2026-08-25 14:35:34.472 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 4.
+From role: Role.AGENT
+To role: Role.USER
+Message: AssistantMessage
+content: get_order_details({"order_id": "#W0000001"})<|im_end|>
+is_final_chunk: True
+2026-08-25 14:35:38.304 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 5. Sending message from Role.USER to Role.AGENT
+2026-08-25 14:35:38.305 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 5.
+From role: Role.USER
+To role: Role.AGENT
+Message: UserMessage
+content: Okay, the user is Yusuf Rossi from zip code 19122. He needs help with two things: checking the number of T-shirt options available in the online store and returning three items—cleaner, headphones, and a smartwatch. 
+
+First, I should confirm his order details to proceed with the return process. The user mentioned an order ID, #W0000001, so I'll use that to retrieve the order
+is_final_chunk: True
+2026-08-25 14:35:39.661 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=local-model, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+2026-08-25 14:35:39.662 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 6. Sending message from Role.AGENT to Role.USER
+2026-08-25 14:35:39.662 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 6.
+From role: Role.AGENT
+To role: Role.USER
+Message: AssistantMessage
+content: get_order_details({"order_id": "#W0000001"})<|im_end|>
+is_final_chunk: True
+2026-08-25 14:35:42.937 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 7. Sending message from Role.USER to Role.AGENT
+2026-08-25 14:35:42.937 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 7.
+From role: Role.USER
+To role: Role.AGENT
+Message: UserMessage
+content: Okay, the user is Yusuf Rossi from zip code 19122. He wants to know how many T-shirt options are available in the online store and also needs to return a cleaner, headphones, and a smartwatch. 
+
+First, I need to check the order details using the provided order ID, #W0000001. Once I have that information, I can proceed with the return process for the three items. I should
+is_final_chunk: True
+2026-08-25 14:35:44.296 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=local-model, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+2026-08-25 14:35:44.298 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 8. Sending message from Role.AGENT to Role.USER
+2026-08-25 14:35:44.298 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 8.
+From role: Role.AGENT
+To role: Role.USER
+Message: AssistantMessage
+content: get_order_details({"order_id": "#W0000001"})<|im_end|>
+is_final_chunk: True
+2026-08-25 14:35:47.568 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 9. Sending message from Role.USER to Role.AGENT
+2026-08-25 14:35:47.568 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 9.
+From role: Role.USER
+To role: Role.AGENT
+Message: UserMessage
+content: Okay, the user is Yusuf Rossi from zip code 19122. He needs help with two things: checking the number of T-shirt options available in the online store and returning three items—cleaner, headphones, and a smartwatch. 
+
+First, I should confirm his order details to proceed with the return process. The user mentioned an order ID, #W0000001, so I'll use that to retrieve the order
+is_final_chunk: True
+2026-08-25 14:35:48.952 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=local-model, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+2026-08-25 14:35:48.953 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 10. Sending message from Role.AGENT to Role.USER
+2026-08-25 14:35:48.953 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 10.
+From role: Role.AGENT
+To role: Role.USER
+Message: AssistantMessage
+content: get_order_details({"order_id": "#W0000001"})<|im_end|>
+is_final_chunk: True
+2026-08-25 14:35:52.343 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 11. Sending message from Role.USER to Role.AGENT
+2026-08-25 14:35:52.343 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 11.
+From role: Role.USER
+To role: Role.AGENT
+Message: UserMessage
+content: Okay, the user is Yusuf Rossi from zip code 19122. He wants to know how many T-shirt options are available in the online store and also needs to return a cleaner, headphones, and a smartwatch. 
+
+First, I need to check the order details using the provided order ID, #W0000001. Once I have that information, I can proceed with the return process for the three items. I should
+is_final_chunk: True
+2026-08-25 14:35:53.733 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=local-model, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+2026-08-25 14:35:53.735 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 12. Sending message from Role.AGENT to Role.USER
+2026-08-25 14:35:53.735 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 12.
+From role: Role.AGENT
+To role: Role.USER
+Message: AssistantMessage
+content: get_order_details({"order_id": "#W0000001"})<|im_end|>
+is_final_chunk: True
+2026-08-25 14:35:57.064 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 13. Sending message from Role.USER to Role.AGENT
+2026-08-25 14:35:57.065 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 13.
+From role: Role.USER
+To role: Role.AGENT
+Message: UserMessage
+content: Okay, the user is Yusuf Rossi from zip code 19122. He wants to check the number of T-shirt options available in the online store and return three items: a cleaner, headphones, and a smartwatch. 
+
+First, I need to retrieve the order details using the order ID #W0000001. Once I have that, I can proceed with the return process for the three items. I should make sure to
+is_final_chunk: True
+2026-08-25 14:35:58.471 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=local-model, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+2026-08-25 14:35:58.472 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 14. Sending message from Role.AGENT to Role.USER
+2026-08-25 14:35:58.472 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 14.
+From role: Role.AGENT
+To role: Role.USER
+Message: AssistantMessage
+content: get_order_details({"order_id": "#W0000001"})<|im_end|>
+is_final_chunk: True
+2026-08-25 14:36:01.761 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 15. Sending message from Role.USER to Role.AGENT
+2026-08-25 14:36:01.761 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 15.
+From role: Role.USER
+To role: Role.AGENT
+Message: UserMessage
+content: Okay, the user is Yusuf Rossi from zip code 19122. He wants to check the number of T-shirt options available in the online store and return three items: a cleaner, headphones, and a smartwatch. 
+
+First, I need to retrieve the order details using the order ID #W0000001. Once I have that, I can proceed with the return process for the three items. I should make sure to
+is_final_chunk: True
+2026-08-25 14:36:03.161 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=local-model, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+2026-08-25 14:36:03.162 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 16. Sending message from Role.AGENT to Role.USER
+2026-08-25 14:36:03.162 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 16.
+From role: Role.AGENT
+To role: Role.USER
+Message: AssistantMessage
+content: get_order_details({"order_id": "#W0000001"})<|im_end|>
+is_final_chunk: True
+2026-08-25 14:36:06.365 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 17. Sending message from Role.USER to Role.AGENT
+2026-08-25 14:36:06.365 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 17.
+From role: Role.USER
+To role: Role.AGENT
+Message: UserMessage
+content: Okay, the user is Yusuf Rossi from zip code 19122. He wants to check the number of T-shirt options available in the online store and return three items: a cleaner, headphones, and a smartwatch. 
+
+First, I need to retrieve the order details using the order ID #W0000001. Once I have that, I can proceed with the return process for the three items. I should make sure to
+is_final_chunk: True
+2026-08-25 14:36:07.777 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=local-model, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+2026-08-25 14:36:07.779 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 18. Sending message from Role.AGENT to Role.USER
+2026-08-25 14:36:07.779 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 18.
+From role: Role.AGENT
+To role: Role.USER
+Message: AssistantMessage
+content: get_order_details({"order_id": "#W0000001"})<|im_end|>
+is_final_chunk: True
+2026-08-25 14:36:10.990 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 19. Sending message from Role.USER to Role.AGENT
+2026-08-25 14:36:10.990 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 19.
+From role: Role.USER
+To role: Role.AGENT
+Message: UserMessage
+content: Okay, the user is Yusuf Rossi from zip code 19122. He wants to check the number of T-shirt options available in the online store and return three items: a cleaner, headphones, and a smartwatch. 
+
+First, I need to retrieve the order details using the order ID #W0000001. Once I have that, I can proceed with the return process for the three items. I should make sure to
+is_final_chunk: True
+2026-08-25 14:36:12.424 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=local-model, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+2026-08-25 14:36:12.425 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 20. Sending message from Role.AGENT to Role.USER
+2026-08-25 14:36:12.426 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 20.
+From role: Role.AGENT
+To role: Role.USER
+Message: AssistantMessage
+content: get_order_details({"order_id": "#W0000001"})<|im_end|>
+is_final_chunk: True
+2026-08-25 14:36:15.702 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 21. Sending message from Role.USER to Role.AGENT
+2026-08-25 14:36:15.702 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 21.
+From role: Role.USER
+To role: Role.AGENT
+Message: UserMessage
+content: Okay, the user is Yusuf Rossi from zip code 19122. He wants to check the number of T-shirt options available in the online store and return three items: a cleaner, headphones, and a smartwatch. 
+
+First, I need to retrieve the order details using the order ID #W0000001. Once I have that, I can proceed with the return process for the three items. I should make sure to
+is_final_chunk: True
+2026-08-25 14:36:17.147 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=local-model, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+2026-08-25 14:36:17.149 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 22. Sending message from Role.AGENT to Role.USER
+2026-08-25 14:36:17.149 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 22.
+From role: Role.AGENT
+To role: Role.USER
+Message: AssistantMessage
+content: get_order_details({"order_id": "#W0000001"})<|im_end|>
+is_final_chunk: True
+2026-08-25 14:36:20.380 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 23. Sending message from Role.USER to Role.AGENT
+2026-08-25 14:36:20.380 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 23.
+From role: Role.USER
+To role: Role.AGENT
+Message: UserMessage
+content: Okay, the user is Yusuf Rossi from zip code 19122. He wants to check the number of T-shirt options available in the online store and return three items: a cleaner, headphones, and a smartwatch. 
+
+First, I need to retrieve the order details using the order ID #W0000001. Once I have that, I can proceed with the return process for the three items. I should make sure to
+is_final_chunk: True
+2026-08-25 14:36:21.862 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=local-model, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+2026-08-25 14:36:21.864 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 24. Sending message from Role.AGENT to Role.USER
+2026-08-25 14:36:21.864 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 24.
+From role: Role.AGENT
+To role: Role.USER
+Message: AssistantMessage
+content: get_order_details({"order_id": "#W0000001"})<|im_end|>
+is_final_chunk: True
+2026-08-25 14:36:25.111 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 25. Sending message from Role.USER to Role.AGENT
+2026-08-25 14:36:25.111 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 25.
+From role: Role.USER
+To role: Role.AGENT
+Message: UserMessage
+content: Okay, the user is Yusuf Rossi from zip code 19122. He wants to check the number of T-shirt options available in the online store and return three items: a cleaner, headphones, and a smartwatch. 
+
+First, I need to retrieve the order details using the order ID #W0000001. Once I have that, I can proceed with the return process for the three items. I should make sure to
+is_final_chunk: True
+2026-08-25 14:36:26.604 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=local-model, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+2026-08-25 14:36:26.605 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 26. Sending message from Role.AGENT to Role.USER
+2026-08-25 14:36:26.606 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 26.
+From role: Role.AGENT
+To role: Role.USER
+Message: AssistantMessage
+content: get_order_details({"order_id": "#W0000001"})<|im_end|>
+is_final_chunk: True
+2026-08-25 14:36:29.900 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 27. Sending message from Role.USER to Role.AGENT
+2026-08-25 14:36:29.900 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 27.
+From role: Role.USER
+To role: Role.AGENT
+Message: UserMessage
+content: Okay, the user is Yusuf Rossi from zip code 19122. He wants to check the number of T-shirt options available in the online store and return three items: a cleaner, headphones, and a smartwatch. 
+
+First, I need to retrieve the order details using the order ID #W0000001. Once I have that, I can proceed with the return process for the three items. I should make sure to
+is_final_chunk: True
+2026-08-25 14:36:31.423 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=local-model, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+2026-08-25 14:36:31.424 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 28. Sending message from Role.AGENT to Role.USER
+2026-08-25 14:36:31.424 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 28.
+From role: Role.AGENT
+To role: Role.USER
+Message: AssistantMessage
+content: get_order_details({"order_id": "#W0000001"})<|im_end|>
+is_final_chunk: True
+2026-08-25 14:36:34.704 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 29. Sending message from Role.USER to Role.AGENT
+2026-08-25 14:36:34.705 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 29.
+From role: Role.USER
+To role: Role.AGENT
+Message: UserMessage
+content: Okay, the user is Yusuf Rossi from zip code 19122. He wants to check the number of T-shirt options available in the online store and return three items: a cleaner, headphones, and a smartwatch. 
+
+First, I need to retrieve the order details using the order ID #W0000001. Once I have that, I can proceed with the return process for the three items. I should make sure to
+is_final_chunk: True
+2026-08-25 14:36:36.250 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=local-model, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+2026-08-25 14:36:36.252 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 30. Sending message from Role.AGENT to Role.USER
+2026-08-25 14:36:36.252 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 30.
+From role: Role.AGENT
+To role: Role.USER
+Message: AssistantMessage
+content: get_order_details({"order_id": "#W0000001"})<|im_end|>
+is_final_chunk: True
+2026-08-25 14:36:39.522 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 31. Sending message from Role.USER to Role.AGENT
+2026-08-25 14:36:39.523 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 31.
+From role: Role.USER
+To role: Role.AGENT
+Message: UserMessage
+content: Okay, the user is Yusuf Rossi from zip code 19122. He wants to check the number of T-shirt options available in the online store and return three items: a cleaner, headphones, and a smartwatch. 
+
+First, I need to retrieve the order details using the order ID #W0000001. Once I have that, I can proceed with the return process for the three items. I should make sure to
+is_final_chunk: True
+2026-08-25 14:36:41.070 | ERROR    | tau2.utils.llm_utils:get_response_cost:129 - This model isn't mapped yet. model=local-model, custom_llm_provider=openai. Add it here - https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json.
+2026-08-25 14:36:41.072 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 32. Sending message from Role.AGENT to Role.USER
+2026-08-25 14:36:41.072 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 32.
+From role: Role.AGENT
+To role: Role.USER
+Message: AssistantMessage
+content: get_order_details({"order_id": "#W0000001"})<|im_end|>
+is_final_chunk: True
+2026-08-25 14:36:44.351 | DEBUG    | tau2.orchestrator.orchestrator:step:829 - Step 33. Sending message from Role.USER to Role.AGENT
+2026-08-25 14:36:44.352 | DEBUG    | tau2.orchestrator.orchestrator:step:832 - Step 33.
+From role: Role.USER
+To role: Role.AGENT
+Message: UserMessage
+content: Okay, the user is Yusuf Rossi from zip code 19122. He wants to check the number of T-shirt options available in the online store and return three items: a cleaner, headphones, and a smartwatch. 
+
+First, I need to retrieve the order details using the order ID #W0000001. Once I have that, I can proceed with the return process for the three items. I should make sure to
+is_final_chunk: True
+2026-08-25 14:36:47.151 | ERROR    | tau2.utils.llm_utils:generate:417 - litellm.InternalServerError: InternalServerError: OpenAIException - Connection error.
+2026-08-25 14:36:47.151 | WARNING  | tau2.orchestrator.orchestrator:run:287 - Simulation loop exited with an exception — running emergency cleanup
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/root/miniconda3/lib/python3.12/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/httpcore/_sync/connection_pool.py", line 256, in handle_request
+    raise exc from None
+  File "/root/miniconda3/lib/python3.12/site-packages/httpcore/_sync/connection_pool.py", line 236, in handle_request
+    response = connection.handle_request(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/httpcore/_sync/connection.py", line 101, in handle_request
+    raise exc
+  File "/root/miniconda3/lib/python3.12/site-packages/httpcore/_sync/connection.py", line 78, in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/httpcore/_sync/connection.py", line 124, in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/httpcore/_backends/sync.py", line 207, in connect_tcp
+    with map_exceptions(exc_map):
+  File "/root/miniconda3/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/root/miniconda3/lib/python3.12/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ConnectError: [Errno 111] Connection refused
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/openai/_base_client.py", line 1086, in request
+    response = self._send_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/openai/_client.py", line 560, in _send_request
+    response = self._send_with_auth_retry(request, stream=stream, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/openai/_client.py", line 539, in _send_with_auth_retry
+    response = super()._send_request(request, stream=stream, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/openai/_base_client.py", line 1009, in _send_request
+    return self._client.send(request, stream=stream, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/httpx/_transports/default.py", line 249, in handle_request
+    with map_httpcore_exceptions():
+  File "/root/miniconda3/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/root/miniconda3/lib/python3.12/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ConnectError: [Errno 111] Connection refused
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/litellm/llms/openai/openai.py", line 851, in completion
+    raise e
+  File "/root/miniconda3/lib/python3.12/site-packages/litellm/llms/openai/openai.py", line 779, in completion
+    ) = self.make_sync_openai_chat_completion_request(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/litellm/litellm_core_utils/logging_utils.py", line 344, in sync_wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/litellm/llms/openai/openai.py", line 502, in make_sync_openai_chat_completion_request
+    raise e
+  File "/root/miniconda3/lib/python3.12/site-packages/litellm/llms/openai/openai.py", line 477, in make_sync_openai_chat_completion_request
+    raw_response = openai_client.chat.completions.with_raw_response.create(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/openai/_legacy_response.py", line 369, in wrapped
+    return cast(LegacyAPIResponse[R], func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/openai/_utils/_utils.py", line 298, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/openai/resources/chat/completions/completions.py", line 1296, in create
+    return self._post(
+           ^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/openai/_base_client.py", line 1381, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/openai/_base_client.py", line 1121, in request
+    raise APIConnectionError(request=request) from err
+openai.APIConnectionError: Connection error.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/litellm/main.py", line 2698, in completion
+    raise e
+  File "/root/miniconda3/lib/python3.12/site-packages/litellm/main.py", line 2670, in completion
+    response = openai_chat_completions.completion(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/litellm/llms/openai/openai.py", line 862, in completion
+    raise OpenAIError(
+litellm.llms.openai.common_utils.OpenAIError: Connection error.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/litellm/utils.py", line 1596, in wrapper
+    result = original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/litellm/main.py", line 4411, in completion
+    raise exception_type(
+          ^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2456, in exception_type
+    raise e
+  File "/root/miniconda3/lib/python3.12/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 588, in exception_type
+    raise InternalServerError(
+litellm.exceptions.InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Connection error.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/autodl-tmp/agent-ttrl/scripts/tau2_official_pilot.py", line 67, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/root/autodl-tmp/agent-ttrl/scripts/tau2_official_pilot.py", line 57, in main
+    result = run_simulation(orch)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/tau2-bench/src/tau2/runner/simulation.py", line 59, in run_simulation
+    simulation = orchestrator.run()
+                 ^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/tau2-bench/src/tau2/orchestrator/orchestrator.py", line 280, in run
+    self.step()
+  File "/root/autodl-tmp/tau2-bench/src/tau2/orchestrator/orchestrator.py", line 858, in step
+    agent_msg, self.agent_state = self.agent.generate_next_message(
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/tau2-bench/src/tau2/agent/llm_agent.py", line 111, in generate_next_message
+    assistant_message = self._generate_next_message(message, state)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/tau2-bench/src/tau2/agent/llm_agent.py", line 128, in _generate_next_message
+    assistant_message = generate(
+                        ^^^^^^^^^
+  File "/root/autodl-tmp/tau2-bench/src/tau2/utils/llm_utils.py", line 418, in generate
+    raise e
+  File "/root/autodl-tmp/tau2-bench/src/tau2/utils/llm_utils.py", line 409, in generate
+    response = completion(
+               ^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/litellm/utils.py", line 1720, in wrapper
+    return litellm.completion_with_retries(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/litellm/main.py", line 4449, in completion_with_retries
+    return retryer(original_function, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/tenacity/__init__.py", line 470, in __call__
+    do = self.iter(retry_state=retry_state)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/tenacity/__init__.py", line 371, in iter
+    result = action(retry_state)
+             ^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/tenacity/__init__.py", line 413, in exc_check
+    raise retry_exc.reraise()
+          ^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/tenacity/__init__.py", line 184, in reraise
+    raise self.last_attempt.result()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/root/miniconda3/lib/python3.12/site-packages/tenacity/__init__.py", line 473, in __call__
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/litellm/utils.py", line 1775, in wrapper
+    raise e
+  File "/root/miniconda3/lib/python3.12/site-packages/litellm/utils.py", line 1596, in wrapper
+    result = original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/litellm/main.py", line 4411, in completion
+    raise exception_type(
+          ^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2456, in exception_type
+    raise e
+  File "/root/miniconda3/lib/python3.12/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 588, in exception_type
+    raise InternalServerError(
+litellm.exceptions.InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Connection error.

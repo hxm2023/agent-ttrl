@@ -1,0 +1,9 @@
+egc_s0 rc=0
+egc_s1 rc=0
+egc_s2 rc=0
+egc_conflict_s0 rc=0
+egc_conflict_s1 rc=0
+egc_conflict_s2 rc=0
+random_branch_s0 rc=0
+random_branch_s1 rc=0
+random_branch_s2 rc=0

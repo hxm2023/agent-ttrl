@@ -1,0 +1,5 @@
+scripts/deploy_tau2_factorial.sh: line 3: set: -: invalid option
+set: usage: set [-abefhkmnptuvxBCHP] [-o option-name] [--] [arg ...]
+scripts/deploy_tau2_factorial.sh: line 11: /root/autodl-tmp/agent-ttrl/artifacts/m6/factorial_status.txt: No such file or directory
+scripts/deploy_tau2_factorial.sh: line 12: syntax error near unexpected token `$'do\r''
+scripts/deploy_tau2_factorial.sh: line 12: `for variant in frozen naive egc; do'

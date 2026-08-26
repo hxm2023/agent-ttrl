@@ -1,0 +1,94 @@
+{
+  "run_id": "r002-1787370465",
+  "milestone": "M1",
+  "run": "R002",
+  "policy": {
+    "v0": "1371204785c657d6138cfd25ea0516b1cc0a45b1cad205c2ec250f01ce3f6c3a",
+    "v1": "c73ae4794f09c3073a7e41aff7d65ab903a4069d154481543f6dae3676328d03",
+    "adapter_v1": "cda83202e9d88605a62fa7d1e6ec76c42c40da65a6c80279b8524eb50b2146d4"
+  },
+  "rollout": {
+    "sequences": 8,
+    "rewards": [
+      0.875,
+      0.875,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.875,
+      0.0
+    ],
+    "hidden_success": [
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ],
+    "errors": [
+      [],
+      [
+        "NO_RESERVATION"
+      ],
+      [
+        "NO_PARSE"
+      ],
+      [
+        "NO_PARSE"
+      ],
+      [
+        "NO_PARSE"
+      ],
+      [
+        "NOT_PAID"
+      ],
+      [],
+      [
+        "NO_PARSE"
+      ]
+    ]
+  },
+  "advantages": [
+    0.998,
+    0.998,
+    -0.998,
+    -0.998,
+    -0.576,
+    -0.576,
+    1.727,
+    -0.576
+  ],
+  "identity_allowed": 8,
+  "pre_update_allowed": 8,
+  "optimizer_steps": 1,
+  "update_metrics": {
+    "ratio_p50": 1.0,
+    "ratio_p95": 1.0103453397750854,
+    "ratio_max": 1.2495286464691162,
+    "clip_fraction": 0.00390625,
+    "loss": -0.0009536875877529383,
+    "B": 8,
+    "T": 230,
+    "group_size": 4
+  },
+  "adapter_canary": {
+    "weight_delta": 0.03955078,
+    "token_drift": 0,
+    "max_logit_drift": 0.0,
+    "ok": true
+  },
+  "ledger": {
+    "within_caps": true,
+    "totals": {
+      "B_env": 19.0,
+      "B_model": 3680.0,
+      "B_update": 3680.0
+    }
+  },
+  "parallel_with": "GRPO-Guard-idle",
+  "limitation": "vLLM runtime LoRA serving not exercised (trl vllm-serve has no --enable-lora); adapter-level canary proves artifact load + behavior change; server-side LoRA integration is R003 follow-up"
+}

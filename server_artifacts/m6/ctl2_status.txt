@@ -1,0 +1,4 @@
+ctl2_naive_s0 rc=1
+ctl2_naive_s1 rc=1
+ctl2_naive_s2 rc=1
+ctl2_naive_s3 rc=1

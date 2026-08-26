@@ -1,0 +1,36 @@
+v3 start 2026-08-24T15:27:39Z
+start egc_s0 2026-08-24T15:27:39Z
+done  egc_s0 rc=0 2026-08-24T15:31:21Z
+start egc_s2 2026-08-24T15:31:21Z
+done  egc_s2 rc=0 2026-08-24T15:36:07Z
+start frozen_s3 2026-08-24T15:36:07Z
+done  frozen_s3 rc=0 2026-08-24T15:38:23Z
+start naive_s3 2026-08-24T15:38:23Z
+done  naive_s3 rc=0 2026-08-24T15:44:15Z
+start egc_s3 2026-08-24T15:44:15Z
+done  egc_s3 rc=0 2026-08-24T15:47:55Z
+start frozen_s4 2026-08-24T15:47:55Z
+done  frozen_s4 rc=0 2026-08-24T15:49:28Z
+start naive_s4 2026-08-24T15:49:28Z
+done  naive_s4 rc=0 2026-08-24T15:52:48Z
+start egc_s4 2026-08-24T15:52:48Z
+done  egc_s4 rc=0 2026-08-24T15:55:49Z
+start frozen_s5 2026-08-24T15:55:49Z
+done  frozen_s5 rc=0 2026-08-24T15:57:24Z
+start naive_s5 2026-08-24T15:57:24Z
+done  naive_s5 rc=0 2026-08-24T16:01:16Z
+start egc_s5 2026-08-24T16:01:16Z
+done  egc_s5 rc=0 2026-08-24T16:04:46Z
+start frozen_s6 2026-08-24T16:04:46Z
+done  frozen_s6 rc=0 2026-08-24T16:06:34Z
+start naive_s6 2026-08-24T16:06:34Z
+done  naive_s6 rc=0 2026-08-24T16:10:23Z
+start egc_s6 2026-08-24T16:10:23Z
+done  egc_s6 rc=0 2026-08-24T16:13:22Z
+start frozen_s7 2026-08-24T16:13:22Z
+done  frozen_s7 rc=0 2026-08-24T16:14:49Z
+start naive_s7 2026-08-24T16:14:49Z
+done  naive_s7 rc=0 2026-08-24T16:20:07Z
+start egc_s7 2026-08-24T16:20:07Z
+done  egc_s7 rc=0 2026-08-24T16:23:22Z
+v3 done 2026-08-24T16:23:22Z

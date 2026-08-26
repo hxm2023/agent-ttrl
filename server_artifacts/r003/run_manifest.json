@@ -1,0 +1,116 @@
+{
+  "run_id": "r003-1787372799",
+  "milestone": "M1",
+  "run": "R003",
+  "U": [
+    [
+      0.875,
+      0.875,
+      0.875,
+      0.875
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "credit": {
+    "status": "OK",
+    "reason": "",
+    "raw": [
+      0.4375,
+      -0.4375
+    ],
+    "signs": [
+      1,
+      -1
+    ],
+    "expected": [
+      1,
+      -1
+    ]
+  },
+  "hidden_success": [
+    [
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      false,
+      false,
+      false,
+      false
+    ]
+  ],
+  "action_spans": [
+    [
+      0,
+      44
+    ],
+    [
+      0,
+      41
+    ]
+  ],
+  "update_rows": [
+    {
+      "schema_version": "agent-ttrl.update-row.v1",
+      "row_id": "9e161803c56cdee9e389c012239531211549cedfbce7dbe760d531842d055681",
+      "state_prefix_tokens_ref": "prefix-0",
+      "action_tokens_ref": "tok-0",
+      "action_loss_mask_ref": "4aba7a46f5e0ceedb175543bd9d966cb8fb1074f840a0fe6b9942d055e05be8c",
+      "behavior_logprobs_ref": "lp-0",
+      "advantage": 0.7071067811865476,
+      "decision_state_ref": "prefix-0",
+      "branch_group_ref": "group-incremental_decode",
+      "policy_identity": {
+        "base_sha256": "r003-base",
+        "adapter_sha256": "r003-adapter-v0",
+        "policy_version": "v0"
+      },
+      "evidence_and_cost_refs": [
+        "8ece090dc4d54e06dead2e52bb394ab02beb156dcfd7b2598d021c2992206d6c"
+      ],
+      "local_gate_kind": "reliability_t",
+      "gate_passed": true,
+      "text_fallback": false
+    },
+    {
+      "schema_version": "agent-ttrl.update-row.v1",
+      "row_id": "078fe9e588fa8b631f399f168e26cc2db2547c9a40d2f4538cba496ca3bba071",
+      "state_prefix_tokens_ref": "prefix-1",
+      "action_tokens_ref": "tok-1",
+      "action_loss_mask_ref": "9275fe1fa3ad8155f5d31e8d99670a904dff33de761b86270443844754490b7b",
+      "behavior_logprobs_ref": "lp-1",
+      "advantage": -0.7071067811865476,
+      "decision_state_ref": "prefix-1",
+      "branch_group_ref": "group-incremental_decode",
+      "policy_identity": {
+        "base_sha256": "r003-base",
+        "adapter_sha256": "r003-adapter-v0",
+        "policy_version": "v0"
+      },
+      "evidence_and_cost_refs": [
+        "8ece090dc4d54e06dead2e52bb394ab02beb156dcfd7b2598d021c2992206d6c"
+      ],
+      "local_gate_kind": "reliability_t",
+      "gate_passed": true,
+      "text_fallback": false
+    }
+  ],
+  "ledger": {
+    "within_caps": true,
+    "conservation": true,
+    "external_tally": {
+      "B_env": 10.0,
+      "B_model": 1024.0,
+      "B_update": 0.0
+    }
+  },
+  "ok": true,
+  "parallel_with": "GRPO-Guard-idle"
+}

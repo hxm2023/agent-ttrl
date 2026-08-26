@@ -1,0 +1,26 @@
+ctl6 start 2026-08-23T15:59:53Z
+start ctl6_frozen_s0 2026-08-23T15:59:53Z
+done  ctl6_frozen_s0 rc=0 2026-08-23T16:06:28Z
+start ctl6_frozen_s1 2026-08-23T16:06:28Z
+done  ctl6_frozen_s1 rc=0 2026-08-23T16:10:05Z
+start ctl6_frozen_s2 2026-08-23T16:10:05Z
+done  ctl6_frozen_s2 rc=0 2026-08-23T16:14:10Z
+start ctl6_frozen_s3 2026-08-23T16:14:10Z
+done  ctl6_frozen_s3 rc=0 2026-08-23T16:18:04Z
+start ctl6_naive_s0 2026-08-23T16:18:04Z
+done  ctl6_naive_s0 rc=0 2026-08-23T16:32:17Z
+start ctl6_naive_s1 2026-08-23T16:32:17Z
+done  ctl6_naive_s1 rc=0 2026-08-23T16:45:41Z
+start ctl6_naive_s2 2026-08-23T16:45:41Z
+done  ctl6_naive_s2 rc=0 2026-08-23T16:59:31Z
+start ctl6_naive_s3 2026-08-23T16:59:31Z
+done  ctl6_naive_s3 rc=0 2026-08-23T17:12:54Z
+start ctl6_egc_s0 2026-08-23T17:12:54Z
+done  ctl6_egc_s0 rc=0 2026-08-23T17:24:08Z
+start ctl6_egc_s1 2026-08-23T17:24:08Z
+done  ctl6_egc_s1 rc=0 2026-08-23T17:35:13Z
+start ctl6_egc_s2 2026-08-23T17:35:13Z
+done  ctl6_egc_s2 rc=0 2026-08-23T17:46:18Z
+start ctl6_egc_s3 2026-08-23T17:46:18Z
+done  ctl6_egc_s3 rc=0 2026-08-23T17:57:03Z
+ctl6 done 2026-08-23T17:57:03Z

@@ -1,0 +1,3 @@
+egc_s0 rc=0
+egc_s1 rc=0
+egc_s2 rc=0
