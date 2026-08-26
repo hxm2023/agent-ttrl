@@ -4,6 +4,7 @@ training uses accessible tool observations only; hidden official evaluator
 is invoked by the tau2 runner after the episode (reporting only)."""
 from __future__ import annotations
 
+import re
 import sys
 
 from agent_ttrl.runtime.request_seed import RequestSeed
@@ -205,9 +206,15 @@ class ColocatedTau2Agent(HalfDuplexAgent):
                            self.turn, "production_first_attempt",
                            policy_version=self.policy.policy_version)
         self.turn += 1
+        tools = [t.openai_schema for t in self.tools] if self.tools else None
         cid, text = self.policy.generate_chat(
-            seed, messages, max_tokens=128, temperature=0.3)
-        calls = _parse_calls(text)
+            seed, messages, max_tokens=128, temperature=0.3, tools=tools,
+            keep_special_tokens=bool(tools),
+            template_kwargs={"enable_thinking": False} if tools else None)
+        calls = _parse_native_calls(text)
+        if not calls:
+            calls = _parse_calls(text)
+        text = re.sub(r"<\|?tool_call\|?>.*", "", text, flags=re.S).strip()
         if calls:
             name, kw = calls[0]
             repeated = (name, kw) == getattr(self, "last_call", None)
@@ -287,6 +294,41 @@ def _digest_tool_result(name: str, content: str) -> str:
     except Exception:
         pass
     return content
+
+
+def _parse_native_calls(text: str) -> list[tuple[str, dict]]:
+    """Qwen native tool calls: <|tool_call|> {json} or bare {json} with a
+    name/arguments pair."""
+    import json
+    out = []
+    for m in re.finditer(r"<\|?tool_call\|?>(.*?)(?:<\|?/?\|?tool_call\|?>|$)",
+                         text, flags=re.S):
+        try:
+            d = json.loads(m.group(1).strip())
+        except Exception:
+            continue
+        if isinstance(d, dict) and d.get("name") and isinstance(d.get("arguments"), dict):
+            out.append((d["name"], d["arguments"]))
+    if out:
+        return out
+    depth = 0
+    start = None
+    for i, ch in enumerate(text):
+        if ch == "{":
+            if depth == 0:
+                start = i
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0 and start is not None:
+                try:
+                    d = json.loads(text[start:i + 1])
+                except Exception:
+                    d = None
+                if isinstance(d, dict) and d.get("name") and isinstance(d.get("arguments"), dict):
+                    out.append((d["name"], d["arguments"]))
+                start = None
+    return out
 
 
 def _args_str(arguments: dict) -> str:
