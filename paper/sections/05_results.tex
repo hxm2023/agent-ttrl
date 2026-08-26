@@ -86,7 +86,15 @@ task windows as the policy version advances $0 \to 15$, and the sealed
 holdout collapses to $0.0$ --- the same cumulative-update breakdown
 that collapsed the Mistral 64-task stream (45/64 failures, policy
 version 26, the final nine tasks all failing), now replicated on a
-second backbone.
+second backbone. The failure is specific to \emph{concrete-instance}
+demonstrations: presenting the same verified demonstration as an
+in-context anchor (no parameter update at all) collapses the policy to
+id-copying just as fast (Mistral frozen-plus-anchor $0.0$ vs.\ frozen
+$0.5625$), while the placeholder-format system example
+(\texttt{order-EXAMPLE}) is what makes the frozen baseline work. At
+this scale, the transferable signal is the \emph{format}, not the
+instance --- and every mechanism that introduces instance ids, whether
+into weights or into the prompt, breaks it.
 
 \subsection{Gated updates restore parity}
 A pre-commit gate validates each candidate adapter against the
