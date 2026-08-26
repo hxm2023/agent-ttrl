@@ -133,6 +133,8 @@ def main() -> int:
     ap.add_argument("--gate-threshold", type=float, default=0.25,
                     help="commit if gate improvement rate >= threshold; 0.0 = always commit")
     ap.add_argument("--device", default="cuda:0")
+    ap.add_argument("--prime", action="store_true",
+                    help="anchor-prime the production prompt (serving-side, no parameter updates)")
     args = ap.parse_args()
 
     from agent_ttrl.environments.cts_v2 import TEMPLATES
@@ -155,6 +157,7 @@ def main() -> int:
              "F3_recover", "F3_recover_v"]
     log(f"held-out template: {held_out}; adapt: {adapt}")
 
+    anchors: dict[str, list[str]] = {}
     # pre-registered anchors: one canonical demo trajectory per adaptation
     # template, drawn from a DISJOINT PRE-DEPLOYMENT split (fixed seed 9000+,
     # never part of the stream). The demo is constructed by SIMULATING THE
@@ -189,10 +192,12 @@ def main() -> int:
         buffer.set_anchor(EvidenceRow("anchor-" + tname, tname,
                                       policy.tokenizer(demo_prompt).input_ids,
                                       demo_ids, advantage=0.5, policy_version=0))
+        anchors[tname] = demo_calls
 
     stream_log = []
     violations = []
     # stream structure: adaptation phase cycles ONLY the adapt templates;
+
     # the held-out (sealed) template appears only in the final sealed phase
     # and is NEVER trained on.
     n_adapt = len(adapt)
@@ -203,6 +208,15 @@ def main() -> int:
         tpl = TEMPLATES[tname]
         task = tpl.instantiate(random.Random(1000 + args.seed * 100 + t_idx))
         prompt = SYSTEM.format(tools=task.tool_descriptions, goal=task.goal)
+        if args.prime and not sealed:
+            # ANCHOR PRIMING (serving-side, no parameter updates): the
+            # pre-registered anchor demo for this template (disjoint
+            # pre-deployment split, accessible-constructed) is shown as an
+            # in-context example. The transferable pattern is lookup-first
+            # + act-on-evidence; the anchor's ids differ from the instance.
+            demo = anchors.get(tname)
+            if demo:
+                prompt = prompt + "\n\nExample solution:\n" + "\n".join(demo)
 
         # ---- production first attempt (served policy, request-seeded)
         prod_seed = RequestSeed(PROTO, args.seed, f"t{t_idx}", 0,
