@@ -1,0 +1,33 @@
+{
+  "run_id": "cts_order_dense_s1-1787551466",
+  "task": "cts_order",
+  "estimator": "dense",
+  "seed": 1,
+  "epochs": 1,
+  "epoch_metrics": [
+    {
+      "epoch": 0,
+      "policy_version": 1,
+      "mean_u": 0.21875,
+      "success_rate": 0.0,
+      "mean_calls": 1.03125,
+      "invalid_rate": 0.71875,
+      "grad_l2": 0.0987988344750699,
+      "loss": 5.121255526319146e-06,
+      "n_sequences": 32,
+      "adapter_sha256": "ac77998e3a3c8d4f330c38584e8c50a85193e737656b8a747425b69aa8c3ed22"
+    }
+  ],
+  "gpu_seconds": 64.56062663998455,
+  "final_eval": {
+    "n": 16,
+    "success_rate": 0.0,
+    "mean_u": 0.875,
+    "mean_len": 4.0,
+    "invalid_rate": 0.0
+  },
+  "final_adapter_sha256": "ac77998e3a3c8d4f330c38584e8c50a85193e737656b8a747425b69aa8c3ed22",
+  "kl_drift_vs_base": -0.0006970996037125587,
+  "identity_allowed": 32,
+  "trajectory_records": "/root/autodl-tmp/agent-ttrl/stage3/out/dryrun2/trajectory_records.jsonl"
+}
