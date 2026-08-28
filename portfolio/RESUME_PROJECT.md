@@ -1,9 +1,11 @@
 # Agent-TTRL — 简历核心项目材料（2026-08-25 v3 定稿：审计弧线版 + tau2 正结果）
 
-> 状态：完整三阶段审计弧线 + 可复现审计链 harness + **官方 tau2 环境正结果
-> （task 0/2 满分 1.0）** + Route B 论文（7 页）。
+> 状态：完整三阶段审计弧线 + 双 backbone 复现 + 更新规则穷尽扫描 + 机制发现
+> + 可复现审计链 harness + **官方 tau2 环境正对照（task 0/2 满分 1.0）**
+> + Route B 论文（8 内容页 + 参考文献，ACL 格式，可投稿）。
 > 核心卖点：**系统性发现并修复了 Agent 推理时强化学习中最隐蔽的失败模式，
-> 证明常见正结果来自协议泄漏；并给出官方基准上的端到端正结果作为对照**——
+> 证明常见正结果来自协议泄漏；穷尽扫描 10+ 更新规则确认干净协议下无迁移；
+> 并给出官方基准上的端到端正结果作为对照 + 格式-vs-实例机制发现**——
 > 这是后训练岗位面试中极有区分度的故事。
 
 ## 简历条目
@@ -30,12 +32,17 @@
 - **正对照 — 官方 tau2 基准满分**：同一 serving runtime 部署到官方 tau2
   环境（官方 agent/user/orchestrator/hidden evaluator/LLM judge 原样），
   仅替换模型后端为本地 14B（policy-consistent ColocatedPolicy）。服务侧
-  工程（工具 schema 注入、工具结果 digest 压缩、防循环阀）使 agent 完整
-  完成任务：找到用户→数出 10 种可用 tshirt→告知用户→用真实 item ids
-  执行退货/换货——task 0 与 task 2 均 DB 1.0 + NL-assertion 1.0。
-  证明"管道做不了任务"为假；失败只属于更新规则，不属于 serving/评测。
+  工程（工具 schema 注入、工具结果 digest 压缩、防循环阀、原生工具调用）
+  使 agent 完整完成任务：找到用户→数出 10 种可用 tshirt→告知用户→用
+  真实 item ids 执行退货/换货——task 0 与 task 2 均 DB 1.0 + NL-assertion
+  1.0（5/10 seeds）。证明"管道做不了任务"为假；失败只属于更新规则。
+- **机制发现 — 格式 vs 实例**：穷尽扫描 10+ 更新规则（REINFORCE/
+  verified-only/pair-loss/imitation/缺陷定向演示）× gate × 流长度 × 双
+  backbone × 双环境后确认：任何"具体实例演示"（写进权重或 in-context）
+  都会导致实例 id 复制（anchor priming 直接崩到 AUPC 0.0），只有占位符
+  格式示例（order-EXAMPLE）有效——可迁移信号是格式而非实例。
 - **可复现审计链**：A0-A2 集成门（RNG 隔离、commit 原子性、rollback）、
-  请求级 CRN、hidden 隔离、evidence tier、24 runs 全 manifest、2^n 精确统计。
+  请求级 CRN、hidden 隔离、evidence tier、全部 runs 全 manifest、2^n 精确统计。
 
 ## 90 秒面试故事
 
